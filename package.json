@@ -1,0 +1,17 @@
+{
+  "name": "drakoflow",
+  "version": "1.0.0",
+  "description": "Client-side text-to-diagram engine",
+  "main": "dist/main.js",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "dev": "vite"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.4",
+    "vitest": "^0.34.6",
+    "jsdom": "^22.1.0",
+    "vite": "^4.5.3"
+  }
+}

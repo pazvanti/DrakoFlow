@@ -1,0 +1,14 @@
+/* Diagram Light Theme CSS */
+.diagram-panel.light-theme {
+  --bg-diagram: #ffffff;
+  --border-diagram: #dee2e6;
+  --primary-color: #1d4ed8;
+  --secondary-color: #4b5563;
+  --text-color: #212529;
+  --font-family: 'Outfit', system-ui, -apple-system, sans-serif;
+}
+
+.diagram-panel.light-theme .diagram-canvas-container {
+  background-color: var(--bg-diagram);
+  background-image: radial-gradient(#dee2e6 1.2px, transparent 1.2px);
+}

@@ -1,0 +1,11 @@
+/* Bootstrap Dark Theme CSS */
+body.bootstrap-dark {
+  --bg-dark: #09090b;
+  --bg-panel: #18181b;
+  --bg-editor: #0c0c0e;
+  --border-color: #27272a;
+  --accent-color: #0d6efd;
+  --accent-glow: rgba(13, 110, 253, 0.25);
+  --text-main: #f4f4f5;
+  --text-muted: #a1a1aa;
+}

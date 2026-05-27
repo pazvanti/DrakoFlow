@@ -1,0 +1,14 @@
+/* Diagram Dark Theme CSS */
+.diagram-panel.bootstrap-dark {
+  --bg-diagram: #18181b;
+  --border-diagram: #52525b;
+  --primary-color: #60a5fa;
+  --secondary-color: #a1a1aa;
+  --text-color: #f4f4f5;
+  --font-family: 'Outfit', system-ui, -apple-system, sans-serif;
+}
+
+.diagram-panel.bootstrap-dark .diagram-canvas-container {
+  background-color: var(--bg-diagram);
+  background-image: radial-gradient(#27272a 1.2px, transparent 1.2px);
+}

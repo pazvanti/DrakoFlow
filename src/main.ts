@@ -1,0 +1,1819 @@
+import { BaseComponent, ThemeVariables } from './components/BaseComponent';
+import { downloadDSLFile, exportToPNG, ExportOptions } from './utils/FileHandlers';
+import { findSafeInsertIndex } from './utils/dslInsert';
+import { CatalogService } from './catalog/ComponentCatalog';
+import { parseDslDocument, ParsedNode, ParsedChildEntry } from './dsl/parser';
+import { createComponentsFromDsl } from './engine/componentFactory';
+import { layoutRootComponents } from './engine/layout';
+import { renderRelationships } from './engine/relationshipRenderer';
+import { highlightDSL } from './utils/highlighter';
+
+const DEFAULT_DSL = `// Welcome to DrakoFlow!
+// Type below to build sequence/flow interactions.
+
+Client: Process {
+  label: "Client App"
+  lifeline: true
+  themeOverride: {
+    borderColor: "primaryColor"
+  }
+}
+
+Server: Process {
+  label: "API Server"
+  lifeline: true
+  themeOverride: {
+    borderColor: "primaryColor"
+  }
+}
+
+Database: Rectangle {
+  label: "Database"
+  rx: 6
+  ry: 6
+  themeOverride: {
+    borderColor: "secondaryColor"
+  }
+}
+
+Client -> Server : "1. GET /users" {
+  lineStyle: "solid"
+  color: "primaryColor"
+}
+
+Server -> Database : "2. Query Users" {
+  lineStyle: "dashed"
+  color: "secondaryColor"
+}
+
+Database -> Server : "3. Return records" {
+  lineStyle: "dashed"
+  color: "secondaryColor"
+}
+
+Server -> Client : "4. 200 OK (JSON)" {
+  lineStyle: "solid"
+  color: "#34d399"
+}
+
+Client -> Client : "5. Render UI" {
+  lineStyle: "solid"
+  color: "#f59e0b"
+}
+`;
+
+// Global Theme Defaults
+const THEMES: Record<string, ThemeVariables> = {
+  "drako-dark": {
+    primaryColor: "#60a5fa", // Richer blue for better visibility
+    secondaryColor: "#a1a1aa",
+    backgroundColor: "#18181b",
+    textColor: "#f4f4f5",
+    borderColor: "#52525b", // brighter arrows/lines on dark bg
+    fontFamily: "Outfit, system-ui, -apple-system, sans-serif"
+  },
+  "drako-light": {
+    primaryColor: "#1d4ed8",
+    secondaryColor: "#4b5563",
+    backgroundColor: "#ffffff",
+    textColor: "#1f2937",
+    borderColor: "#9ca3af", // highly visible dark borders on light bg
+    fontFamily: "Outfit, system-ui, -apple-system, sans-serif"
+  }
+};
+
+let currentTheme = THEMES["drako-dark"];
+
+// Active themes registry containing builtins and custom saved themes
+const activeThemes: Record<string, ThemeVariables> = { ...THEMES };
+
+// Diagram tag filtering state
+let activeDiagramTags: string[] = [];
+
+function collectAllNodes(nodes: ParsedNode[], map = new Map<string, ParsedNode>()): Map<string, ParsedNode> {
+  nodes.forEach(node => {
+    map.set(node.id, node);
+    node.childEntries.forEach(entry => {
+      if (entry.kind === 'inline') {
+        collectAllNodes([entry.node], map);
+      }
+    });
+  });
+  return map;
+}
+
+function collectAllTags(nodes: ParsedNode[]): Set<string> {
+  const tags = new Set<string>();
+  const walk = (nodesList: ParsedNode[]) => {
+    nodesList.forEach(node => {
+      node.tags?.forEach(t => tags.add(t));
+      node.childEntries.forEach(entry => {
+        if (entry.kind === 'inline') {
+          walk([entry.node]);
+        } else if (entry.kind === 'reference') {
+          entry.tags?.forEach(t => tags.add(t));
+        }
+      });
+    });
+  };
+  walk(nodes);
+  return tags;
+}
+
+function resolveAllComponentTags(components: ParsedNode[]): Map<string, string[]> {
+  const resolved = new Map<string, string[]>();
+  const registry = new Map<string, ParsedNode>();
+  components.forEach(node => registry.set(node.id, node));
+
+  const referencedIds = new Set<string>();
+  const findRefs = (node: ParsedNode) => {
+    node.childEntries.forEach(entry => {
+      if (entry.kind === 'reference') {
+        referencedIds.add(entry.refId);
+      } else if (entry.kind === 'inline') {
+        findRefs(entry.node);
+      }
+    });
+  };
+  components.forEach(findRefs);
+
+  const resolveNode = (node: ParsedNode) => {
+    const nodeTags = node.tags || [];
+    resolved.set(node.id, nodeTags);
+
+    node.childEntries.forEach(entry => {
+      if (entry.kind === 'inline') {
+        resolveNode(entry.node);
+      } else if (entry.kind === 'reference') {
+        const definition = registry.get(entry.refId);
+        const entryTags = entry.tags || [];
+        const definitionTags = definition ? (definition.tags || []) : [];
+        const mergedTags = Array.from(new Set([...entryTags, ...definitionTags]));
+        resolved.set(entry.slotId, mergedTags);
+      }
+    });
+  };
+
+  components.forEach(node => {
+    if (!referencedIds.has(node.id)) {
+      resolveNode(node);
+    }
+  });
+
+  return resolved;
+}
+
+function buildParentMap(nodes: ParsedNode[], parentId: string | null = null, map = new Map<string, string>()): Map<string, string> {
+  nodes.forEach(node => {
+    if (parentId) {
+      map.set(node.id, parentId);
+    }
+    node.childEntries.forEach(entry => {
+      if (entry.kind === 'inline') {
+        buildParentMap([entry.node], node.id, map);
+      } else if (entry.kind === 'reference') {
+        map.set(entry.slotId, node.id);
+      }
+    });
+  });
+  return map;
+}
+
+function buildReferenceDefMap(nodes: ParsedNode[], map = new Map<string, string>()): Map<string, string> {
+  nodes.forEach(node => {
+    node.childEntries.forEach(entry => {
+      if (entry.kind === 'inline') {
+        buildReferenceDefMap([entry.node], map);
+      } else if (entry.kind === 'reference') {
+        map.set(entry.slotId, entry.refId);
+      }
+    });
+  });
+  return map;
+}
+
+function filterNodeTree(nodes: ParsedNode[], visibleIds: Set<string>): ParsedNode[] {
+  const result: ParsedNode[] = [];
+  nodes.forEach(node => {
+    if (visibleIds.has(node.id)) {
+      const cloned = { ...node };
+      cloned.childEntries = node.childEntries.map(entry => {
+        if (entry.kind === 'inline') {
+          const filteredChildren = filterNodeTree([entry.node], visibleIds);
+          if (filteredChildren.length > 0) {
+            return { kind: 'inline', node: filteredChildren[0] };
+          }
+          return null;
+        } else {
+          // reference
+          if (visibleIds.has(entry.slotId)) {
+            return entry;
+          }
+          return null;
+        }
+      }).filter((entry): entry is ParsedChildEntry => entry !== null);
+      result.push(cloned);
+    }
+  });
+  return result;
+}
+
+function addDescendants(nodeId: string, visibleIds: Set<string>, flatNodesMap: Map<string, ParsedNode>, referenceDefMap?: Map<string, string>): void {
+  const resolvedId = referenceDefMap?.get(nodeId) || nodeId;
+  if (resolvedId !== nodeId) {
+    visibleIds.add(resolvedId);
+  }
+  const node = flatNodesMap.get(resolvedId);
+  if (!node) return;
+  node.childEntries.forEach(entry => {
+    if (entry.kind === 'inline') {
+      if (!visibleIds.has(entry.node.id)) {
+        visibleIds.add(entry.node.id);
+        addDescendants(entry.node.id, visibleIds, flatNodesMap, referenceDefMap);
+      }
+    } else if (entry.kind === 'reference') {
+      if (!visibleIds.has(entry.slotId)) {
+        visibleIds.add(entry.slotId);
+        visibleIds.add(entry.refId);
+        addDescendants(entry.slotId, visibleIds, flatNodesMap, referenceDefMap);
+      }
+    }
+  });
+}
+
+const CUSTOM_THEMES_KEY = 'drako-custom-themes';
+
+function loadCustomThemes(): Record<string, ThemeVariables> {
+  try {
+    const raw = localStorage.getItem(CUSTOM_THEMES_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch (e) {
+    console.error('Failed to load custom themes from localStorage', e);
+    return {};
+  }
+}
+
+function saveCustomThemes(themes: Record<string, ThemeVariables>): void {
+  try {
+    localStorage.setItem(CUSTOM_THEMES_KEY, JSON.stringify(themes));
+  } catch (e) {
+    console.error('Failed to save custom themes to localStorage', e);
+  }
+}
+
+function refreshActiveThemes(): void {
+  Object.keys(activeThemes).forEach(key => {
+    if (key !== 'drako-dark' && key !== 'drako-light') {
+      delete activeThemes[key];
+    }
+  });
+
+  const custom = loadCustomThemes();
+  Object.entries(custom).forEach(([key, val]) => {
+    activeThemes[key] = val;
+  });
+}
+
+function isDarkColor(hex: string): boolean {
+  if (!hex || hex[0] !== '#') return true;
+  const rgb = parseInt(hex.substring(1), 16);
+  const r = (rgb >> 16) & 0xff;
+  const g = (rgb >> 8) & 0xff;
+  const b = (rgb >> 0) & 0xff;
+  const luma = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  return luma < 128;
+}
+
+// DOM Elements
+const editor = document.getElementById('editor') as HTMLTextAreaElement;
+const gutter = document.getElementById('gutter') as HTMLElement;
+const highlighting = document.getElementById('highlighting') as HTMLElement;
+const editorColorPicker = document.getElementById('editor-color-picker') as HTMLInputElement;
+const colorPickerPopup = document.getElementById('color-picker-popup') as HTMLElement;
+const editorHexInput = document.getElementById('editor-hex-input') as HTMLInputElement;
+const applyHexBtn = document.getElementById('btn-apply-hex') as HTMLButtonElement;
+const statusText = document.getElementById('status-text') as HTMLElement;
+const editorStats = document.getElementById('editor-stats') as HTMLElement;
+const diagramSvg = document.getElementById('diagram-svg') as unknown as SVGSVGElement;
+const viewportG = document.getElementById('viewport-g') as unknown as SVGGElement;
+const canvasContainer = document.getElementById('canvas-container') as HTMLElement;
+const themeSelect = document.getElementById('theme-select') as HTMLSelectElement;
+
+const diagramTagFilterBar = document.getElementById('diagram-tag-filter-bar') as HTMLElement;
+const diagramTagFilters = document.getElementById('diagram-tag-filters') as HTMLElement;
+const btnClearDiagramFilters = document.getElementById('btn-clear-diagram-filters') as HTMLButtonElement;
+
+// Theme Customizer Elements
+const btnEditTheme = document.getElementById('btn-edit-theme') as HTMLButtonElement;
+const themeLoadSelect = document.getElementById('theme-load-select') as HTMLSelectElement;
+const btnDeleteSavedTheme = document.getElementById('btn-delete-saved-theme') as HTMLButtonElement;
+
+const pickerPrimaryColor = document.getElementById('picker-primary-color') as HTMLInputElement;
+const inputPrimaryColor = document.getElementById('input-primary-color') as HTMLInputElement;
+
+const pickerSecondaryColor = document.getElementById('picker-secondary-color') as HTMLInputElement;
+const inputSecondaryColor = document.getElementById('input-secondary-color') as HTMLInputElement;
+
+const pickerBgColor = document.getElementById('picker-bg-color') as HTMLInputElement;
+const inputBgColor = document.getElementById('input-bg-color') as HTMLInputElement;
+
+const pickerTextColor = document.getElementById('picker-text-color') as HTMLInputElement;
+const inputTextColor = document.getElementById('input-text-color') as HTMLInputElement;
+
+const pickerBorderColor = document.getElementById('picker-border-color') as HTMLInputElement;
+const inputBorderColor = document.getElementById('input-border-color') as HTMLInputElement;
+
+const inputFontFamily = document.getElementById('input-font-family') as HTMLInputElement;
+const inputThemeName = document.getElementById('input-theme-name') as HTMLInputElement;
+
+const btnSaveCustomTheme = document.getElementById('btn-save-custom-theme') as HTMLButtonElement;
+const btnApplyTheme = document.getElementById('btn-apply-theme') as HTMLButtonElement;
+const btnResetTheme = document.getElementById('btn-reset-theme') as HTMLButtonElement;
+
+// Control Buttons
+const btnLoad = document.getElementById('btn-load') as HTMLButtonElement;
+const btnSave = document.getElementById('btn-save') as HTMLButtonElement;
+const btnExportPng = document.getElementById('btn-export-png') as HTMLButtonElement;
+const fileInput = document.getElementById('file-input') as HTMLInputElement;
+
+const btnZoomIn = document.getElementById('btn-zoom-in') as HTMLButtonElement;
+const btnZoomOut = document.getElementById('btn-zoom-out') as HTMLButtonElement;
+const btnZoomReset = document.getElementById('btn-zoom-reset') as HTMLButtonElement;
+const btnZoomFit = document.getElementById('btn-zoom-fit') as HTMLButtonElement;
+
+// Export Modal Elements
+const exportRangeWhole = document.getElementById('export-range-whole') as HTMLInputElement;
+const exportRangeCurrent = document.getElementById('export-range-current') as HTMLInputElement;
+const exportResPreset = document.getElementById('export-res-preset') as HTMLSelectElement;
+const exportCustomWidth = document.getElementById('export-custom-width') as HTMLInputElement;
+const exportSizePreview = document.getElementById('export-size-preview') as HTMLElement;
+const exportPadding = document.getElementById('export-padding') as HTMLInputElement;
+const exportPaddingVal = document.getElementById('export-padding-val') as HTMLElement;
+const exportPaddingGroup = document.getElementById('export-padding-group') as HTMLElement;
+const exportBgTheme = document.getElementById('export-bg-theme') as HTMLInputElement;
+const btnDoExport = document.getElementById('btn-do-export') as HTMLButtonElement;
+
+// Sidebar & Catalog UI Elements
+const btnToggleLibrary = document.getElementById('btn-toggle-library') as HTMLButtonElement;
+const btnShowDocs = document.getElementById('btn-show-docs') as HTMLButtonElement;
+const libraryPanel = document.getElementById('library-panel') as HTMLElement;
+const librarySearch = document.getElementById('library-search') as HTMLInputElement;
+const tagFilterContainer = document.getElementById('tag-filter-container') as HTMLElement;
+const libraryContent = document.getElementById('library-content') as HTMLElement;
+
+// Zoom and Pan States
+let zoomLevel = 1.0;
+let panOffset = { x: 0, y: 0 };
+let isPanning = false;
+let startPan = { x: 0, y: 0 };
+
+// Catalog Library states
+let activeTags: string[] = [];
+const collapsedGroups: Record<string, boolean> = {};
+
+// Filename and Editor Toggle states
+const editorPanel = document.getElementById('editor-panel') as HTMLElement;
+const editorFilename = document.getElementById('editor-filename') as HTMLElement;
+const btnToggleEditor = document.getElementById('btn-toggle-editor') as HTMLButtonElement;
+let currentFileName = "diagram.drako";
+
+/**
+ * Render tag filters as clickable pills
+ */
+function renderTagFilters(): void {
+  const tags = CatalogService.getAllTags();
+  tagFilterContainer.innerHTML = '';
+
+  tags.forEach(tag => {
+    const pill = document.createElement('span');
+    const isActive = activeTags.includes(tag);
+    pill.className = `tag-pill ${isActive ? 'active' : ''}`;
+    pill.textContent = tag;
+
+    pill.addEventListener('click', () => {
+      if (activeTags.includes(tag)) {
+        activeTags = activeTags.filter(t => t !== tag);
+      } else {
+        activeTags.push(tag);
+      }
+      renderTagFilters();
+      renderComponentLibrary();
+    });
+    tagFilterContainer.appendChild(pill);
+  });
+}
+
+/**
+ * Render the categorized component list grouped by tags
+ */
+function renderComponentLibrary(): void {
+  const query = librarySearch.value;
+  const filteredItems = CatalogService.filterItems(query, activeTags);
+  libraryContent.innerHTML = '';
+
+  if (filteredItems.length === 0) {
+    libraryContent.innerHTML = '<div class="text-center text-muted p-4 small">No components match filters.</div>';
+    return;
+  }
+
+  // Group elements by tag
+  const groups: Record<string, typeof filteredItems> = {};
+  filteredItems.forEach(item => {
+    item.tags.forEach(tag => {
+      if (activeTags.length > 0 && !activeTags.includes(tag)) return;
+      if (!groups[tag]) groups[tag] = [];
+      groups[tag].push(item);
+    });
+  });
+
+  Object.keys(groups).sort().forEach(tag => {
+    const items = groups[tag];
+    const groupDiv = document.createElement('div');
+    groupDiv.className = 'tag-group';
+
+    const isCollapsed = collapsedGroups[tag] === true;
+
+    const header = document.createElement('div');
+    header.className = `tag-group-header ${isCollapsed ? 'collapsed' : ''}`;
+    header.innerHTML = `<span>${tag} (${items.length})</span><i class="bi bi-chevron-down"></i>`;
+
+    const itemsContainer = document.createElement('div');
+    itemsContainer.className = `tag-group-items ${isCollapsed ? 'collapsed' : ''}`;
+
+    header.addEventListener('click', () => {
+      collapsedGroups[tag] = !collapsedGroups[tag];
+      header.classList.toggle('collapsed');
+      itemsContainer.classList.toggle('collapsed');
+    });
+
+    items.forEach(item => {
+      const itemDiv = document.createElement('div');
+      itemDiv.className = 'library-item d-flex justify-content-between align-items-center';
+
+      const contentDiv = document.createElement('div');
+      contentDiv.className = 'library-item-content flex-grow-1';
+      contentDiv.innerHTML = `
+        <div class="library-item-title">${item.displayName}</div>
+        <div class="library-item-desc">${item.description}</div>
+      `;
+      contentDiv.addEventListener('click', () => {
+        insertBoilerplate(item.template);
+      });
+      itemDiv.appendChild(contentDiv);
+
+      const helpBtn = document.createElement('button');
+      helpBtn.className = 'btn-help-icon text-muted p-1 border-0 bg-transparent';
+      helpBtn.title = `View documentation for ${item.displayName}`;
+      helpBtn.innerHTML = '<i class="bi bi-question-circle"></i>';
+      helpBtn.style.cursor = 'pointer';
+      helpBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openDocumentationModal(item.type);
+      });
+      itemDiv.appendChild(helpBtn);
+
+      itemsContainer.appendChild(itemDiv);
+    });
+
+    groupDiv.appendChild(header);
+    groupDiv.appendChild(itemsContainer);
+    libraryContent.appendChild(groupDiv);
+  });
+}
+
+/**
+ * Insert shape boilerplate outside any enclosing `{...}` block so existing DSL stays valid.
+ */
+function insertBoilerplate(template: string): void {
+  const selectionStart = editor.selectionStart;
+  const selectionEnd = editor.selectionEnd;
+  const text = editor.value;
+
+  const safeIndex = findSafeInsertIndex(text, selectionStart);
+  const insertAtCursor = safeIndex === selectionStart;
+
+  const insertAt = insertAtCursor ? selectionStart : safeIndex;
+  const before = insertAtCursor
+    ? text.substring(0, selectionStart)
+    : text.substring(0, safeIndex);
+  const after = insertAtCursor
+    ? text.substring(selectionEnd)
+    : text.substring(safeIndex);
+
+  const needsLeadingBreak = insertAt > 0 && before.length > 0 && before[before.length - 1] !== '\n';
+  const needsTrailingBreak = after.length > 0 && after[0] !== '\n';
+  const prefix = needsLeadingBreak ? '\n\n' : '';
+  const suffix = needsTrailingBreak ? '\n' : '';
+  const insertText = prefix + template + suffix;
+
+  editor.value = before + insertText + after;
+
+  const newPos = insertAt + insertText.length;
+  editor.selectionStart = editor.selectionEnd = newPos;
+  editor.focus();
+
+  updateEditorMetrics();
+  renderDiagram();
+}
+
+let activeColorStartPos: number | null = null;
+let lastColorTriggers: { startPos: number; color: string }[] = [];
+
+const PRESET_COLORS = [
+  '#60a5fa', '#3b82f6', '#1d4ed8', '#34d399', '#10b981',
+  '#f87171', '#ef4444', '#b91c1c', '#f59e0b', '#fbbf24',
+  '#bb9af3', '#ec4899', '#f43f5e', '#a1a1aa', '#71717a',
+  '#18181b', '#27272a', '#3f3f46', '#ffffff', '#000000'
+];
+
+function showColorPickerPopup(anchorX: number, anchorY: number, currentColor: string): void {
+  if (!colorPickerPopup) return;
+
+  // Render grid cells
+  const grid = colorPickerPopup.querySelector('.color-grid');
+  if (grid) {
+    grid.innerHTML = '';
+    PRESET_COLORS.forEach(color => {
+      const cell = document.createElement('div');
+      cell.className = 'color-grid-cell';
+      cell.style.backgroundColor = color;
+      cell.title = color;
+      if (color.toLowerCase() === currentColor.toLowerCase()) {
+        cell.style.borderColor = '#ffffff';
+        cell.style.boxShadow = '0 0 5px rgba(255, 255, 255, 0.7)';
+      }
+
+      cell.addEventListener('click', (e) => {
+        e.stopPropagation();
+        applyNewColor(color);
+        hideColorPickerPopup();
+      });
+
+      grid.appendChild(cell);
+    });
+  }
+
+  // Sync the inline swatch and hex field to the current color
+  if (editorColorPicker) editorColorPicker.value = currentColor;
+  if (editorHexInput) editorHexInput.value = currentColor;
+
+  // Position popup: first show it to measure
+  colorPickerPopup.style.top = '-9999px';
+  colorPickerPopup.style.left = '-9999px';
+  colorPickerPopup.style.display = 'block';
+  const popupRect = colorPickerPopup.getBoundingClientRect();
+
+  let top = anchorY + 10;
+  if (top + popupRect.height > window.innerHeight) {
+    top = anchorY - popupRect.height - 10;
+  }
+
+  let left = anchorX;
+  if (left + popupRect.width > window.innerWidth) {
+    left = window.innerWidth - popupRect.width - 12;
+  }
+
+  colorPickerPopup.style.top = `${top}px`;
+  colorPickerPopup.style.left = `${left}px`;
+}
+
+function hideColorPickerPopup(): void {
+  if (colorPickerPopup) {
+    colorPickerPopup.style.display = 'none';
+  }
+}
+
+function applyNewColor(newColor: string): void {
+  if (activeColorStartPos !== null) {
+    const oldText = editor.value;
+
+    const before = oldText.substring(0, activeColorStartPos);
+    const after = oldText.substring(activeColorStartPos + 7);
+
+    editor.value = before + newColor + after;
+
+    const currentCursor = activeColorStartPos + 7;
+    editor.selectionStart = editor.selectionEnd = currentCursor;
+
+    updateEditorMetrics();
+    renderDiagram();
+  }
+}
+
+// No-op stub — color triggers are now detected via the textarea click handler.
+function attachColorPickerListeners(): void {}
+
+// Detect clicks on the textarea that fall over a hex color token.
+editor.addEventListener('click', (e: MouseEvent) => {
+  const cursorPos = editor.selectionStart;
+  const hit = lastColorTriggers.find(
+    t => cursorPos >= t.startPos && cursorPos <= t.startPos + 7
+  );
+  if (hit) {
+    activeColorStartPos = hit.startPos;
+    showColorPickerPopup(e.clientX, e.clientY, hit.color);
+    // Stop propagation so the window-level dismiss handler doesn't
+    // immediately close the popup we just opened on this same click.
+    e.stopPropagation();
+  } else {
+    // Clicked on editor but not on a color token — close the popup.
+    hideColorPickerPopup();
+  }
+});
+
+// Inline color swatch inside the popup — browser opens native picker anchored here.
+editorColorPicker.addEventListener('input', (e) => {
+  e.stopPropagation();
+  const newColor = editorColorPicker.value;
+  if (editorHexInput) editorHexInput.value = newColor;
+  applyNewColor(newColor);
+});
+// Prevent color-swatch clicks from bubbling up to the window dismiss handler.
+editorColorPicker.addEventListener('click', (e) => e.stopPropagation());
+
+// Hex text input — apply on Enter key.
+editorHexInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    e.stopPropagation();
+    const val = editorHexInput.value.trim();
+    if (/^#[0-9a-fA-F]{6}$/.test(val)) {
+      editorColorPicker.value = val;
+      applyNewColor(val);
+      hideColorPickerPopup();
+    }
+  }
+});
+editorHexInput.addEventListener('click', (e) => e.stopPropagation());
+
+// Apply hex button.
+applyHexBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  const val = editorHexInput.value.trim();
+  if (/^#[0-9a-fA-F]{6}$/.test(val)) {
+    editorColorPicker.value = val;
+    applyNewColor(val);
+    hideColorPickerPopup();
+  }
+});
+
+// Close color picker popup when clicking outside (any click not inside the popup).
+window.addEventListener('click', (e) => {
+  if (colorPickerPopup && colorPickerPopup.style.display === 'block') {
+    if (!colorPickerPopup.contains(e.target as Node)) {
+      hideColorPickerPopup();
+    }
+  }
+});
+
+/**
+ * Update Editor line numbers gutter and statistics
+ */
+function updateEditorMetrics(): void {
+  const code = editor.value;
+  const lines = code.split('\n');
+  const linesCount = lines.length;
+  const charsCount = code.length;
+
+  // Update Gutter
+  let gutterHtml = '';
+  for (let i = 1; i <= linesCount; i++) {
+    gutterHtml += `${i}<br>`;
+  }
+  gutter.innerHTML = gutterHtml;
+
+  // Update Stats
+  editorStats.textContent = `Lines: ${linesCount} | Chars: ${charsCount}`;
+
+  // Update syntax highlighting
+  if (highlighting) {
+    const highlightResult = highlightDSL(code);
+    lastColorTriggers = highlightResult.colorTriggers;
+    const codeElem = highlighting.querySelector('code');
+    if (codeElem) {
+      codeElem.innerHTML = highlightResult.html;
+      attachColorPickerListeners();
+    }
+  }
+}
+
+/**
+ * Sync the scroll of the textarea with the gutter
+ */
+function syncEditorScroll(): void {
+  gutter.scrollTop = editor.scrollTop;
+  if (highlighting) {
+    highlighting.scrollTop = editor.scrollTop;
+    highlighting.scrollLeft = editor.scrollLeft;
+  }
+}
+
+/**
+ * Apply current zoom and pan transformations to the SVG group viewport
+ */
+function applyTransformations(): void {
+  viewportG.setAttribute('transform', `translate(${panOffset.x}, ${panOffset.y}) scale(${zoomLevel})`);
+}
+
+/**
+ * Center and fit diagram viewport bounds to screen dimensions
+ */
+function fitToScreen(): void {
+  // Temporarily reset transformation to calculate accurate bounding box
+  viewportG.setAttribute('transform', 'none');
+  const bbox = viewportG.getBBox();
+
+  if (bbox.width === 0 || bbox.height === 0) {
+    zoomLevel = 1.0;
+    panOffset = { x: 0, y: 0 };
+    applyTransformations();
+    return;
+  }
+
+  const containerWidth = canvasContainer.clientWidth || 800;
+  const containerHeight = canvasContainer.clientHeight || 600;
+
+  const padding = 60;
+  const scaleX = (containerWidth - padding) / bbox.width;
+  const scaleY = (containerHeight - padding) / bbox.height;
+
+  // Apply a reasonable scale threshold limit [0.2x, 3.0x]
+  zoomLevel = Math.max(0.2, Math.min(scaleX, scaleY, 2.0));
+
+  // Centering calculations
+  const centerX = bbox.x + bbox.width / 2;
+  const centerY = bbox.y + bbox.height / 2;
+
+  panOffset = {
+    x: containerWidth / 2 - centerX * zoomLevel,
+    y: containerHeight / 2 - centerY * zoomLevel
+  };
+
+  applyTransformations();
+}
+
+/**
+ * Parse DSL, layout components, and render to the SVG viewport.
+ */
+function renderDiagram(): void {
+  const code = editor.value;
+
+  try {
+    const dslDocument = parseDslDocument(code);
+    if (dslDocument.components.length === 0) {
+      throw new Error('No components found in DSL');
+    }
+
+    // 1. Tag Filtering Bar Management
+    const allTags = collectAllTags(dslDocument.components);
+
+    if (allTags.size === 0) {
+      if (diagramTagFilterBar) {
+        diagramTagFilterBar.classList.remove('d-flex');
+        diagramTagFilterBar.classList.add('d-none');
+      }
+      activeDiagramTags = [];
+    } else {
+      if (diagramTagFilterBar) {
+        diagramTagFilterBar.classList.remove('d-none');
+        diagramTagFilterBar.classList.add('d-flex');
+      }
+
+      if (diagramTagFilters) {
+        diagramTagFilters.innerHTML = '';
+        allTags.forEach(tag => {
+          const pill = document.createElement('span');
+          const isActive = activeDiagramTags.includes(tag);
+          pill.className = `tag-pill ${isActive ? 'active' : ''}`;
+          pill.textContent = tag;
+          pill.addEventListener('click', () => {
+            if (activeDiagramTags.includes(tag)) {
+              activeDiagramTags = activeDiagramTags.filter(t => t !== tag);
+            } else {
+              activeDiagramTags.push(tag);
+            }
+            renderDiagram(); // Filter and refresh layout
+          });
+          diagramTagFilters.appendChild(pill);
+        });
+      }
+    }
+
+    if (btnClearDiagramFilters) {
+      btnClearDiagramFilters.onclick = () => {
+        if (activeDiagramTags.length > 0) {
+          activeDiagramTags = [];
+          renderDiagram();
+        }
+      };
+    }
+
+    // 2. Perform Tag Filtering on the AST if filters are active
+    let displayComponents = dslDocument.components;
+    let displayRelationships = dslDocument.relationships;
+
+    if (activeDiagramTags.length > 0) {
+      const visibleIds = new Set<string>();
+      const flatNodesMap = collectAllNodes(dslDocument.components);
+      const resolvedTagsMap = resolveAllComponentTags(dslDocument.components);
+
+      // Step A: Find directly tagged components
+      const directlyTagged = new Set<string>();
+      resolvedTagsMap.forEach((tags, id) => {
+        if (tags.some(tag => activeDiagramTags.includes(tag))) {
+          directlyTagged.add(id);
+          visibleIds.add(id);
+        }
+      });
+
+      // Step B: Find directly connected components (one-hop neighbors)
+      dslDocument.relationships.forEach(rel => {
+        const sourceIsTagged = directlyTagged.has(rel.sourceId);
+        const targetIsTagged = directlyTagged.has(rel.targetId);
+        if (sourceIsTagged || targetIsTagged) {
+          visibleIds.add(rel.sourceId);
+          visibleIds.add(rel.targetId);
+        }
+      });
+
+      // Step B.5: Include all descendants of visible components (to show nested components of containers)
+      const referenceDefMap = buildReferenceDefMap(dslDocument.components);
+      const initialVisible = Array.from(visibleIds);
+      initialVisible.forEach(id => {
+        addDescendants(id, visibleIds, flatNodesMap, referenceDefMap);
+      });
+
+      // Step C: Include all parent containers recursively
+      const parentMap = buildParentMap(dslDocument.components);
+      const idsToCheck = Array.from(visibleIds);
+      idsToCheck.forEach(id => {
+        let parent = parentMap.get(id);
+        while (parent) {
+          visibleIds.add(parent);
+          parent = parentMap.get(parent);
+        }
+      });
+
+      // Step D: Filter components AST
+      displayComponents = filterNodeTree(dslDocument.components, visibleIds);
+
+      // Step E: Filter relationships AST
+      displayRelationships = dslDocument.relationships.filter(rel => {
+        return visibleIds.has(rel.sourceId) && visibleIds.has(rel.targetId);
+      });
+    }
+
+    const components = createComponentsFromDsl(displayComponents);
+    layoutRootComponents(components, currentTheme, displayRelationships);
+
+    viewportG.innerHTML = '';
+
+    components.forEach((component: BaseComponent) => {
+      viewportG.appendChild(component.render(currentTheme));
+    });
+
+    if (displayRelationships.length > 0) {
+      const { pathsLayer, labelsLayer } = renderRelationships(
+        displayRelationships,
+        components,
+        currentTheme,
+        diagramSvg
+      );
+      viewportG.appendChild(pathsLayer);
+      viewportG.appendChild(labelsLayer);
+    }
+
+    statusText.innerHTML = '<i class="bi bi-check-circle-fill"></i> Parsed & Rendered Successfully';
+    statusText.className = 'd-flex align-items-center gap-1.5 text-success';
+  } catch (error: any) {
+    statusText.innerHTML = `<i class="bi bi-exclamation-triangle-fill"></i> Error: ${error.message}`;
+    statusText.className = 'd-flex align-items-center gap-1.5 text-danger';
+  }
+}
+
+// Wire up event handlers for Editor Inputs
+editor.addEventListener('input', () => {
+  updateEditorMetrics();
+  renderDiagram();
+});
+
+editor.addEventListener('scroll', syncEditorScroll);
+
+// Tab Indentation Handler
+editor.addEventListener('keydown', (e: KeyboardEvent) => {
+  if (e.key === 'Tab') {
+    e.preventDefault();
+    const start = editor.selectionStart;
+    const end = editor.selectionEnd;
+    const value = editor.value;
+
+    if (e.shiftKey) {
+      // Shift + Tab: Outdent
+      if (start === end) {
+        const before = value.substring(0, start);
+        const lastNewLine = before.lastIndexOf('\n');
+        const lineStart = lastNewLine === -1 ? 0 : lastNewLine + 1;
+        
+        if (value.substring(lineStart, lineStart + 2) === '  ') {
+          editor.value = value.substring(0, lineStart) + value.substring(lineStart + 2);
+          editor.selectionStart = editor.selectionEnd = Math.max(lineStart, start - 2);
+        } else if (value.substring(lineStart, lineStart + 1) === ' ') {
+          editor.value = value.substring(0, lineStart) + value.substring(lineStart + 1);
+          editor.selectionStart = editor.selectionEnd = Math.max(lineStart, start - 1);
+        }
+      } else {
+        const selectedText = value.substring(start, end);
+        const lines = selectedText.split('\n');
+        const outdentedLines = lines.map(line => {
+          if (line.startsWith('  ')) return line.substring(2);
+          if (line.startsWith(' ')) return line.substring(1);
+          return line;
+        });
+        const newText = outdentedLines.join('\n');
+        editor.value = value.substring(0, start) + newText + value.substring(end);
+        editor.selectionStart = start;
+        editor.selectionEnd = start + newText.length;
+      }
+    } else {
+      // Tab: Indent
+      if (start === end) {
+        editor.value = value.substring(0, start) + '  ' + value.substring(end);
+        editor.selectionStart = editor.selectionEnd = start + 2;
+      } else {
+        const selectedText = value.substring(start, end);
+        const lines = selectedText.split('\n');
+        const indentedLines = lines.map(line => '  ' + line);
+        const newText = indentedLines.join('\n');
+        editor.value = value.substring(0, start) + newText + value.substring(end);
+        editor.selectionStart = start;
+        editor.selectionEnd = start + newText.length;
+      }
+    }
+
+    updateEditorMetrics();
+    renderDiagram();
+  }
+});
+
+// Keyboard Shortcuts: Ctrl+S to save, Ctrl+O to load
+window.addEventListener('keydown', (e: KeyboardEvent) => {
+  const isModifier = e.ctrlKey || e.metaKey;
+  if (isModifier) {
+    if (e.key === 's' || e.key === 'S') {
+      e.preventDefault();
+      btnSave.click();
+    } else if (e.key === 'o' || e.key === 'O') {
+      e.preventDefault();
+      btnLoad.click();
+    }
+  }
+});
+
+// Panning Handlers
+canvasContainer.addEventListener('mousedown', (e) => {
+  if (e.button !== 0 && e.button !== 1) return; // Left or Middle mouse button
+  isPanning = true;
+  canvasContainer.style.cursor = 'grabbing';
+  startPan = { x: e.clientX - panOffset.x, y: e.clientY - panOffset.y };
+});
+
+canvasContainer.addEventListener('mousemove', (e) => {
+  if (!isPanning) return;
+  panOffset = {
+    x: e.clientX - startPan.x,
+    y: e.clientY - startPan.y
+  };
+  applyTransformations();
+});
+
+window.addEventListener('mouseup', () => {
+  if (isPanning) {
+    isPanning = false;
+    canvasContainer.style.cursor = 'grab';
+  }
+});
+
+// Zoom Wheel Handler
+canvasContainer.addEventListener('wheel', (e) => {
+  e.preventDefault();
+  const zoomFactor = 1.1;
+  const rect = canvasContainer.getBoundingClientRect();
+  const mouseX = e.clientX - rect.left;
+  const mouseY = e.clientY - rect.top;
+
+  // Calculate mouse coordinates relative to the viewport group
+  const mouseXInG = (mouseX - panOffset.x) / zoomLevel;
+  const mouseYInG = (mouseY - panOffset.y) / zoomLevel;
+
+  // Calculate new Zoom
+  if (e.deltaY < 0) {
+    zoomLevel = Math.min(5.0, zoomLevel * zoomFactor);
+  } else {
+    zoomLevel = Math.max(0.2, zoomLevel / zoomFactor);
+  }
+
+  // Adjust pan so the cursor location stays locked during zoom
+  panOffset = {
+    x: mouseX - mouseXInG * zoomLevel,
+    y: mouseY - mouseYInG * zoomLevel
+  };
+
+  applyTransformations();
+}, { passive: false });
+
+// Control Toolbar Listeners
+btnZoomIn.addEventListener('click', () => {
+  zoomLevel = Math.min(5.0, zoomLevel * 1.2);
+  applyTransformations();
+});
+
+btnZoomOut.addEventListener('click', () => {
+  zoomLevel = Math.max(0.2, zoomLevel / 1.2);
+  applyTransformations();
+});
+
+btnZoomReset.addEventListener('click', () => {
+  zoomLevel = 1.0;
+  panOffset = { x: 0, y: 0 };
+  applyTransformations();
+});
+
+btnZoomFit.addEventListener('click', fitToScreen);
+
+themeSelect.addEventListener('change', () => {
+  const selectedTheme = themeSelect.value;
+  currentTheme = activeThemes[selectedTheme] || activeThemes["drako-dark"];
+
+  // Update diagram panel class
+  const diagramPanel = document.querySelector('.diagram-panel');
+  if (diagramPanel) {
+    diagramPanel.className = `diagram-panel diagram-theme-${selectedTheme}`;
+  }
+
+  // Update canvas background variables
+  if (canvasContainer) {
+    canvasContainer.style.setProperty('--diagram-bg', currentTheme.backgroundColor);
+    canvasContainer.style.setProperty('--diagram-dot-color', isDarkColor(currentTheme.backgroundColor) ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)');
+  }
+
+  renderDiagram();
+});
+
+function populateThemeSelects(): void {
+  if (!themeSelect || !themeLoadSelect) return;
+
+  const currentVal = themeSelect.value;
+  const loadVal = themeLoadSelect.value;
+
+  // Populate main themeSelect
+  themeSelect.innerHTML = '';
+  const darkOpt = document.createElement('option');
+  darkOpt.value = 'drako-dark';
+  darkOpt.textContent = 'Drako Dark';
+  themeSelect.appendChild(darkOpt);
+
+  const lightOpt = document.createElement('option');
+  lightOpt.value = 'drako-light';
+  lightOpt.textContent = 'Drako Light';
+  themeSelect.appendChild(lightOpt);
+
+  // Add custom themes
+  Object.keys(activeThemes).forEach(key => {
+    if (key !== 'drako-dark' && key !== 'drako-light') {
+      const opt = document.createElement('option');
+      opt.value = key;
+      opt.textContent = key;
+      themeSelect.appendChild(opt);
+    }
+  });
+
+  // Restore selection
+  if (activeThemes[currentVal]) {
+    themeSelect.value = currentVal;
+  } else {
+    themeSelect.value = 'drako-dark';
+  }
+
+  // Populate themeLoadSelect
+  themeLoadSelect.innerHTML = '';
+  const defaultLoadOpt = document.createElement('option');
+  defaultLoadOpt.value = '';
+  defaultLoadOpt.textContent = '-- Select a saved theme --';
+  themeLoadSelect.appendChild(defaultLoadOpt);
+
+  Object.keys(activeThemes).forEach(key => {
+    if (key !== 'drako-dark' && key !== 'drako-light') {
+      const opt = document.createElement('option');
+      opt.value = key;
+      opt.textContent = key;
+      themeLoadSelect.appendChild(opt);
+    }
+  });
+
+  if (activeThemes[loadVal] && loadVal !== 'drako-dark' && loadVal !== 'drako-light') {
+    themeLoadSelect.value = loadVal;
+  } else {
+    themeLoadSelect.value = '';
+  }
+}
+
+function setupColorSync(picker: HTMLInputElement, textInput: HTMLInputElement): void {
+  if (!picker || !textInput) return;
+
+  picker.addEventListener('input', () => {
+    textInput.value = picker.value.toUpperCase();
+  });
+
+  textInput.addEventListener('input', () => {
+    const val = textInput.value.trim();
+    if (/^#[0-9a-fA-F]{6}$/.test(val)) {
+      picker.value = val;
+    }
+  });
+}
+
+// Wire up color sync
+setupColorSync(pickerPrimaryColor, inputPrimaryColor);
+setupColorSync(pickerSecondaryColor, inputSecondaryColor);
+setupColorSync(pickerBgColor, inputBgColor);
+setupColorSync(pickerTextColor, inputTextColor);
+setupColorSync(pickerBorderColor, inputBorderColor);
+
+if (btnEditTheme) {
+  btnEditTheme.addEventListener('click', () => {
+    // Populate form with currentTheme variables
+    pickerPrimaryColor.value = currentTheme.primaryColor;
+    inputPrimaryColor.value = currentTheme.primaryColor.toUpperCase();
+
+    pickerSecondaryColor.value = currentTheme.secondaryColor;
+    inputSecondaryColor.value = currentTheme.secondaryColor.toUpperCase();
+
+    pickerBgColor.value = currentTheme.backgroundColor;
+    inputBgColor.value = currentTheme.backgroundColor.toUpperCase();
+
+    pickerTextColor.value = currentTheme.textColor;
+    inputTextColor.value = currentTheme.textColor.toUpperCase();
+
+    pickerBorderColor.value = currentTheme.borderColor;
+    inputBorderColor.value = currentTheme.borderColor.toUpperCase();
+
+    inputFontFamily.value = currentTheme.fontFamily || '';
+
+    // If the active theme is a custom theme, set the inputs appropriately
+    const activeKey = themeSelect.value;
+    if (activeKey !== 'drako-dark' && activeKey !== 'drako-light') {
+      themeLoadSelect.value = activeKey;
+      inputThemeName.value = activeKey;
+    } else {
+      themeLoadSelect.value = '';
+      inputThemeName.value = '';
+    }
+
+    // Open Modal
+    const modalEl = document.getElementById('theme-modal') as HTMLElement;
+    const bootstrap = (window as any).bootstrap;
+    if (bootstrap) {
+      const modalInstance = bootstrap.Modal.getOrCreateInstance(modalEl);
+      modalInstance.show();
+    }
+  });
+}
+
+if (themeLoadSelect) {
+  themeLoadSelect.addEventListener('change', () => {
+    const selectedKey = themeLoadSelect.value;
+    if (selectedKey && activeThemes[selectedKey]) {
+      const theme = activeThemes[selectedKey];
+      pickerPrimaryColor.value = theme.primaryColor;
+      inputPrimaryColor.value = theme.primaryColor.toUpperCase();
+
+      pickerSecondaryColor.value = theme.secondaryColor;
+      inputSecondaryColor.value = theme.secondaryColor.toUpperCase();
+
+      pickerBgColor.value = theme.backgroundColor;
+      inputBgColor.value = theme.backgroundColor.toUpperCase();
+
+      pickerTextColor.value = theme.textColor;
+      inputTextColor.value = theme.textColor.toUpperCase();
+
+      pickerBorderColor.value = theme.borderColor;
+      inputBorderColor.value = theme.borderColor.toUpperCase();
+
+      inputFontFamily.value = theme.fontFamily || '';
+      inputThemeName.value = selectedKey;
+    }
+  });
+}
+
+if (btnDeleteSavedTheme) {
+  btnDeleteSavedTheme.addEventListener('click', () => {
+    const selectedKey = themeLoadSelect.value;
+    if (!selectedKey) {
+      alert("Please select a saved theme to delete.");
+      return;
+    }
+
+    if (selectedKey === 'drako-dark' || selectedKey === 'drako-light') {
+      alert("Cannot delete built-in themes.");
+      return;
+    }
+
+    if (confirm(`Are you sure you want to delete the theme "${selectedKey}"?`)) {
+      const custom = loadCustomThemes();
+      delete custom[selectedKey];
+      saveCustomThemes(custom);
+
+      refreshActiveThemes();
+      populateThemeSelects();
+
+      // If the deleted theme was current, switch to drako-dark
+      if (themeSelect.value === selectedKey) {
+        themeSelect.value = 'drako-dark';
+        currentTheme = activeThemes['drako-dark'];
+        
+        // Update diagram panel class and canvas variables
+        const diagramPanel = document.querySelector('.diagram-panel');
+        if (diagramPanel) {
+          diagramPanel.className = 'diagram-panel diagram-theme-drako-dark';
+        }
+        if (canvasContainer) {
+          canvasContainer.style.setProperty('--diagram-bg', currentTheme.backgroundColor);
+          canvasContainer.style.setProperty('--diagram-dot-color', isDarkColor(currentTheme.backgroundColor) ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)');
+        }
+        renderDiagram();
+      }
+
+      // Reset modal inputs to currentTheme
+      pickerPrimaryColor.value = currentTheme.primaryColor;
+      inputPrimaryColor.value = currentTheme.primaryColor.toUpperCase();
+      pickerSecondaryColor.value = currentTheme.secondaryColor;
+      inputSecondaryColor.value = currentTheme.secondaryColor.toUpperCase();
+      pickerBgColor.value = currentTheme.backgroundColor;
+      inputBgColor.value = currentTheme.backgroundColor.toUpperCase();
+      pickerTextColor.value = currentTheme.textColor;
+      inputTextColor.value = currentTheme.textColor.toUpperCase();
+      pickerBorderColor.value = currentTheme.borderColor;
+      inputBorderColor.value = currentTheme.borderColor.toUpperCase();
+      inputFontFamily.value = currentTheme.fontFamily || '';
+      inputThemeName.value = '';
+      themeLoadSelect.value = '';
+    }
+  });
+}
+
+if (btnSaveCustomTheme) {
+  btnSaveCustomTheme.addEventListener('click', () => {
+    const themeName = inputThemeName.value.trim();
+    if (!themeName) {
+      alert("Please enter a theme name.");
+      return;
+    }
+
+    if (themeName === 'drako-dark' || themeName === 'drako-light') {
+      alert("Cannot overwrite built-in themes. Please choose a different name.");
+      return;
+    }
+
+    const hexRegex = /^#[0-9a-fA-F]{6}$/;
+    if (!hexRegex.test(inputPrimaryColor.value) ||
+        !hexRegex.test(inputSecondaryColor.value) ||
+        !hexRegex.test(inputBgColor.value) ||
+        !hexRegex.test(inputTextColor.value) ||
+        !hexRegex.test(inputBorderColor.value)) {
+      alert("Please enter valid hex colors (e.g. #FFFFFF).");
+      return;
+    }
+
+    const newTheme: ThemeVariables = {
+      primaryColor: inputPrimaryColor.value,
+      secondaryColor: inputSecondaryColor.value,
+      backgroundColor: inputBgColor.value,
+      textColor: inputTextColor.value,
+      borderColor: inputBorderColor.value,
+      fontFamily: inputFontFamily.value.trim() || "Outfit, system-ui, -apple-system, sans-serif"
+    };
+
+    const custom = loadCustomThemes();
+    custom[themeName] = newTheme;
+    saveCustomThemes(custom);
+
+    refreshActiveThemes();
+    populateThemeSelects();
+
+    // Select the newly saved theme
+    themeSelect.value = themeName;
+    currentTheme = activeThemes[themeName];
+
+    // Update diagram panel class and canvas variables
+    const diagramPanel = document.querySelector('.diagram-panel');
+    if (diagramPanel) {
+      diagramPanel.className = `diagram-panel diagram-theme-${themeName}`;
+    }
+    if (canvasContainer) {
+      canvasContainer.style.setProperty('--diagram-bg', currentTheme.backgroundColor);
+      canvasContainer.style.setProperty('--diagram-dot-color', isDarkColor(currentTheme.backgroundColor) ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)');
+    }
+
+    renderDiagram();
+
+    // Set themeLoadSelect value to the saved theme
+    themeLoadSelect.value = themeName;
+  });
+}
+
+if (btnApplyTheme) {
+  btnApplyTheme.addEventListener('click', () => {
+    const hexRegex = /^#[0-9a-fA-F]{6}$/;
+    if (!hexRegex.test(inputPrimaryColor.value) ||
+        !hexRegex.test(inputSecondaryColor.value) ||
+        !hexRegex.test(inputBgColor.value) ||
+        !hexRegex.test(inputTextColor.value) ||
+        !hexRegex.test(inputBorderColor.value)) {
+      alert("Please enter valid hex colors (e.g. #FFFFFF).");
+      return;
+    }
+
+    // Override currentTheme in-place
+    currentTheme.primaryColor = inputPrimaryColor.value;
+    currentTheme.secondaryColor = inputSecondaryColor.value;
+    currentTheme.backgroundColor = inputBgColor.value;
+    currentTheme.textColor = inputTextColor.value;
+    currentTheme.borderColor = inputBorderColor.value;
+    currentTheme.fontFamily = inputFontFamily.value.trim() || "Outfit, system-ui, -apple-system, sans-serif";
+
+    // Save modifications if editing an active custom theme
+    const activeKey = themeSelect.value;
+    if (activeKey !== 'drako-dark' && activeKey !== 'drako-light') {
+      const custom = loadCustomThemes();
+      custom[activeKey] = { ...currentTheme };
+      saveCustomThemes(custom);
+      refreshActiveThemes();
+      populateThemeSelects();
+    }
+
+    // Update canvas background variables
+    if (canvasContainer) {
+      canvasContainer.style.setProperty('--diagram-bg', currentTheme.backgroundColor);
+      canvasContainer.style.setProperty('--diagram-dot-color', isDarkColor(currentTheme.backgroundColor) ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)');
+    }
+
+    renderDiagram();
+
+    // Hide Modal
+    const modalEl = document.getElementById('theme-modal') as HTMLElement;
+    const bootstrap = (window as any).bootstrap;
+    if (bootstrap) {
+      const modalInstance = bootstrap.Modal.getOrCreateInstance(modalEl);
+      modalInstance.hide();
+    }
+  });
+}
+
+if (btnResetTheme) {
+  btnResetTheme.addEventListener('click', () => {
+    const activeKey = themeSelect.value;
+
+    if (activeKey === 'drako-dark' || activeKey === 'drako-light') {
+      // Revert built-in themes to default static values
+      const defaults: Record<string, ThemeVariables> = {
+        'drako-dark': {
+          primaryColor: "#60a5fa",
+          secondaryColor: "#a1a1aa",
+          backgroundColor: "#18181b",
+          textColor: "#f4f4f5",
+          borderColor: "#52525b",
+          fontFamily: "Outfit, system-ui, -apple-system, sans-serif"
+        },
+        'drako-light': {
+          primaryColor: "#1d4ed8",
+          secondaryColor: "#4b5563",
+          backgroundColor: "#ffffff",
+          textColor: "#1f2937",
+          borderColor: "#9ca3af",
+          fontFamily: "Outfit, system-ui, -apple-system, sans-serif"
+        }
+      };
+
+      const original = defaults[activeKey];
+      // Reset in activeThemes and currentTheme
+      activeThemes[activeKey] = { ...original };
+      currentTheme = activeThemes[activeKey];
+    } else {
+      // For custom themes, restore to last saved localStorage state
+      const saved = loadCustomThemes();
+      if (saved[activeKey]) {
+        activeThemes[activeKey] = { ...saved[activeKey] };
+        currentTheme = activeThemes[activeKey];
+      }
+    }
+
+    // Prefill modal form with restored values
+    pickerPrimaryColor.value = currentTheme.primaryColor;
+    inputPrimaryColor.value = currentTheme.primaryColor.toUpperCase();
+
+    pickerSecondaryColor.value = currentTheme.secondaryColor;
+    inputSecondaryColor.value = currentTheme.secondaryColor.toUpperCase();
+
+    pickerBgColor.value = currentTheme.backgroundColor;
+    inputBgColor.value = currentTheme.backgroundColor.toUpperCase();
+
+    pickerTextColor.value = currentTheme.textColor;
+    inputTextColor.value = currentTheme.textColor.toUpperCase();
+
+    pickerBorderColor.value = currentTheme.borderColor;
+    inputBorderColor.value = currentTheme.borderColor.toUpperCase();
+
+    inputFontFamily.value = currentTheme.fontFamily || '';
+
+    // Update canvas inline variables
+    if (canvasContainer) {
+      canvasContainer.style.setProperty('--diagram-bg', currentTheme.backgroundColor);
+      canvasContainer.style.setProperty('--diagram-dot-color', isDarkColor(currentTheme.backgroundColor) ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)');
+    }
+
+    renderDiagram();
+  });
+}
+
+function setupLibraryPanelToggle(): void {
+  if (!btnToggleLibrary || !libraryPanel) return;
+
+  btnToggleLibrary.addEventListener('click', () => {
+    const isCollapsed = libraryPanel.classList.toggle('collapsed');
+    btnToggleLibrary.classList.toggle('active', !isCollapsed);
+    btnToggleLibrary.setAttribute('aria-expanded', String(!isCollapsed));
+  });
+}
+
+// Search input keyup query filter
+librarySearch.addEventListener('input', () => {
+  renderComponentLibrary();
+});
+
+// Save file
+btnSave.addEventListener('click', () => {
+  downloadDSLFile(editor.value, currentFileName);
+});
+
+// Load file triggers
+btnLoad.addEventListener('click', () => {
+  fileInput.click();
+});
+
+fileInput.addEventListener('change', () => {
+  const file = fileInput.files?.[0];
+  if (!file) return;
+
+  currentFileName = file.name;
+  if (editorFilename) {
+    editorFilename.innerHTML = `${currentFileName} <i class="bi bi-pencil-square ms-1" style="font-size: 0.7rem; opacity: 0.6;"></i>`;
+  }
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const text = e.target?.result;
+    if (typeof text === 'string') {
+      editor.value = text;
+      updateEditorMetrics();
+      renderDiagram();
+      fitToScreen();
+    }
+  };
+  reader.readAsText(file);
+});
+
+function getExportAspect(): number {
+  const range = exportRangeWhole.checked ? 'whole' : 'current';
+  if (range === 'current') {
+    const originalWidth = diagramSvg.clientWidth || 800;
+    const originalHeight = diagramSvg.clientHeight || 600;
+    return originalWidth / originalHeight;
+  } else {
+    // Temporarily reset transform to get accurate bounds
+    viewportG.setAttribute('transform', 'none');
+    const bbox = viewportG.getBBox();
+    applyTransformations(); // Restore transform
+    
+    if (bbox.width === 0 || bbox.height === 0) {
+      return 800 / 600;
+    }
+    
+    const padding = parseInt(exportPadding.value) || 0;
+    const w = bbox.width + 2 * padding;
+    const h = bbox.height + 2 * padding;
+    return w / h;
+  }
+}
+
+function getSelectedExportWidth(): number {
+  const preset = exportResPreset.value;
+  if (preset === 'custom') {
+    return parseInt(exportCustomWidth.value) || 2048;
+  }
+  return parseInt(preset) || 2048;
+}
+
+function updateExportSizePreview(): void {
+  const width = getSelectedExportWidth();
+  const aspect = getExportAspect();
+  const height = Math.round(width / aspect);
+  exportSizePreview.textContent = `Estimated Output: ${width}px x ${height}px (approx.)`;
+}
+
+const handleRangeChange = () => {
+  const isWhole = exportRangeWhole.checked;
+  exportPadding.disabled = !isWhole;
+  if (!isWhole) {
+    exportPaddingGroup.style.opacity = '0.5';
+    exportPaddingGroup.style.pointerEvents = 'none';
+  } else {
+    exportPaddingGroup.style.opacity = '1';
+    exportPaddingGroup.style.pointerEvents = 'auto';
+  }
+  updateExportSizePreview();
+};
+
+// Wire up modal change listeners
+exportRangeWhole.addEventListener('change', handleRangeChange);
+exportRangeCurrent.addEventListener('change', handleRangeChange);
+
+exportResPreset.addEventListener('change', () => {
+  const isCustom = exportResPreset.value === 'custom';
+  exportCustomWidth.disabled = !isCustom;
+  if (!isCustom) {
+    exportCustomWidth.value = exportResPreset.value;
+  }
+  updateExportSizePreview();
+});
+
+exportCustomWidth.addEventListener('input', () => {
+  updateExportSizePreview();
+});
+
+exportPadding.addEventListener('input', () => {
+  exportPaddingVal.textContent = `${exportPadding.value}px`;
+  updateExportSizePreview();
+});
+
+// Export to PNG Download
+btnExportPng.addEventListener('click', () => {
+  const bootstrap = (window as any).bootstrap;
+  const modalEl = document.getElementById('export-modal') as HTMLElement;
+  if (bootstrap) {
+    const modalInstance = bootstrap.Modal.getOrCreateInstance(modalEl);
+    handleRangeChange();
+    updateExportSizePreview();
+    modalInstance.show();
+  }
+});
+
+btnDoExport.addEventListener('click', async () => {
+  const bootstrap = (window as any).bootstrap;
+  const modalEl = document.getElementById('export-modal') as HTMLElement;
+  if (bootstrap) {
+    const modalInstance = bootstrap.Modal.getOrCreateInstance(modalEl);
+    modalInstance.hide();
+  }
+
+  try {
+    statusText.innerHTML = '<i class="bi bi-hourglass-split"></i> Generating PNG...';
+    statusText.className = "d-flex align-items-center gap-1.5 text-warning";
+
+    // Measure diagram bounds for 'whole' range
+    let diagramBBox: any = undefined;
+    if (exportRangeWhole.checked) {
+      viewportG.setAttribute('transform', 'none');
+      const bbox = viewportG.getBBox();
+      applyTransformations();
+      diagramBBox = {
+        x: bbox.x,
+        y: bbox.y,
+        width: bbox.width,
+        height: bbox.height
+      };
+    }
+
+    const options: ExportOptions = {
+      range: exportRangeWhole.checked ? 'whole' : 'current',
+      width: getSelectedExportWidth(),
+      padding: parseInt(exportPadding.value) || 0,
+      background: exportBgTheme.checked ? 'theme' : 'transparent',
+      backgroundColor: currentTheme.backgroundColor,
+      diagramBBox
+    };
+
+    const blob = await exportToPNG(diagramSvg, options);
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "diagram.png";
+    link.click();
+    URL.revokeObjectURL(url);
+
+    statusText.innerHTML = '<i class="bi bi-check-circle-fill"></i> Exported PNG successfully';
+    statusText.className = "d-flex align-items-center gap-1.5 text-success";
+  } catch (err: any) {
+    statusText.innerHTML = `<i class="bi bi-exclamation-triangle-fill"></i> Export Failed: ${err.message}`;
+    statusText.className = "d-flex align-items-center gap-1.5 text-danger";
+  }
+});
+function openDocumentationModal(componentType?: string): void {
+  const bootstrap = (window as any).bootstrap;
+  const modalEl = document.getElementById('help-modal') as HTMLElement;
+  if (!bootstrap) return;
+  const modalInstance = bootstrap.Modal.getOrCreateInstance(modalEl);
+  
+  if (componentType) {
+    // Map component type to tab ID
+    let tabId = 'v-pills-rectangle-tab';
+    if (componentType.toLowerCase() === 'process') {
+      tabId = 'v-pills-process-tab';
+    } else if (componentType.toLowerCase() === 'ellipse') {
+      tabId = 'v-pills-ellipse-tab';
+    } else if (componentType.toLowerCase() === 'verticalcontainer') {
+      tabId = 'v-pills-container-tab';
+    } else if (componentType.toLowerCase() === 'class') {
+      tabId = 'v-pills-class-tab';
+    } else if (componentType.toLowerCase() === 'interface') {
+      tabId = 'v-pills-interface-tab';
+    } else if (componentType.toLowerCase() === 'umlcomponent') {
+      tabId = 'v-pills-umlcomponent-tab';
+    } else if (componentType.toLowerCase() === 'module') {
+      tabId = 'v-pills-module-tab';
+    } else if (componentType.toLowerCase() === 'package') {
+      tabId = 'v-pills-package-tab';
+    }
+    
+    // Find the tab element and show it
+    const tabEl = document.getElementById(tabId);
+    if (tabEl) {
+      const trigger = new bootstrap.Tab(tabEl);
+      trigger.show();
+    }
+  }
+  
+  modalInstance.show();
+}
+
+// Wire up documentation show button in Library header
+if (btnShowDocs) {
+  btnShowDocs.addEventListener('click', () => {
+    openDocumentationModal();
+  });
+}
+
+// Wire up inline filename editing
+if (editorFilename) {
+  editorFilename.addEventListener('click', () => {
+    // If we are already editing, do nothing
+    if (editorFilename.querySelector('input')) return;
+
+    const originalText = currentFileName;
+    
+    // Create inline text input
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'form-control form-control-sm bg-dark text-white border-secondary d-inline-block';
+    input.style.fontSize = '0.75rem';
+    input.style.width = '140px';
+    input.style.padding = '0.1rem 0.3rem';
+    input.value = originalText;
+
+    // Replace the filename contents with the input
+    editorFilename.innerHTML = '';
+    editorFilename.appendChild(input);
+    input.focus();
+
+    // Select the base name without .drako extension if possible
+    const extIdx = originalText.lastIndexOf('.drako');
+    if (extIdx > 0) {
+      input.setSelectionRange(0, extIdx);
+    } else {
+      input.select();
+    }
+
+    const saveName = () => {
+      let value = input.value.trim();
+      if (!value) {
+        value = originalText;
+      }
+      if (!value.endsWith('.drako')) {
+        value += '.drako';
+      }
+      currentFileName = value;
+      editorFilename.innerHTML = `${currentFileName} <i class="bi bi-pencil-square ms-1" style="font-size: 0.7rem; opacity: 0.6;"></i>`;
+    };
+
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        saveName();
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        editorFilename.innerHTML = `${originalText} <i class="bi bi-pencil-square ms-1" style="font-size: 0.7rem; opacity: 0.6;"></i>`;
+      }
+    });
+
+    input.addEventListener('blur', () => {
+      saveName();
+    });
+  });
+}
+
+// Wire up editor collapse toggle
+if (btnToggleEditor && editorPanel) {
+  btnToggleEditor.addEventListener('click', () => {
+    const isCollapsed = editorPanel.classList.toggle('collapsed');
+    
+    // Update button contents
+    const icon = btnToggleEditor.querySelector('i');
+    const label = btnToggleEditor.querySelector('span');
+    
+    if (isCollapsed) {
+      if (icon) icon.className = 'bi bi-layout-sidebar-reverse';
+      if (label) label.textContent = 'Show Editor';
+    } else {
+      if (icon) icon.className = 'bi bi-layout-sidebar';
+      if (label) label.textContent = 'Hide Editor';
+    }
+
+    // Explicitly update SVG dimensions and fit to screen
+    const width = canvasContainer.clientWidth || 800;
+    const height = canvasContainer.clientHeight || 600;
+    diagramSvg.setAttribute('width', width.toString());
+    diagramSvg.setAttribute('height', height.toString());
+    
+    fitToScreen();
+  });
+}
+
+// Startup Initialization
+// Initialization function to set up app UI and state
+function initializeApp(): void {
+  editor.value = DEFAULT_DSL;
+  updateEditorMetrics();
+
+  // Load custom themes from localStorage and populate selects
+  refreshActiveThemes();
+  populateThemeSelects();
+
+  // Set initial currentTheme
+  const selectedTheme = themeSelect.value || "drako-dark";
+  currentTheme = activeThemes[selectedTheme] || activeThemes["drako-dark"];
+
+  // Set initial diagram theme class and inline CSS variables
+  const diagramPanel = document.querySelector('.diagram-panel');
+  if (diagramPanel) {
+    diagramPanel.className = `diagram-panel diagram-theme-${selectedTheme}`;
+  }
+  if (canvasContainer) {
+    canvasContainer.style.setProperty('--diagram-bg', currentTheme.backgroundColor);
+    canvasContainer.style.setProperty('--diagram-dot-color', isDarkColor(currentTheme.backgroundColor) ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)');
+  }
+
+  renderDiagram();
+
+  // Render Sidebar Content
+  setupLibraryPanelToggle();
+  renderTagFilters();
+  renderComponentLibrary();
+
+  // Set explicit SVG dimensions based on its bounding container size on load
+  const resizeSvg = () => {
+    const width = canvasContainer.clientWidth || 800;
+    const height = canvasContainer.clientHeight || 600;
+    diagramSvg.setAttribute('width', width.toString());
+    diagramSvg.setAttribute('height', height.toString());
+  };
+  resizeSvg();
+  window.addEventListener('resize', resizeSvg);
+
+  // Initial Centering zoom fit after a short delay
+  setTimeout(fitToScreen, 150);
+}
+
+// Run initialization when DOM is ready (handle case where DOMContentLoaded may have already fired)
+if (document.readyState === 'loading') {
+  window.addEventListener('DOMContentLoaded', initializeApp);
+} else {
+  initializeApp();
+}
+
+export {
+  loadCustomThemes,
+  saveCustomThemes,
+  refreshActiveThemes,
+  isDarkColor,
+  populateThemeSelects,
+  activeThemes,
+  currentTheme,
+  collectAllNodes,
+  collectAllTags,
+  resolveAllComponentTags,
+  buildParentMap,
+  buildReferenceDefMap,
+  filterNodeTree,
+  addDescendants,
+  activeDiagramTags,
+  renderDiagram
+};
