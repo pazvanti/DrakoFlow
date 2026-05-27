@@ -14,7 +14,9 @@ export const COMPONENT_TYPES = [
   'Interface',
   'UMLComponent',
   'Module',
-  'Package'
+  'Package',
+  'Text',
+  'Paragraph'
 ] as const;
 
 export type ComponentTypeName = (typeof COMPONENT_TYPES)[number];

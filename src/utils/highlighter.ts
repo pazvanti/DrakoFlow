@@ -20,9 +20,9 @@ const tokenRegex = new RegExp(
     // Decorator keywords (e.g. @tags, @meta)
     '(?<decorator>@[a-zA-Z_][a-zA-Z0-9_]*)',
     // Keywords/Types (all registered component types)
-    '(?<keyword>\\b(Rectangle|Process|Ellipse|VerticalContainer|Cylinder|Cube|Diamond|Hexagon|Actor|Parallelogram|Class|Interface|UMLComponent|Module|Package)\\b)',
+    '(?<keyword>\\b(Rectangle|Process|Ellipse|VerticalContainer|Cylinder|Cube|Diamond|Hexagon|Actor|Parallelogram|Class|Interface|UMLComponent|Module|Package|Text|Paragraph)\\b)',
     // Properties (all known DSL property names)
-    '(?<property>\\b(label|rx|ry|lifeline|themeOverride|lineStyle|color|gap|padding|tabWidthRatio|radius|backgroundColor|borderColor|textColor|strokeWidth|attributes|methods|items)\\b)',
+    '(?<property>\\b(label|rx|ry|lifeline|themeOverride|lineStyle|color|gap|padding|tabWidthRatio|radius|backgroundColor|borderColor|textColor|strokeWidth|attributes|methods|items|align|text)\\b)',
     // Accessor modifiers at the start of a line (after optional leading whitespace)
     // These are +, -, #, ~ when they appear as the first non-space token on a line
     // inside a class sub-block. We match them as a line-leading token.

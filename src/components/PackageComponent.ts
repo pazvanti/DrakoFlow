@@ -1,26 +1,67 @@
-import { BaseComponent, ComponentMetadata, ThemeVariables, Dimension } from './BaseComponent';
+import { BaseComponent, ThemeVariables, Dimension } from './BaseComponent';
+import { VerticalContainerComponent, VerticalContainerProps } from './VerticalContainerComponent';
 
-export interface PackageProps {
-  label?: string;
-}
+export interface PackageProps extends VerticalContainerProps {}
 
 /**
  * Renders a UML Package shape: a folder-style outline with a wider
  * tab on the top-left that shows the package name.
+ * Inherits container properties and child validation from VerticalContainerComponent.
  */
-export class PackageComponent extends BaseComponent<PackageProps> {
-  validateProps(): void {
-    if (this.props.label !== undefined && typeof this.props.label !== 'string') {
-      throw new Error(`Component [${this.id}]: 'label' must be a string.`);
-    }
-  }
-
-  calculateMinDimensions(_theme: ThemeVariables): Dimension {
+export class PackageComponent extends VerticalContainerComponent {
+  calculateMinDimensions(theme: ThemeVariables): Dimension {
     const labelLength = this.props.label ? this.props.label.length : 0;
     // Tab must fit the label text
     const tabMinWidth = Math.max(60, labelLength * 7 + 20);
-    const bodyWidth   = Math.max(tabMinWidth + 30, 180);
-    return { width: bodyWidth, height: 90 };
+    const tabH = 20;
+
+    if (this.children.length === 0) {
+      const bodyWidth = Math.max(tabMinWidth + 30, 180);
+      return { width: bodyWidth, height: 90 };
+    }
+
+    const padding = this.props.padding ?? 16;
+    const gap = this.props.gap ?? 12;
+
+    let innerWidth = 0;
+    let innerHeight = 0;
+
+    this.children.forEach((child, index) => {
+      const childDim = child.calculateMinDimensions(theme);
+      innerWidth = Math.max(innerWidth, childDim.width);
+      innerHeight += childDim.height;
+      if (index > 0) innerHeight += gap;
+    });
+
+    const bodyWidth = Math.max(tabMinWidth + 30, innerWidth + padding * 2, 180);
+    const bodyHeight = innerHeight + padding * 2;
+    return {
+      width: bodyWidth,
+      height: tabH + bodyHeight
+    };
+  }
+
+  layoutChildren(theme: ThemeVariables): void {
+    const padding = this.props.padding ?? 16;
+    const gap = this.props.gap ?? 12;
+    const tabH = 20;
+
+    let y = tabH + padding;
+
+    this.children.forEach((child, index) => {
+      const childDim = child.calculateMinDimensions(theme);
+      const childWidth = Math.max(childDim.width, this.bounds.width - padding * 2);
+      const childHeight = childDim.height;
+
+      child.bounds = {
+        x: padding,
+        y,
+        width: childWidth,
+        height: childHeight
+      };
+
+      y += childHeight + (index < this.children.length - 1 ? gap : 0);
+    });
   }
 
   render(theme: ThemeVariables): SVGElement {
@@ -74,6 +115,11 @@ export class PackageComponent extends BaseComponent<PackageProps> {
     body.setAttribute('stroke', border);
     body.setAttribute('stroke-width', strokeWidth);
     g.appendChild(body);
+
+    // Render nested children
+    this.children.forEach(child => {
+      g.appendChild(child.render(theme));
+    });
 
     return g;
   }

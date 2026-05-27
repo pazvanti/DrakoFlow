@@ -14,6 +14,8 @@ import { InterfaceComponent, InterfaceProps } from '../components/InterfaceCompo
 import { UMLComponentComponent, UMLComponentProps } from '../components/UMLComponentComponent';
 import { ModuleComponent, ModuleProps } from '../components/ModuleComponent';
 import { PackageComponent, PackageProps } from '../components/PackageComponent';
+import { TextComponent, TextProps } from '../components/TextComponent';
+import { ParagraphComponent, ParagraphProps } from '../components/ParagraphComponent';
 import { collectReferencedIds, ParsedChildEntry, ParsedNode } from '../dsl/parser';
 import { isComponentType } from '../dsl/componentTypes';
 
@@ -159,9 +161,30 @@ function instantiateFromDefinition(
     }
     case 'Package': {
       const props: PackageProps = {
-        label: node.properties.label as string | undefined
+        label: node.properties.label as string | undefined,
+        gap: node.properties.gap as number | undefined,
+        padding: node.properties.padding as number | undefined
       };
-      component = new PackageComponent(metadata, props, themeOverride);
+      const pComp = new PackageComponent(metadata, props, themeOverride);
+      pComp.children = resolveChildEntries(node.childEntries, registry);
+      component = pComp;
+      break;
+    }
+    case 'Text': {
+      const props: TextProps = {
+        label: node.properties.label as string | undefined,
+        align: node.properties.align as TextProps['align']
+      };
+      component = new TextComponent(metadata, props, themeOverride);
+      break;
+    }
+    case 'Paragraph': {
+      const props: ParagraphProps = {
+        label: node.properties.label as string | undefined,
+        text: node.properties.text as string | undefined,
+        align: node.properties.align as ParagraphProps['align']
+      };
+      component = new ParagraphComponent(metadata, props, themeOverride);
       break;
     }
     default:

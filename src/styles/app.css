@@ -600,6 +600,9 @@ body {
 #help-modal pre {
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
+#help-modal pre .color-picker-trigger {
+  display: none !important;
+}
 
 /* Help icon trigger transitions */
 .btn-help-icon {

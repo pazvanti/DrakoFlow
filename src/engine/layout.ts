@@ -9,10 +9,19 @@ const ROOT_START_Y = 80;
 const LAYER_GAP = 100;
 const NODE_GAP = 36;
 
+export interface ContainerComponent extends BaseComponent {
+  children: BaseComponent[];
+  layoutChildren(theme: ThemeVariables): void;
+}
+
+export function isContainer(comp: BaseComponent): comp is ContainerComponent {
+  return 'children' in comp && Array.isArray((comp as any).children) && typeof (comp as any).layoutChildren === 'function';
+}
+
 export function getRootParent(id: string, rootComponents: BaseComponent[]): BaseComponent | null {
   const search = (comp: BaseComponent): boolean => {
     if (comp.id === id) return true;
-    if (comp instanceof VerticalContainerComponent) {
+    if (isContainer(comp)) {
       for (const child of comp.children) {
         if (search(child)) return true;
       }
@@ -47,7 +56,7 @@ export function getGlobalBounds(
       };
     }
     
-    if (comp instanceof VerticalContainerComponent) {
+    if (isContainer(comp)) {
       for (const child of comp.children) {
         const found = search(child, currentX, currentY);
         if (found) return found;
@@ -68,7 +77,7 @@ export function getGlobalBounds(
 export function isLifelineComponent(id: string, rootComponents: BaseComponent[]): boolean {
   const search = (comp: BaseComponent): BaseComponent | null => {
     if (comp.id === id) return comp;
-    if (comp instanceof VerticalContainerComponent) {
+    if (isContainer(comp)) {
       for (const child of comp.children) {
         const found = search(child);
         if (found) return found;
@@ -137,6 +146,41 @@ export function assignLayers(
     iterations++;
   }
 
+  // Post-processing to resolve layer collisions when lifeline components are present.
+  // Enforce that every lifeline component occupies its layer exclusively.
+  const hasLifelines = components.some(c => c.lifeline);
+  if (hasLifelines) {
+    const sorted = [...components].sort((a, b) => {
+      const la = layers.get(a.id) ?? 0;
+      const lb = layers.get(b.id) ?? 0;
+      return la - lb;
+    });
+
+    let nextAvailableLayer = 0;
+    let lastNonLifelineOrigLayer = -1;
+    let lastNonLifelineAssignedLayer = -1;
+
+    sorted.forEach(c => {
+      const origLayer = layers.get(c.id) ?? 0;
+      if (c.lifeline) {
+        const assignedLayer = Math.max(origLayer, nextAvailableLayer);
+        layers.set(c.id, assignedLayer);
+        nextAvailableLayer = assignedLayer + 1;
+      } else {
+        let assignedLayer: number;
+        if (lastNonLifelineOrigLayer === origLayer && lastNonLifelineOrigLayer !== -1) {
+          assignedLayer = lastNonLifelineAssignedLayer;
+        } else {
+          assignedLayer = Math.max(origLayer, nextAvailableLayer);
+          lastNonLifelineOrigLayer = origLayer;
+          lastNonLifelineAssignedLayer = assignedLayer;
+          nextAvailableLayer = assignedLayer + 1;
+        }
+        layers.set(c.id, assignedLayer);
+      }
+    });
+  }
+
   return layers;
 }
 
@@ -155,7 +199,7 @@ export function layoutComponent(
   const minHeightForPorts = (maxConnections + 1) * connectionSpacing;
   const height = Math.max(minDim.height, minHeightForPorts);
 
-  if (component instanceof VerticalContainerComponent) {
+  if (isContainer(component)) {
     component.bounds = {
       x,
       y,
@@ -408,6 +452,10 @@ function layoutByLayers(
         
         // A: Check if this component intersects existing relationship lines
         for (const rel of relationships) {
+          // Skip sequence diagram lifeline relationships as they run below the component headers
+          if (isLifelineComponent(rel.sourceId, components) || isLifelineComponent(rel.targetId, components)) {
+            continue;
+          }
           const srcRoot = getRootParent(rel.sourceId, components);
           const tgtRoot = getRootParent(rel.targetId, components);
           
@@ -442,6 +490,10 @@ function layoutByLayers(
 
         // B: Check if lines from this component (or its children) to existing components intersect other existing components
         for (const rel of relationships) {
+          // Skip sequence diagram lifeline relationships as they run below the component headers
+          if (isLifelineComponent(rel.sourceId, components) || isLifelineComponent(rel.targetId, components)) {
+            continue;
+          }
           const srcRoot = getRootParent(rel.sourceId, components);
           const tgtRoot = getRootParent(rel.targetId, components);
           

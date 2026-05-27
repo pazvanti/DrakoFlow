@@ -138,7 +138,29 @@ MyContainer: VerticalContainer {
     displayName: "Package",
     description: "A UML package / folder shape with a labelled tab and a large body area for nested elements.",
     tags: ["Shapes", "UML"],
-    template: 'MyPackage: Package {\n  label: "com.example.auth"\n}'
+    template: `MyPackage: Package {
+  label: "com.example.auth"
+  gap: 12
+  padding: 16
+
+  AuthService: UMLComponent {
+    label: "AuthService"
+  }
+}`
+  },
+  {
+    type: "Text",
+    displayName: "Simple Text",
+    description: "Renders a single-line text label without any surrounding box or border, useful for annotations.",
+    tags: ["Shapes", "Annotation"],
+    template: 'MyLabel: Text {\n  label: "Standalone Annotation"\n  align: "center"\n}'
+  },
+  {
+    type: "Paragraph",
+    displayName: "Paragraph Text",
+    description: "Renders a block of multi-line paragraph text. Supports newlines (\\n) and alignments.",
+    tags: ["Shapes", "Annotation"],
+    template: 'MyParagraph: Paragraph {\n  text: "Line 1 of description\\nLine 2 of description\\nLine 3 of description"\n  align: "left"\n}'
   }
 ];
 

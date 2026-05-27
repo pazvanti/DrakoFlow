@@ -1617,32 +1617,83 @@ btnDoExport.addEventListener('click', async () => {
     statusText.className = "d-flex align-items-center gap-1.5 text-danger";
   }
 });
+/**
+ * Highlight code examples inside the documentation modal.
+ */
+function highlightDocExamples(): void {
+  const modalEl = document.getElementById('help-modal');
+  if (!modalEl) return;
+  const preElements = modalEl.querySelectorAll('pre');
+  preElements.forEach(pre => {
+    pre.classList.remove('text-success');
+    const codeText = pre.textContent || '';
+    const highlightResult = highlightDSL(codeText);
+    pre.innerHTML = highlightResult.html;
+  });
+}
+
+/**
+ * Set up the search/filter for components in the documentation modal sidebar.
+ */
+function setupDocSearch(): void {
+  const searchInput = document.getElementById('doc-search') as HTMLInputElement;
+  const tabList = document.getElementById('v-pills-tab') as HTMLElement;
+  if (!searchInput || !tabList) return;
+
+  searchInput.addEventListener('input', () => {
+    const query = searchInput.value.toLowerCase().trim();
+    const buttons = tabList.querySelectorAll('.nav-link') as NodeListOf<HTMLButtonElement>;
+    
+    buttons.forEach(btn => {
+      const text = btn.textContent || '';
+      if (text.toLowerCase().includes(query)) {
+        btn.classList.remove('d-none');
+      } else {
+        btn.classList.add('d-none');
+      }
+    });
+  });
+}
+
 function openDocumentationModal(componentType?: string): void {
   const bootstrap = (window as any).bootstrap;
   const modalEl = document.getElementById('help-modal') as HTMLElement;
   if (!bootstrap) return;
   const modalInstance = bootstrap.Modal.getOrCreateInstance(modalEl);
   
+  // Reset documentation search input when opening
+  const docSearchInput = document.getElementById('doc-search') as HTMLInputElement;
+  if (docSearchInput) {
+    docSearchInput.value = '';
+    docSearchInput.dispatchEvent(new Event('input'));
+  }
+  
   if (componentType) {
     // Map component type to tab ID
-    let tabId = 'v-pills-rectangle-tab';
-    if (componentType.toLowerCase() === 'process') {
-      tabId = 'v-pills-process-tab';
-    } else if (componentType.toLowerCase() === 'ellipse') {
-      tabId = 'v-pills-ellipse-tab';
-    } else if (componentType.toLowerCase() === 'verticalcontainer') {
-      tabId = 'v-pills-container-tab';
-    } else if (componentType.toLowerCase() === 'class') {
-      tabId = 'v-pills-class-tab';
-    } else if (componentType.toLowerCase() === 'interface') {
-      tabId = 'v-pills-interface-tab';
-    } else if (componentType.toLowerCase() === 'umlcomponent') {
-      tabId = 'v-pills-umlcomponent-tab';
-    } else if (componentType.toLowerCase() === 'module') {
-      tabId = 'v-pills-module-tab';
-    } else if (componentType.toLowerCase() === 'package') {
-      tabId = 'v-pills-package-tab';
-    }
+    const tabMap: Record<string, string> = {
+      'rectangle': 'v-pills-rectangle-tab',
+      'process': 'v-pills-process-tab',
+      'ellipse': 'v-pills-ellipse-tab',
+      'verticalcontainer': 'v-pills-container-tab',
+      'cylinder': 'v-pills-cylinder-tab',
+      'cube': 'v-pills-cube-tab',
+      'diamond': 'v-pills-diamond-tab',
+      'hexagon': 'v-pills-hexagon-tab',
+      'actor': 'v-pills-actor-tab',
+      'parallelogram': 'v-pills-parallelogram-tab',
+      'class': 'v-pills-class-tab',
+      'interface': 'v-pills-interface-tab',
+      'umlcomponent': 'v-pills-umlcomponent-tab',
+      'module': 'v-pills-module-tab',
+      'package': 'v-pills-package-tab',
+      'text': 'v-pills-text-tab',
+      'paragraph': 'v-pills-paragraph-tab',
+      'relationship': 'v-pills-relationship-tab',
+      'relationships': 'v-pills-relationship-tab'
+    };
+    
+    const key = componentType.toLowerCase();
+    const tabId = tabMap[key] || 'v-pills-rectangle-tab';
     
     // Find the tab element and show it
     const tabEl = document.getElementById(tabId);
@@ -1777,6 +1828,10 @@ function initializeApp(): void {
   setupLibraryPanelToggle();
   renderTagFilters();
   renderComponentLibrary();
+
+  // Initialize Documentation Modal features (highlighting & search)
+  highlightDocExamples();
+  setupDocSearch();
 
   // Set explicit SVG dimensions based on its bounding container size on load
   const resizeSvg = () => {

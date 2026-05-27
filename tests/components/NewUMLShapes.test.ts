@@ -199,9 +199,59 @@ describe('PackageComponent', () => {
     expect(texts.some(t => t.textContent === 'com.example')).toBe(true);
   });
 
-  it('is parseable from DSL via factory', () => {
-    const nodes = parseDsl('Pkg: Package { label: "com.example" }');
+  it('validateProps throws when gap or padding is not a number', () => {
+    const c = new PackageComponent(META('p1', 'Package'), { gap: '12' as any }, {});
+    expect(() => c.validateProps()).toThrow(/gap.*must be a number/i);
+    const c2 = new PackageComponent(META('p1', 'Package'), { padding: '16' as any }, {});
+    expect(() => c2.validateProps()).toThrow(/padding.*must be a number/i);
+  });
+
+  it('calculates min dimensions based on children and layouts them', () => {
+    const pkg = new PackageComponent(META('p1', 'Package'), { label: 'com.example', padding: 10, gap: 5 }, {});
+    const child1 = new UMLComponentComponent(META('c1', 'UMLComponent'), { label: 'Service' }, {});
+    pkg.children = [child1];
+
+    const dim = pkg.calculateMinDimensions(THEME);
+    // Tab width = 11 * 7 + 20 = 97. bodyWidth = max(127, childWidth + 20, 180).
+    // child1 min height is 70.
+    // tabH is 20, bodyHeight is 70 + 20 = 90.
+    // Total height = 20 + 90 = 110.
+    expect(dim.height).toBe(110);
+    expect(dim.width).toBeGreaterThanOrEqual(180);
+
+    pkg.bounds = { x: 0, y: 0, width: dim.width, height: dim.height };
+    pkg.layoutChildren(THEME);
+    expect(child1.bounds.y).toBe(30); // tabH (20) + padding (10)
+  });
+
+  it('renders children elements', () => {
+    const pkg = new PackageComponent(META('p1', 'Package'), { label: 'com.example' }, {});
+    const child1 = new UMLComponentComponent(META('c1', 'UMLComponent'), { label: 'Service' }, {});
+    pkg.children = [child1];
+    pkg.bounds = BOUNDS(200, 150);
+    child1.bounds = { x: 10, y: 30, width: 180, height: 70 };
+
+    const g = pkg.render(THEME);
+    // g should contain child1's rendered elements (which has id 'c1')
+    const childGroup = g.querySelector('#c1');
+    expect(childGroup).not.toBeNull();
+  });
+
+  it('is parseable from DSL with children via factory', () => {
+    const nodes = parseDsl(`
+      Pkg: Package {
+        label: "com.example"
+        
+        Sub: UMLComponent {
+          label: "Service"
+        }
+      }
+    `);
     const comps = createComponentsFromDsl(nodes);
     expect(comps[0].type).toBe('Package');
+    const pkg = comps[0] as PackageComponent;
+    expect(pkg.children.length).toBe(1);
+    expect(pkg.children[0].id).toBe('Sub');
+    expect(pkg.children[0].type).toBe('UMLComponent');
   });
 });

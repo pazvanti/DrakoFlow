@@ -277,17 +277,26 @@
 
   <!-- Documentation / Help Modal -->
   <div class="modal fade" id="help-modal" tabindex="-1" aria-labelledby="helpModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
       <div class="modal-content bg-dark border-secondary border-opacity-50 text-white">
         <div class="modal-header border-secondary border-opacity-25">
           <h5 class="modal-title" id="helpModalLabel"><i class="bi bi-book-half text-primary"></i> Component Documentation</h5>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body p-0">
-          <div class="d-flex align-items-stretch" style="min-height: 480px; max-height: 600px;">
+          <div class="d-flex align-items-stretch" style="height: 70vh; min-height: 550px;">
             <!-- Left Sidebar Nav -->
-            <div class="bg-dark-subtle p-3 border-end border-secondary border-opacity-25 flex-shrink-0" style="width: 220px;">
-              <div class="nav flex-column nav-pills me-3" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+            <div class="bg-dark-subtle p-3 border-end border-secondary border-opacity-25 flex-shrink-0 d-flex flex-column" style="width: 240px;">
+              <!-- Search box for components -->
+              <div class="mb-3">
+                <div class="input-group input-group-sm">
+                  <span class="input-group-text custom-input-group-text"><i class="bi bi-search"></i></span>
+                  <input type="text" id="doc-search"
+                    class="form-control bg-dark border-secondary border-opacity-50 text-white" placeholder="Search docs...">
+                </div>
+              </div>
+
+              <div class="nav flex-column nav-pills me-3 flex-grow-1 overflow-y-auto" id="v-pills-tab" role="tablist" aria-orientation="vertical">
                 <button class="nav-link active text-start py-2 px-3 mb-1" id="v-pills-rectangle-tab" data-bs-toggle="pill" data-bs-target="#v-pills-rectangle" type="button" role="tab" aria-controls="v-pills-rectangle" aria-selected="true">
                   <i class="bi bi-square me-2"></i> Rectangle
                 </button>
@@ -333,6 +342,12 @@
                 <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-package-tab" data-bs-toggle="pill" data-bs-target="#v-pills-package" type="button" role="tab" aria-controls="v-pills-package" aria-selected="false">
                   <i class="bi bi-folder2 me-2"></i> Package
                 </button>
+                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-text-tab" data-bs-toggle="pill" data-bs-target="#v-pills-text" type="button" role="tab" aria-controls="v-pills-text" aria-selected="false">
+                  <i class="bi bi-type me-2"></i> Simple Text
+                </button>
+                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-paragraph-tab" data-bs-toggle="pill" data-bs-target="#v-pills-paragraph" type="button" role="tab" aria-controls="v-pills-paragraph" aria-selected="false">
+                  <i class="bi bi-justify-left me-2"></i> Paragraph Text
+                </button>
                 <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-relationship-tab" data-bs-toggle="pill" data-bs-target="#v-pills-relationship" type="button" role="tab" aria-controls="v-pills-relationship" aria-selected="false">
                   <i class="bi bi-arrow-right-short me-2"></i> Relationships
                 </button>
@@ -340,7 +355,7 @@
             </div>
             
             <!-- Right Tab Content -->
-            <div class="tab-content p-4 flex-grow-1 overflow-y-auto" id="v-pills-tabContent" style="max-height: 600px;">
+            <div class="tab-content p-4 flex-grow-1 overflow-y-auto" id="v-pills-tabContent" style="max-height: 100%;">
               <!-- Rectangle Tab -->
               <div class="tab-pane fade show active" id="v-pills-rectangle" role="tabpanel" aria-labelledby="v-pills-rectangle-tab">
                 <h4 class="mb-1">Rectangle Component</h4>
@@ -1009,12 +1024,20 @@ HttpModule: Module {
                   <thead><tr><th style="width:25%;">Property</th><th style="width:20%;">Type</th><th>Description</th></tr></thead>
                   <tbody>
                     <tr><td><code>label</code></td><td>String</td><td>The package name shown inside the tab.</td></tr>
+                    <tr><td><code>gap</code></td><td>Number</td><td>Vertical spacing in pixels between children (default is <code>12</code>).</td></tr>
+                    <tr><td><code>padding</code></td><td>Number</td><td>Internal margins around children inside package walls (default is <code>16</code>).</td></tr>
                   </tbody>
                 </table>
 
                 <h6 class="mt-4 fw-bold small text-uppercase text-primary">Example Usage</h6>
-                <pre class="bg-black p-3 rounded font-monospace text-success" style="font-size: 0.75rem;">DomainPackage: Package {
-  label: "com.example.domain"
+                <pre class="bg-black p-3 rounded font-monospace text-success" style="font-size: 0.75rem;">AuthPackage: Package {
+  label: "com.example.auth"
+  gap: 15
+  padding: 20
+  
+  AuthService: UMLComponent {
+    label: "AuthService"
+  }
 }
 
 InfraPackage: Package {
@@ -1023,6 +1046,51 @@ InfraPackage: Package {
     borderColor: "#f7768e"
     backgroundColor: "#1a1b26"
   }
+}</pre>
+              </div>
+
+              <!-- Simple Text Tab -->
+              <div class="tab-pane fade" id="v-pills-text" role="tabpanel" aria-labelledby="v-pills-text-tab">
+                <h4 class="mb-1">Simple Text Component</h4>
+                <p class="text-muted small">Renders a single-line text label without any box or border, useful for annotations or standalone headers.</p>
+
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Properties</h6>
+                <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
+                  <thead><tr><th style="width:25%;">Property</th><th style="width:20%;">Type</th><th>Description</th></tr></thead>
+                  <tbody>
+                    <tr><td><code>label</code></td><td>String</td><td>The text string to display.</td></tr>
+                    <tr><td><code>align</code></td><td>String</td><td>Text alignment: <code>"left"</code>, <code>"center"</code>, or <code>"right"</code> (default <code>"center"</code>).</td></tr>
+                  </tbody>
+                </table>
+
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Example Usage</h6>
+                <pre class="bg-black p-3 rounded font-monospace text-success" style="font-size: 0.75rem;">NoteLabel: Text {
+  label: "This is a standalone note"
+  align: "left"
+  themeOverride: {
+    textColor: "#a1a1aa"
+  }
+}</pre>
+              </div>
+
+              <!-- Paragraph Text Tab -->
+              <div class="tab-pane fade" id="v-pills-paragraph" role="tabpanel" aria-labelledby="v-pills-paragraph-tab">
+                <h4 class="mb-1">Paragraph Text Component</h4>
+                <p class="text-muted small">Renders a multi-line paragraph block of text. Supports explicit newlines (<code>\n</code>) for multi-line formatting.</p>
+
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Properties</h6>
+                <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
+                  <thead><tr><th style="width:25%;">Property</th><th style="width:20%;">Type</th><th>Description</th></tr></thead>
+                  <tbody>
+                    <tr><td><code>text</code></td><td>String</td><td>The multi-line text to display (or use <code>label</code> as fallback).</td></tr>
+                    <tr><td><code>align</code></td><td>String</td><td>Text alignment: <code>"left"</code>, <code>"center"</code>, or <code>"right"</code> (default <code>"center"</code>).</td></tr>
+                  </tbody>
+                </table>
+
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Example Usage</h6>
+                <pre class="bg-black p-3 rounded font-monospace text-success" style="font-size: 0.75rem;">DescBlock: Paragraph {
+  text: "1. Perform user verification\n2. Call authorization subsystem\n3. Return result payload"
+  align: "left"
 }</pre>
               </div>
 
@@ -1057,6 +1125,10 @@ InfraPackage: Package {
                     <tr>
                       <td><code>A - B</code></td>
                       <td>Simple connection line (no arrow heads).</td>
+                    </tr>
+                    <tr>
+                      <td><code>A o-&gt; B</code> / <code>A o-&gt;o B</code></td>
+                      <td>Directed arrow with circle(s) at the source, target (e.g., <code>-&gt;o</code>), or both ends.</td>
                     </tr>
                   </tbody>
                 </table>

@@ -139,4 +139,31 @@ describe('layoutRootComponents', () => {
     expect(layers.get('Server')).toBe(2);
     expect(layers.get('Database')).toBe(3);
   });
+
+  it('places lifeline components in separate layers to avoid vertical stacking and overlaps', () => {
+    const a = new RectangleComponent({ id: 'A', type: 'Rectangle', tags: [] }, {}, {});
+    a.lifeline = true;
+    const b = new RectangleComponent({ id: 'B', type: 'Rectangle', tags: [] }, {}, {});
+    b.lifeline = true;
+    const c = new RectangleComponent({ id: 'C', type: 'Rectangle', tags: [] }, {}, {});
+    c.lifeline = true;
+
+    const relationships = [
+      { sourceId: 'A', targetId: 'B' },
+      { sourceId: 'A', targetId: 'C' }
+    ];
+
+    const layers = assignLayers([a, b, c], relationships);
+    
+    // Each lifeline component should be in its own unique layer
+    expect(layers.get('A')).not.toBe(layers.get('B'));
+    expect(layers.get('B')).not.toBe(layers.get('C'));
+    expect(layers.get('A')).not.toBe(layers.get('C'));
+
+    // They should be laid out horizontally at the same vertical level
+    layoutRootComponents([a, b, c], defaultTheme, relationships);
+    expect(a.bounds.y).toBe(80);
+    expect(b.bounds.y).toBe(80);
+    expect(c.bounds.y).toBe(80);
+  });
 });
