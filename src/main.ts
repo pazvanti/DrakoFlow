@@ -1,12 +1,13 @@
 import { BaseComponent, ThemeVariables } from './components/BaseComponent';
 import { downloadDSLFile, exportToPNG, ExportOptions } from './utils/FileHandlers';
-import { findSafeInsertIndex } from './utils/dslInsert';
+import { findSafeInsertIndex, updateDslComponentPosition } from './utils/dslInsert';
 import { CatalogService } from './catalog/ComponentCatalog';
 import { parseDslDocument, ParsedNode, ParsedChildEntry } from './dsl/parser';
 import { createComponentsFromDsl } from './engine/componentFactory';
 import { layoutRootComponents } from './engine/layout';
 import { renderRelationships } from './engine/relationshipRenderer';
 import { highlightDSL } from './utils/highlighter';
+import { ParsedRelationship } from './engine/Relationship';
 
 const DEFAULT_DSL = `// Welcome to DrakoFlow!
 // Type below to build sequence/flow interactions.
@@ -89,6 +90,10 @@ const activeThemes: Record<string, ThemeVariables> = { ...THEMES };
 
 // Diagram tag filtering state
 let activeDiagramTags: string[] = [];
+
+// Active components and relationships in the current render pass (used for drag & drop)
+let currentComponents: BaseComponent[] = [];
+let currentDisplayRelationships: ParsedRelationship[] = [];
 
 function collectAllNodes(nodes: ParsedNode[], map = new Map<string, ParsedNode>()): Map<string, ParsedNode> {
   nodes.forEach(node => {
@@ -883,6 +888,10 @@ function renderDiagram(): void {
       viewportG.appendChild(labelsLayer);
     }
 
+    // Save rendering state globally for drag & drop
+    currentComponents = components;
+    currentDisplayRelationships = displayRelationships;
+
     statusText.innerHTML = '<i class="bi bi-check-circle-fill"></i> Parsed & Rendered Successfully';
     statusText.className = 'd-flex align-items-center gap-1.5 text-success';
   } catch (error: any) {
@@ -969,15 +978,91 @@ window.addEventListener('keydown', (e: KeyboardEvent) => {
   }
 });
 
-// Panning Handlers
+// Drag & Drop State Variables
+let dragTarget: BaseComponent | null = null;
+let dragStartMouse = { x: 0, y: 0 };
+let dragStartComponentPos = { x: 0, y: 0 };
+let hasDragged = false;
+
+function findRootComponentElement(target: EventTarget | null): SVGGElement | null {
+  if (!target || !(target instanceof Element)) return null;
+  let curr: Element | null = target;
+  while (curr && curr !== diagramSvg && curr !== viewportG) {
+    if (curr.tagName === 'g' && curr.id && currentComponents.some(c => c.id === curr!.id)) {
+      return curr as SVGGElement;
+    }
+    curr = curr.parentElement;
+  }
+  return null;
+}
+
+// Panning and Drag-and-Drop Handlers
 canvasContainer.addEventListener('mousedown', (e) => {
   if (e.button !== 0 && e.button !== 1) return; // Left or Middle mouse button
+
+  // Check if we are clicking on a root component element
+  const componentG = findRootComponentElement(e.target);
+  if (componentG && e.button === 0) { // Only left click for dragging
+    const comp = currentComponents.find(c => c.id === componentG.id);
+    if (comp) {
+      dragTarget = comp;
+      dragStartMouse = { x: e.clientX, y: e.clientY };
+      dragStartComponentPos = { x: comp.bounds.x, y: comp.bounds.y };
+      hasDragged = false;
+      canvasContainer.style.cursor = 'move';
+      e.stopPropagation();
+      e.preventDefault();
+      return;
+    }
+  }
+
   isPanning = true;
   canvasContainer.style.cursor = 'grabbing';
   startPan = { x: e.clientX - panOffset.x, y: e.clientY - panOffset.y };
 });
 
 canvasContainer.addEventListener('mousemove', (e) => {
+  if (dragTarget) {
+    hasDragged = true;
+    const dx = e.clientX - dragStartMouse.x;
+    const dy = e.clientY - dragStartMouse.y;
+    
+    // Scale delta by zoom level
+    const dxSvg = dx / zoomLevel;
+    const dySvg = dy / zoomLevel;
+    
+    const newX = dragStartComponentPos.x + dxSvg;
+    const newY = dragStartComponentPos.y + dySvg;
+    
+    // Update bounds in memory
+    dragTarget.bounds.x = newX;
+    dragTarget.bounds.y = newY;
+    
+    // Visually move the component <g> immediately for buttery smoothness
+    const element = document.getElementById(dragTarget.id);
+    if (element) {
+      element.setAttribute('transform', `translate(${newX}, ${newY})`);
+    }
+    
+    // Update relationship lines dynamically in real-time
+    const oldPaths = viewportG.querySelector('.relationship-paths');
+    const oldLabels = viewportG.querySelector('.relationship-labels');
+    if (oldPaths) oldPaths.remove();
+    if (oldLabels) oldLabels.remove();
+    
+    if (currentDisplayRelationships.length > 0) {
+      const { pathsLayer, labelsLayer } = renderRelationships(
+        currentDisplayRelationships,
+        currentComponents,
+        currentTheme,
+        diagramSvg
+      );
+      viewportG.appendChild(pathsLayer);
+      viewportG.appendChild(labelsLayer);
+    }
+    return;
+  }
+
   if (!isPanning) return;
   panOffset = {
     x: e.clientX - startPan.x,
@@ -987,6 +1072,30 @@ canvasContainer.addEventListener('mousemove', (e) => {
 });
 
 window.addEventListener('mouseup', () => {
+  if (dragTarget) {
+    const targetComp = dragTarget;
+    dragTarget = null;
+    canvasContainer.style.cursor = 'grab';
+    
+    if (hasDragged) {
+      // Commit coordinates back to the DSL editor
+      const code = editor.value;
+      const updatedCode = updateDslComponentPosition(code, targetComp.id, targetComp.bounds.x, targetComp.bounds.y);
+      
+      if (code !== updatedCode) {
+        const start = editor.selectionStart;
+        const end = editor.selectionEnd;
+        editor.value = updatedCode;
+        editor.selectionStart = start;
+        editor.selectionEnd = end;
+        
+        updateEditorMetrics();
+        renderDiagram();
+      }
+    }
+    return;
+  }
+
   if (isPanning) {
     isPanning = false;
     canvasContainer.style.cursor = 'grab';

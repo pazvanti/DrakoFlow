@@ -166,4 +166,17 @@ describe('layoutRootComponents', () => {
     expect(b.bounds.y).toBe(80);
     expect(c.bounds.y).toBe(80);
   });
+
+  it('respects manual position overrides on components', () => {
+    const a = new RectangleComponent({ id: 'A', type: 'Rectangle', tags: [] }, {}, {});
+    a.manualX = 150;
+    a.manualY = 250;
+    const b = new RectangleComponent({ id: 'B', type: 'Rectangle', tags: [] }, {}, {});
+
+    layoutRootComponents([a, b], defaultTheme, []);
+
+    expect(a.bounds.x).toBe(150);
+    expect(a.bounds.y).toBe(250);
+    expect(b.bounds.y).toBe(80);
+  });
 });

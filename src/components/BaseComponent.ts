@@ -40,6 +40,10 @@ export abstract class BaseComponent<TProps = any, TStyle = Partial<ThemeVariable
   // Resolved bounds calculated by the Layout Engine
   public bounds: BoundingBox = { x: 0, y: 0, width: 200, height: 150 };
 
+  // Manual position overrides from the DSL
+  public manualX?: number;
+  public manualY?: number;
+
   // Set to true if this component represents a sequence lifeline
   public lifeline: boolean = false;
 

@@ -112,3 +112,85 @@ function skipBlockComment(text: string, start: number): number {
   }
   return text.length;
 }
+
+export function updateDslComponentPosition(code: string, compId: string, x: number, y: number): string {
+  const declPattern = new RegExp(`\\b${compId}\\s*:\\s*([a-zA-Z_]\\w*)\\s*\\{`);
+  const match = code.match(declPattern);
+  if (!match) return code;
+
+  const declStart = match.index!;
+  const bodyStart = declStart + match[0].length - 1; // index of '{'
+
+  // Find matching closing brace
+  let depth = 0;
+  let closeBraceIndex = -1;
+  for (let idx = bodyStart; idx < code.length; idx++) {
+    if (code[idx] === '{') {
+      depth++;
+    } else if (code[idx] === '}') {
+      depth--;
+      if (depth === 0) {
+        closeBraceIndex = idx;
+        break;
+      }
+    }
+  }
+
+  if (closeBraceIndex === -1) return code;
+
+  const bodyText = code.slice(bodyStart + 1, closeBraceIndex);
+
+  // Check if x and y properties already exist in the body.
+  const xPattern = /(\b)(x\s*:\s*)-?\d+(\.\d+)?\b/;
+  const yPattern = /(\b)(y\s*:\s*)-?\d+(\.\d+)?\b/;
+
+  let newBodyText = bodyText;
+
+  // Round positions to integers to keep DSL clean
+  const rx = Math.round(x);
+  const ry = Math.round(y);
+
+  if (xPattern.test(newBodyText)) {
+    newBodyText = newBodyText.replace(xPattern, `$1$2${rx}`);
+  } else {
+    // Detect trailing space/newline of the body to insert before it
+    const trailingMatch = newBodyText.match(/(\r?\n\s*)$/);
+    const trailing = trailingMatch ? trailingMatch[0] : '\n';
+    newBodyText = newBodyText.replace(/(\r?\n\s*)$/, '');
+
+    // Detect indent
+    const lines = newBodyText.split('\n');
+    let indent = '  ';
+    for (const line of lines) {
+      const m = line.match(/^(\s+)\w+\s*:/);
+      if (m) {
+        indent = m[1];
+        break;
+      }
+    }
+    newBodyText += `\n${indent}x: ${rx}${trailing}`;
+  }
+
+  if (yPattern.test(newBodyText)) {
+    newBodyText = newBodyText.replace(yPattern, `$1$2${ry}`);
+  } else {
+    const trailingMatch = newBodyText.match(/(\r?\n\s*)$/);
+    const trailing = trailingMatch ? trailingMatch[0] : '\n';
+    newBodyText = newBodyText.replace(/(\r?\n\s*)$/, '');
+
+    // Detect indent
+    const lines = newBodyText.split('\n');
+    let indent = '  ';
+    for (const line of lines) {
+      const m = line.match(/^(\s+)\w+\s*:/);
+      if (m) {
+        indent = m[1];
+        break;
+      }
+    }
+    newBodyText += `\n${indent}y: ${ry}${trailing}`;
+  }
+
+  // Combine back
+  return code.slice(0, bodyStart + 1) + newBodyText + code.slice(closeBraceIndex);
+}

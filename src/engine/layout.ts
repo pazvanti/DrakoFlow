@@ -199,10 +199,13 @@ export function layoutComponent(
   const minHeightForPorts = (maxConnections + 1) * connectionSpacing;
   const height = Math.max(minDim.height, minHeightForPorts);
 
+  const finalX = component.manualX !== undefined ? component.manualX : x;
+  const finalY = component.manualY !== undefined ? component.manualY : y;
+
   if (isContainer(component)) {
     component.bounds = {
-      x,
-      y,
+      x: finalX,
+      y: finalY,
       width: minDim.width,
       height: height
     };
@@ -211,8 +214,8 @@ export function layoutComponent(
   }
 
   component.bounds = {
-    x,
-    y,
+    x: finalX,
+    y: finalY,
     width: minDim.width,
     height: height
   };

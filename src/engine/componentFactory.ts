@@ -195,6 +195,13 @@ function instantiateFromDefinition(
 
   component.lifeline = node.properties.lifeline === true;
 
+  if (typeof node.properties.x === 'number') {
+    component.manualX = node.properties.x;
+  }
+  if (typeof node.properties.y === 'number') {
+    component.manualY = node.properties.y;
+  }
+
   return component;
 }
 
