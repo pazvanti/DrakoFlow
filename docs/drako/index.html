@@ -1,0 +1,1302 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DrakoFlow - Text-to-Diagram Engine</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&family=Outfit:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <!-- Custom External Stylesheet -->
+  
+  <script type="module" crossorigin src="./assets/index-8af13474.js"></script>
+  <link rel="stylesheet" href="./assets/index-80f31965.css">
+</head>
+
+<body>
+
+  <!-- Top Navigation Header -->
+  <header class="main-header d-flex justify-content-between align-items-center">
+    <div class="d-flex align-items-center gap-3">
+      <a href="#" class="navbar-brand text-decoration-none fs-4">
+        <i class="bi bi-diagram-3-fill"></i> DrakoFlow
+      </a>
+      <span
+        class="badge bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle theme-badge">v1.0.0-beta</span>
+    </div>
+
+    <div class="d-flex align-items-center gap-2">
+      <!-- File Operations -->
+      <button id="btn-load" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1.5"
+        title="Load DSL Script">
+        <i class="bi bi-folder2-open"></i> Load
+      </button>
+      <button id="btn-save" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1.5"
+        title="Save DSL Script">
+        <i class="bi bi-floppy"></i> Save
+      </button>
+      <div class="vr mx-2 bg-secondary opacity-25"></div>
+
+      <!-- Export & Render -->
+      <button id="btn-export-png" class="btn btn-outline-primary btn-sm d-flex align-items-center gap-1.5"
+        title="Export as High-Res PNG">
+        <i class="bi bi-file-earmark-image"></i> Export PNG
+      </button>
+    </div>
+  </header>
+
+  <div class="app-container">
+
+    <!-- Slim Left Icon Dock -->
+    <div class="sidebar-dock">
+      <button id="btn-toggle-library" class="btn-dock-icon" title="Component Library" aria-expanded="false"
+        aria-controls="library-panel">
+        <i class="bi bi-box-seam"></i>
+      </button>
+    </div>
+
+    <!-- Component Library Sidebar Panel -->
+    <div id="library-panel" class="sidebar-panel collapsed">
+      <div class="panel-header d-flex justify-content-between align-items-center">
+        <h2 class="panel-title">
+          <i class="bi bi-collection"></i> Library
+        </h2>
+        <button id="btn-show-docs" class="btn btn-link text-muted p-0" title="Open Documentation" style="font-size: 1.15rem; line-height: 1; text-decoration: none;">
+          <i class="bi bi-question-circle"></i>
+        </button>
+      </div>
+
+      <div class="p-3 border-bottom border-secondary border-opacity-25">
+        <!-- Search Box -->
+        <div class="input-group input-group-sm mb-2">
+          <span class="input-group-text custom-input-group-text"><i class="bi bi-search"></i></span>
+          <input type="text" id="library-search"
+            class="form-control bg-dark border-secondary border-opacity-50 text-white" placeholder="Search shapes...">
+        </div>
+
+        <!-- Tag Selection Filter -->
+        <div class="filter-label">Filter Tags</div>
+        <div id="tag-filter-container" class="d-flex flex-wrap gap-1">
+          <!-- Tag filter buttons will be generated here dynamically -->
+        </div>
+      </div>
+
+      <!-- Grouped Component Accordion -->
+      <div id="library-content" class="flex-grow-1 overflow-y-auto">
+        <!-- Accordion items will be generated here dynamically -->
+      </div>
+    </div>
+
+    <!-- Left Column: Code Editor (width 35% on large, flex-basis otherwise) -->
+    <div id="editor-panel" class="panel-container flex-grow-0 flex-shrink-0" style="width: 35%; min-width: 320px;">
+
+      <div class="panel-header">
+        <h2 class="panel-title">
+          <i class="bi bi-code-square"></i> DSL Editor
+        </h2>
+        <span id="editor-filename" class="text-muted font-monospace filename-label" style="font-size: 0.75rem; cursor: pointer;" title="Click to rename">
+          diagram.drako <i class="bi bi-pencil-square ms-1" style="font-size: 0.7rem; opacity: 0.6;"></i>
+        </span>
+      </div>
+
+      <!-- Editor Textarea -->
+      <div class="editor-wrapper">
+        <div id="gutter" class="editor-gutter">
+          1
+        </div>
+        <div class="editor-container">
+          <pre id="highlighting" class="editor-highlight" aria-hidden="true"><code></code></pre>
+          <textarea id="editor" class="editor-textarea" spellcheck="false"
+            placeholder="Write diagram DSL here..."></textarea>
+        </div>
+      </div>
+
+      <!-- Editor Status Bar -->
+      <div class="status-bar">
+        <div id="status-text" class="d-flex align-items-center gap-1.5 text-success">
+          <i class="bi bi-check-circle-fill"></i> System Ready
+        </div>
+        <div id="editor-stats">
+          Lines: 1 | Chars: 0
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Right Column: Diagram Canvas (width 60%) -->
+    <div class="diagram-panel">
+
+      <div class="panel-header">
+        <h2 class="panel-title">
+          <i class="bi bi-image"></i> Diagram Preview
+        </h2>
+        <div class="d-flex align-items-center gap-2">
+          <button id="btn-toggle-editor" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1.5" title="Toggle Editor Panel" style="font-size: 0.75rem;">
+            <i class="bi bi-layout-sidebar"></i> <span>Hide Editor</span>
+          </button>
+          <select id="theme-select"
+            class="form-select form-select-sm bg-dark border-secondary border-opacity-50 text-white"
+            style="font-size: 0.75rem; width: 130px; cursor: pointer;">
+            <option value="drako-dark">Drako Dark</option>
+            <option value="drako-light">Drako Light</option>
+          </select>
+          <button id="btn-edit-theme" class="btn btn-outline-secondary btn-sm d-flex align-items-center justify-content-center" title="Customize Theme" style="font-size: 0.75rem; width: 32px; height: 28px;">
+            <i class="bi bi-sliders"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Tag Filter Bar for Diagram -->
+      <div id="diagram-tag-filter-bar" class="p-2 border-bottom border-secondary border-opacity-25 bg-dark-subtle d-none align-items-center gap-2 flex-wrap" style="font-size: 0.75rem;">
+        <span class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem; letter-spacing: 0.05em; user-select: none;">Filter Tags:</span>
+        <div id="diagram-tag-filters" class="d-flex flex-wrap gap-1"></div>
+        <button id="btn-clear-diagram-filters" class="btn btn-link text-muted p-0 ms-auto text-decoration-none" style="font-size: 0.7rem;">Clear All</button>
+      </div>
+
+      <!-- Graphical Viewport -->
+      <div id="canvas-container" class="diagram-canvas-container">
+        <svg id="diagram-svg" class="diagram-svg">
+          <g id="viewport-g">
+            <!-- Rendered diagram content will be placed here -->
+          </g>
+        </svg>
+      </div>
+
+      <!-- SVG Navigation controls Overlay -->
+      <div class="canvas-controls">
+        <button id="btn-zoom-in" class="btn-control" title="Zoom In">
+          <i class="bi bi-zoom-in"></i>
+        </button>
+        <button id="btn-zoom-out" class="btn-control" title="Zoom Out">
+          <i class="bi bi-zoom-out"></i>
+        </button>
+        <button id="btn-zoom-reset" class="btn-control" title="Reset Zoom">
+          <i class="bi bi-arrow-counterclockwise"></i>
+        </button>
+        <button id="btn-zoom-fit" class="btn-control" title="Fit to Screen">
+          <i class="bi bi-arrows-angle-expand"></i>
+        </button>
+        <div class="vr bg-secondary opacity-25 mx-1" style="width: 1px; align-self: stretch;"></div>
+        <button id="btn-toggle-lock" class="btn-control" title="Unlock Diagram (Enable dragging)">
+          <i class="bi bi-lock-fill text-warning"></i>
+        </button>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- Export PNG Options Modal -->
+  <div class="modal fade" id="export-modal" tabindex="-1" aria-labelledby="exportModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content bg-dark border-secondary border-opacity-50 text-white">
+        <div class="modal-header border-secondary border-opacity-25">
+          <h5 class="modal-title" id="exportModalLabel"><i class="bi bi-file-earmark-image-fill text-primary"></i> Export PNG Options</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="export-form" onsubmit="event.preventDefault();">
+            <!-- Range Selection -->
+            <div class="mb-3">
+              <label class="form-label text-muted small text-uppercase fw-bold">Export Range</label>
+              <div class="d-flex gap-4">
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="export-range" id="export-range-whole" value="whole" checked style="cursor: pointer;">
+                  <label class="form-check-label" for="export-range-whole" style="cursor: pointer;">
+                    Whole Diagram
+                  </label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="export-range" id="export-range-current" value="current" style="cursor: pointer;">
+                  <label class="form-check-label" for="export-range-current" style="cursor: pointer;">
+                    Current View
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Resolution Settings -->
+            <div class="mb-3">
+              <label class="form-label text-muted small text-uppercase fw-bold">Resolution (Width)</label>
+              <div class="row g-2 align-items-center mb-2">
+                <div class="col-8">
+                  <select id="export-res-preset" class="form-select bg-dark border-secondary border-opacity-50 text-white" style="cursor: pointer;">
+                    <option value="1024">Standard (1024px)</option>
+                    <option value="2048" selected>High-Res (2048px)</option>
+                    <option value="4096">Ultra-HD (4096px)</option>
+                    <option value="custom">Custom Width</option>
+                  </select>
+                </div>
+                <div class="col-4">
+                  <input type="number" id="export-custom-width" class="form-control bg-dark border-secondary border-opacity-50 text-white text-center" value="2048" min="200" max="8192" disabled>
+                </div>
+              </div>
+              <div id="export-size-preview" class="text-muted small">
+                Estimated Output: 2048px x 1536px (approx.)
+              </div>
+            </div>
+
+            <!-- Padding Settings -->
+            <div class="mb-3" id="export-padding-group">
+              <label for="export-padding" class="form-label text-muted small text-uppercase fw-bold d-flex justify-content-between">
+                Padding
+                <span class="badge bg-secondary-subtle text-secondary-emphasis" id="export-padding-val">40px</span>
+              </label>
+              <input type="range" class="form-range" min="0" max="200" step="5" id="export-padding" value="40" style="cursor: pointer;">
+            </div>
+
+            <!-- Background Selection -->
+            <div class="mb-3">
+              <label class="form-label text-muted small text-uppercase fw-bold">Background</label>
+              <div class="d-flex gap-4">
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="export-bg" id="export-bg-theme" value="theme" checked style="cursor: pointer;">
+                  <label class="form-check-label" for="export-bg-theme" style="cursor: pointer;">
+                    Theme Background
+                  </label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="export-bg" id="export-bg-transparent" value="transparent" style="cursor: pointer;">
+                  <label class="form-check-label" for="export-bg-transparent" style="cursor: pointer;">
+                    Transparent
+                  </label>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer border-secondary border-opacity-25">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" id="btn-do-export" class="btn btn-primary">Export</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Documentation / Help Modal -->
+  <div class="modal fade" id="help-modal" tabindex="-1" aria-labelledby="helpModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+      <div class="modal-content bg-dark border-secondary border-opacity-50 text-white">
+        <div class="modal-header border-secondary border-opacity-25">
+          <h5 class="modal-title" id="helpModalLabel"><i class="bi bi-book-half text-primary"></i> Component Documentation</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-0">
+          <div class="d-flex align-items-stretch" style="height: 70vh; min-height: 550px;">
+            <!-- Left Sidebar Nav -->
+            <div class="bg-dark-subtle p-3 border-end border-secondary border-opacity-25 flex-shrink-0 d-flex flex-column" style="width: 240px;">
+              <!-- Search box for components -->
+              <div class="mb-3">
+                <div class="input-group input-group-sm">
+                  <span class="input-group-text custom-input-group-text"><i class="bi bi-search"></i></span>
+                  <input type="text" id="doc-search"
+                    class="form-control bg-dark border-secondary border-opacity-50 text-white" placeholder="Search docs...">
+                </div>
+              </div>
+
+              <div class="nav flex-column nav-pills me-3 flex-grow-1 overflow-y-auto" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                <button class="nav-link active text-start py-2 px-3 mb-1" id="v-pills-rectangle-tab" data-bs-toggle="pill" data-bs-target="#v-pills-rectangle" type="button" role="tab" aria-controls="v-pills-rectangle" aria-selected="true">
+                  <i class="bi bi-square me-2"></i> Rectangle
+                </button>
+                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-process-tab" data-bs-toggle="pill" data-bs-target="#v-pills-process" type="button" role="tab" aria-controls="v-pills-process" aria-selected="false">
+                  <i class="bi bi-bezier2 me-2"></i> Process
+                </button>
+                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-ellipse-tab" data-bs-toggle="pill" data-bs-target="#v-pills-ellipse" type="button" role="tab" aria-controls="v-pills-ellipse" aria-selected="false">
+                  <i class="bi bi-circle me-2"></i> Circle / Ellipse
+                </button>
+                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-container-tab" data-bs-toggle="pill" data-bs-target="#v-pills-container" type="button" role="tab" aria-controls="v-pills-container" aria-selected="false">
+                  <i class="bi bi-grid-1x2 me-2"></i> Container
+                </button>
+                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-cylinder-tab" data-bs-toggle="pill" data-bs-target="#v-pills-cylinder" type="button" role="tab" aria-controls="v-pills-cylinder" aria-selected="false">
+                  <i class="bi bi-database me-2"></i> Cylinder
+                </button>
+                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-cube-tab" data-bs-toggle="pill" data-bs-target="#v-pills-cube" type="button" role="tab" aria-controls="v-pills-cube" aria-selected="false">
+                  <i class="bi bi-box me-2"></i> Cube
+                </button>
+                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-diamond-tab" data-bs-toggle="pill" data-bs-target="#v-pills-diamond" type="button" role="tab" aria-controls="v-pills-diamond" aria-selected="false">
+                  <i class="bi bi-suit-diamond me-2"></i> Diamond
+                </button>
+                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-hexagon-tab" data-bs-toggle="pill" data-bs-target="#v-pills-hexagon" type="button" role="tab" aria-controls="v-pills-hexagon" aria-selected="false">
+                  <i class="bi bi-hexagon me-2"></i> Hexagon
+                </button>
+                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-actor-tab" data-bs-toggle="pill" data-bs-target="#v-pills-actor" type="button" role="tab" aria-controls="v-pills-actor" aria-selected="false">
+                  <i class="bi bi-person me-2"></i> Actor
+                </button>
+                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-parallelogram-tab" data-bs-toggle="pill" data-bs-target="#v-pills-parallelogram" type="button" role="tab" aria-controls="v-pills-parallelogram" aria-selected="false">
+                  <i class="bi bi-distribute-vertical me-2"></i> Parallelogram
+                </button>
+                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-class-tab" data-bs-toggle="pill" data-bs-target="#v-pills-class" type="button" role="tab" aria-controls="v-pills-class" aria-selected="false">
+                  <i class="bi bi-layout-text-window me-2"></i> Class / List
+                </button>
+                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-interface-tab" data-bs-toggle="pill" data-bs-target="#v-pills-interface" type="button" role="tab" aria-controls="v-pills-interface" aria-selected="false">
+                  <i class="bi bi-braces me-2"></i> Interface
+                </button>
+                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-umlcomponent-tab" data-bs-toggle="pill" data-bs-target="#v-pills-umlcomponent" type="button" role="tab" aria-controls="v-pills-umlcomponent" aria-selected="false">
+                  <i class="bi bi-puzzle me-2"></i> Component
+                </button>
+                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-module-tab" data-bs-toggle="pill" data-bs-target="#v-pills-module" type="button" role="tab" aria-controls="v-pills-module" aria-selected="false">
+                  <i class="bi bi-file-earmark-code me-2"></i> Module
+                </button>
+                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-package-tab" data-bs-toggle="pill" data-bs-target="#v-pills-package" type="button" role="tab" aria-controls="v-pills-package" aria-selected="false">
+                  <i class="bi bi-folder2 me-2"></i> Package
+                </button>
+                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-text-tab" data-bs-toggle="pill" data-bs-target="#v-pills-text" type="button" role="tab" aria-controls="v-pills-text" aria-selected="false">
+                  <i class="bi bi-type me-2"></i> Simple Text
+                </button>
+                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-paragraph-tab" data-bs-toggle="pill" data-bs-target="#v-pills-paragraph" type="button" role="tab" aria-controls="v-pills-paragraph" aria-selected="false">
+                  <i class="bi bi-justify-left me-2"></i> Paragraph Text
+                </button>
+                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-relationship-tab" data-bs-toggle="pill" data-bs-target="#v-pills-relationship" type="button" role="tab" aria-controls="v-pills-relationship" aria-selected="false">
+                  <i class="bi bi-arrow-right-short me-2"></i> Relationships
+                </button>
+              </div>
+            </div>
+            
+            <!-- Right Tab Content -->
+            <div class="tab-content p-4 flex-grow-1 overflow-y-auto" id="v-pills-tabContent" style="max-height: 100%;">
+              <!-- Rectangle Tab -->
+              <div class="tab-pane fade show active" id="v-pills-rectangle" role="tabpanel" aria-labelledby="v-pills-rectangle-tab">
+                <h4 class="mb-1">Rectangle Component</h4>
+                <p class="text-muted small">A standard rectangular component supporting corner rounding, label text, and local styling overrides.</p>
+                
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Properties</h6>
+                <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
+                  <thead>
+                    <tr>
+                      <th style="width: 25%;">Property</th>
+                      <th style="width: 20%;">Type</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><code>label</code></td>
+                      <td>String</td>
+                      <td>Text displayed inside the rectangle.</td>
+                    </tr>
+                    <tr>
+                      <td><code>rx</code></td>
+                      <td>Number</td>
+                      <td>Horizontal corner radius (for rounded corners).</td>
+                    </tr>
+                    <tr>
+                      <td><code>ry</code></td>
+                      <td>Number</td>
+                      <td>Vertical corner radius (for rounded corners).</td>
+                    </tr>
+                    <tr>
+                      <td><code>lifeline</code></td>
+                      <td>Boolean</td>
+                      <td>Draws a vertical sequence lifeline from the bottom edge (default <code>false</code>).</td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Theme Overrides (Inside <code>themeOverride</code> block)</h6>
+                <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
+                  <thead>
+                    <tr>
+                      <th style="width: 35%;">Style Property</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><code>backgroundColor</code></td>
+                      <td>Fill color (Hex code like <code>"#1e1e2e"</code> or color name).</td>
+                    </tr>
+                    <tr>
+                      <td><code>borderColor</code></td>
+                      <td>Border stroke color (Hex code or color name).</td>
+                    </tr>
+                    <tr>
+                      <td><code>textColor</code></td>
+                      <td>Label text color (Hex code or color name).</td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Example Usage</h6>
+                <pre class="bg-black p-3 rounded font-monospace text-success" style="font-size: 0.75rem;">Database: Rectangle {
+  label: "User Store"
+  rx: 8
+  ry: 8
+  themeOverride: {
+    backgroundColor: "#1e1e2e"
+    borderColor: "#cdd6f4"
+    textColor: "#f5e0dc"
+  }
+}</pre>
+              </div>
+
+              <!-- Process Tab -->
+              <div class="tab-pane fade" id="v-pills-process" role="tabpanel" aria-labelledby="v-pills-process-tab">
+                <h4 class="mb-1">Process Component</h4>
+                <p class="text-muted small">A process step box with vertical segment lines, commonly used in flowchart steps or sequence actors.</p>
+                
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Properties</h6>
+                <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
+                  <thead>
+                    <tr>
+                      <th style="width: 25%;">Property</th>
+                      <th style="width: 20%;">Type</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><code>label</code></td>
+                      <td>String</td>
+                      <td>Text displayed inside the central section.</td>
+                    </tr>
+                    <tr>
+                      <td><code>tabWidthRatio</code></td>
+                      <td>Number</td>
+                      <td>Ratio of the side segments' width (default is <code>0.2</code>).</td>
+                    </tr>
+                    <tr>
+                      <td><code>lifeline</code></td>
+                      <td>Boolean</td>
+                      <td>Draws a vertical sequence lifeline from the bottom edge (default <code>false</code>).</td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Theme Overrides (Inside <code>themeOverride</code> block)</h6>
+                <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
+                  <thead>
+                    <tr>
+                      <th style="width: 35%;">Style Property</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><code>backgroundColor</code></td>
+                      <td>Fill color (Hex code or color name).</td>
+                    </tr>
+                    <tr>
+                      <td><code>borderColor</code></td>
+                      <td>Border and segment line color.</td>
+                    </tr>
+                    <tr>
+                      <td><code>textColor</code></td>
+                      <td>Label text color.</td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Example Usage</h6>
+                <pre class="bg-black p-3 rounded font-monospace text-success" style="font-size: 0.75rem;">Client: Process {
+  label: "Client App"
+  lifeline: true
+  themeOverride: {
+    backgroundColor: "#2e3440"
+    borderColor: "#88c0d0"
+    textColor: "#eceff4"
+  }
+}</pre>
+              </div>
+
+              <!-- Ellipse Tab -->
+              <div class="tab-pane fade" id="v-pills-ellipse" role="tabpanel" aria-labelledby="v-pills-ellipse-tab">
+                <h4 class="mb-1">Circle / Ellipse Component</h4>
+                <p class="text-muted small">Renders a circle (using radius) or an oval/ellipse shape (using rx and ry).</p>
+                
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Properties</h6>
+                <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
+                  <thead>
+                    <tr>
+                      <th style="width: 25%;">Property</th>
+                      <th style="width: 20%;">Type</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><code>label</code></td>
+                      <td>String</td>
+                      <td>Text displayed inside the shape.</td>
+                    </tr>
+                    <tr>
+                      <td><code>radius</code></td>
+                      <td>Number</td>
+                      <td>Radius for a perfect circle.</td>
+                    </tr>
+                    <tr>
+                      <td><code>rx</code></td>
+                      <td>Number</td>
+                      <td>Horizontal radius for an ellipse.</td>
+                    </tr>
+                    <tr>
+                      <td><code>ry</code></td>
+                      <td>Number</td>
+                      <td>Vertical radius for an ellipse.</td>
+                    </tr>
+                    <tr>
+                      <td><code>lifeline</code></td>
+                      <td>Boolean</td>
+                      <td>Draws a vertical sequence lifeline from the bottom edge (default <code>false</code>).</td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Theme Overrides (Inside <code>themeOverride</code> block)</h6>
+                <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
+                  <thead>
+                    <tr>
+                      <th style="width: 35%;">Style Property</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><code>backgroundColor</code></td>
+                      <td>Fill color of the ellipse.</td>
+                    </tr>
+                    <tr>
+                      <td><code>borderColor</code></td>
+                      <td>Outline color of the ellipse.</td>
+                    </tr>
+                    <tr>
+                      <td><code>textColor</code></td>
+                      <td>Label text color.</td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Example Usage</h6>
+                <pre class="bg-black p-3 rounded font-monospace text-success" style="font-size: 0.75rem;">StartNode: Ellipse {
+  label: "Start"
+  radius: 35
+  themeOverride: {
+    backgroundColor: "#a3be8c"
+    borderColor: "#4c566a"
+    textColor: "#2e3440"
+  }
+}</pre>
+              </div>
+
+              <!-- Container Tab -->
+              <div class="tab-pane fade" id="v-pills-container" role="tabpanel" aria-labelledby="v-pills-container-tab">
+                <h4 class="mb-1">Vertical Container Component</h4>
+                <p class="text-muted small">A container layout that stacks nested child components vertically with customizable gaps and padding.</p>
+                
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Properties</h6>
+                <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
+                  <thead>
+                    <tr>
+                      <th style="width: 25%;">Property</th>
+                      <th style="width: 20%;">Type</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><code>label</code></td>
+                      <td>String</td>
+                      <td>Header text displayed on the container.</td>
+                    </tr>
+                    <tr>
+                      <td><code>gap</code></td>
+                      <td>Number</td>
+                      <td>Vertical spacing in pixels between children (default is <code>12</code>).</td>
+                    </tr>
+                    <tr>
+                      <td><code>padding</code></td>
+                      <td>Number</td>
+                      <td>Internal margins around children inside container walls (default is <code>16</code>).</td>
+                    </tr>
+                    <tr>
+                      <td><code>lifeline</code></td>
+                      <td>Boolean</td>
+                      <td>Draws a vertical sequence lifeline from the bottom edge (default <code>false</code>).</td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Theme Overrides (Inside <code>themeOverride</code> block)</h6>
+                <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
+                  <thead>
+                    <tr>
+                      <th style="width: 35%;">Style Property</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><code>backgroundColor</code></td>
+                      <td>Fill color of the container header tab.</td>
+                    </tr>
+                    <tr>
+                      <td><code>borderColor</code></td>
+                      <td>Color of the outer container box stroke.</td>
+                    </tr>
+                    <tr>
+                      <td><code>textColor</code></td>
+                      <td>Container header label text color.</td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Example Usage</h6>
+                <pre class="bg-black p-3 rounded font-monospace text-success" style="font-size: 0.75rem;">MyContainer: VerticalContainer {
+  label: "User Module"
+  gap: 15
+  padding: 20
+  
+  UserObj: Rectangle {
+    label: "User Entity"
+  }
+}</pre>
+              </div>
+
+              <!-- Cylinder Tab -->
+              <div class="tab-pane fade" id="v-pills-cylinder" role="tabpanel" aria-labelledby="v-pills-cylinder-tab">
+                <h4 class="mb-1">Cylinder Component</h4>
+                <p class="text-muted small">A 3D cylinder shape commonly used to represent databases or data stores.</p>
+                
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Properties</h6>
+                <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
+                  <thead>
+                    <tr>
+                      <th style="width: 25%;">Property</th>
+                      <th style="width: 20%;">Type</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><code>label</code></td>
+                      <td>String</td>
+                      <td>Text label displayed inside the cylinder.</td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Example Usage</h6>
+                <pre class="bg-black p-3 rounded font-monospace text-success" style="font-size: 0.75rem;">UserDB: Cylinder {
+  label: "User Data Store"
+}</pre>
+              </div>
+
+              <!-- Cube Tab -->
+              <div class="tab-pane fade" id="v-pills-cube" role="tabpanel" aria-labelledby="v-pills-cube-tab">
+                <h4 class="mb-1">Cube Component</h4>
+                <p class="text-muted small">A 3D isometric box shape commonly representing services, processes, or modules.</p>
+                
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Properties</h6>
+                <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
+                  <thead>
+                    <tr>
+                      <th style="width: 25%;">Property</th>
+                      <th style="width: 20%;">Type</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><code>label</code></td>
+                      <td>String</td>
+                      <td>Text label displayed on the front face of the cube.</td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Example Usage</h6>
+                <pre class="bg-black p-3 rounded font-monospace text-success" style="font-size: 0.75rem;">AuthService: Cube {
+  label: "Auth Service"
+}</pre>
+              </div>
+
+              <!-- Diamond Tab -->
+              <div class="tab-pane fade" id="v-pills-diamond" role="tabpanel" aria-labelledby="v-pills-diamond-tab">
+                <h4 class="mb-1">Diamond Component</h4>
+                <p class="text-muted small">A diamond shape used for decision gateways or conditional branches in flowcharts.</p>
+                
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Properties</h6>
+                <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
+                  <thead>
+                    <tr>
+                      <th style="width: 25%;">Property</th>
+                      <th style="width: 20%;">Type</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><code>label</code></td>
+                      <td>String</td>
+                      <td>Text label displayed inside the diamond.</td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Example Usage</h6>
+                <pre class="bg-black p-3 rounded font-monospace text-success" style="font-size: 0.75rem;">CheckAuth: Diamond {
+  label: "Authorized?"
+}</pre>
+              </div>
+
+              <!-- Hexagon Tab -->
+              <div class="tab-pane fade" id="v-pills-hexagon" role="tabpanel" aria-labelledby="v-pills-hexagon-tab">
+                <h4 class="mb-1">Hexagon Component</h4>
+                <p class="text-muted small">A flat-topped hexagon shape commonly representing subsystems, domains, or nodes.</p>
+                
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Properties</h6>
+                <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
+                  <thead>
+                    <tr>
+                      <th style="width: 25%;">Property</th>
+                      <th style="width: 20%;">Type</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><code>label</code></td>
+                      <td>String</td>
+                      <td>Text label displayed inside the hexagon.</td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Example Usage</h6>
+                <pre class="bg-black p-3 rounded font-monospace text-success" style="font-size: 0.75rem;">BillingSystem: Hexagon {
+  label: "Billing Domain"
+}</pre>
+              </div>
+
+              <!-- Actor Tab -->
+              <div class="tab-pane fade" id="v-pills-actor" role="tabpanel" aria-labelledby="v-pills-actor-tab">
+                <h4 class="mb-1">Actor Component</h4>
+                <p class="text-muted small">A UML stick figure representing system users, actors, or external integrations.</p>
+                
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Properties</h6>
+                <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
+                  <thead>
+                    <tr>
+                      <th style="width: 25%;">Property</th>
+                      <th style="width: 20%;">Type</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><code>label</code></td>
+                      <td>String</td>
+                      <td>Text label displayed beneath the stick figure.</td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Example Usage</h6>
+                <pre class="bg-black p-3 rounded font-monospace text-success" style="font-size: 0.75rem;">User: Actor {
+  label: "Customer"
+}</pre>
+              </div>
+
+              <!-- Parallelogram Tab -->
+              <div class="tab-pane fade" id="v-pills-parallelogram" role="tabpanel" aria-labelledby="v-pills-parallelogram-tab">
+                <h4 class="mb-1">Parallelogram Component</h4>
+                <p class="text-muted small">A skewed parallelogram shape representing data, input/output files, or reports.</p>
+                
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Properties</h6>
+                <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
+                  <thead>
+                    <tr>
+                      <th style="width: 25%;">Property</th>
+                      <th style="width: 20%;">Type</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><code>label</code></td>
+                      <td>String</td>
+                      <td>Text label displayed inside the parallelogram.</td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Example Usage</h6>
+                <pre class="bg-black p-3 rounded font-monospace text-success" style="font-size: 0.75rem;">CsvData: Parallelogram {
+  label: "Upload File"
+}</pre>
+              </div>
+
+              <!-- Class / List Tab -->
+              <div class="tab-pane fade" id="v-pills-class" role="tabpanel" aria-labelledby="v-pills-class-tab">
+                <h4 class="mb-1">Class / List Component</h4>
+                <p class="text-muted small">A multi-compartment shape for UML class diagrams (with attributes and methods sections) or structured lists (with a header and item rows). Compartments are separated by semicolons.</p>
+
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Properties</h6>
+                <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
+                  <thead>
+                    <tr>
+                      <th style="width: 25%;">Property</th>
+                      <th style="width: 20%;">Type</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><code>label</code></td>
+                      <td>String</td>
+                      <td>Header text displayed in the top compartment (e.g. class name or list title).</td>
+                    </tr>
+                    <tr>
+                      <td><code>attributes</code></td>
+                      <td>String</td>
+                      <td>Semicolon-separated attribute rows (e.g. <code>"id: string; name: string"</code>). Renders a second compartment below the header.</td>
+                    </tr>
+                    <tr>
+                      <td><code>methods</code></td>
+                      <td>String</td>
+                      <td>Semicolon-separated method rows (e.g. <code>"getId(): string; save(): void"</code>). Renders a third compartment below attributes.</td>
+                    </tr>
+                    <tr>
+                      <td><code>items</code></td>
+                      <td>String</td>
+                      <td>Semicolon-separated list rows. Use this for a simple list without UML class structure.</td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Theme Overrides (Inside <code>themeOverride</code> block)</h6>
+                <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
+                  <thead>
+                    <tr>
+                      <th style="width: 35%;">Style Property</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><code>backgroundColor</code></td>
+                      <td>Fill color for all compartments.</td>
+                    </tr>
+                    <tr>
+                      <td><code>borderColor</code></td>
+                      <td>Border and compartment divider line color.</td>
+                    </tr>
+                    <tr>
+                      <td><code>textColor</code></td>
+                      <td>Text color for header and all rows.</td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Access Modifier Symbols (PlantUML-style)</h6>
+                <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
+                  <thead>
+                    <tr>
+                      <th style="width: 15%;">Symbol</th>
+                      <th style="width: 25%;">Visibility</th>
+                      <th>Colour</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr><td><code>+</code></td><td>Public</td><td style="color:#4ade80;">Green</td></tr>
+                    <tr><td><code>-</code></td><td>Private</td><td style="color:#f87171;">Red</td></tr>
+                    <tr><td><code>#</code></td><td>Protected</td><td style="color:#fb923c;">Amber</td></tr>
+                    <tr><td><code>~</code></td><td>Package / Internal</td><td style="color:#a78bfa;">Violet</td></tr>
+                  </tbody>
+                </table>
+
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">UML Class Example</h6>
+                <pre class="bg-black p-3 rounded font-monospace text-success" style="font-size: 0.75rem;">UserService: Class {
+  label: "UserService"
+  attributes: {
+    +id: string
+    +name: string
+    -passwordHash: string
+    #createdAt: Date
+  }
+  methods: {
+    +getUser(): User
+    +saveUser(): void
+    -validate(): boolean
+    ~auditLog(): void
+  }
+}</pre>
+
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Plain List Example</h6>
+                <pre class="bg-black p-3 rounded font-monospace text-success" style="font-size: 0.75rem;">Requirements: Class {
+  label: "Requirements"
+  items: {
+    Auth via OAuth 2.0
+    Rate limiting per IP
+    Audit logging
+    GDPR compliance
+  }
+}</pre>
+              </div>
+
+              <!-- Interface Tab -->
+              <div class="tab-pane fade" id="v-pills-interface" role="tabpanel" aria-labelledby="v-pills-interface-tab">
+                <h4 class="mb-1">Interface Component</h4>
+                <p class="text-muted small">A UML interface shape — rectangle with an <code>«interface»</code> stereotype label in italics above the bold interface name, and a separator line below the header for method rows.</p>
+
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Properties</h6>
+                <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
+                  <thead><tr><th style="width:25%;">Property</th><th style="width:20%;">Type</th><th>Description</th></tr></thead>
+                  <tbody>
+                    <tr><td><code>label</code></td><td>String</td><td>The interface name displayed in the header.</td></tr>
+                  </tbody>
+                </table>
+
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Example Usage</h6>
+                <pre class="bg-black p-3 rounded font-monospace text-success" style="font-size: 0.75rem;">Serializable: Interface {
+  label: "Serializable"
+}
+
+IRepository: Interface {
+  label: "IUserRepository"
+  themeOverride: {
+    borderColor: "#7aa2f7"
+    textColor: "#cdd6f4"
+  }
+}</pre>
+              </div>
+
+              <!-- Component Tab -->
+              <div class="tab-pane fade" id="v-pills-umlcomponent" role="tabpanel" aria-labelledby="v-pills-umlcomponent-tab">
+                <h4 class="mb-1">Component Shape</h4>
+                <p class="text-muted small">A UML component box — rectangle with the standard two-notch component icon on the right side, representing a deployable software component or service.</p>
+
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Properties</h6>
+                <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
+                  <thead><tr><th style="width:25%;">Property</th><th style="width:20%;">Type</th><th>Description</th></tr></thead>
+                  <tbody>
+                    <tr><td><code>label</code></td><td>String</td><td>The component name displayed inside the shape.</td></tr>
+                  </tbody>
+                </table>
+
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Example Usage</h6>
+                <pre class="bg-black p-3 rounded font-monospace text-success" style="font-size: 0.75rem;">PaymentService: UMLComponent {
+  label: "PaymentService"
+}
+
+AuthService: UMLComponent {
+  label: "AuthService"
+  themeOverride: {
+    borderColor: "#9ece6a"
+  }
+}</pre>
+              </div>
+
+              <!-- Module Tab -->
+              <div class="tab-pane fade" id="v-pills-module" role="tabpanel" aria-labelledby="v-pills-module-tab">
+                <h4 class="mb-1">Module Shape</h4>
+                <p class="text-muted small">A file-card shape with a small tab on the top-left corner — commonly used to represent a code module, file, or library unit.</p>
+
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Properties</h6>
+                <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
+                  <thead><tr><th style="width:25%;">Property</th><th style="width:20%;">Type</th><th>Description</th></tr></thead>
+                  <tbody>
+                    <tr><td><code>label</code></td><td>String</td><td>The module name displayed in the body.</td></tr>
+                  </tbody>
+                </table>
+
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Example Usage</h6>
+                <pre class="bg-black p-3 rounded font-monospace text-success" style="font-size: 0.75rem;">AuthModule: Module {
+  label: "auth.module"
+}
+
+HttpModule: Module {
+  label: "http.module"
+  themeOverride: {
+    borderColor: "#bb9af3"
+  }
+}</pre>
+              </div>
+
+              <!-- Package Tab -->
+              <div class="tab-pane fade" id="v-pills-package" role="tabpanel" aria-labelledby="v-pills-package-tab">
+                <h4 class="mb-1">Package Shape</h4>
+                <p class="text-muted small">A UML package — folder-style shape with a wider angled tab on the top-left that displays the package name, and a large open body area for nested elements.</p>
+
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Properties</h6>
+                <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
+                  <thead><tr><th style="width:25%;">Property</th><th style="width:20%;">Type</th><th>Description</th></tr></thead>
+                  <tbody>
+                    <tr><td><code>label</code></td><td>String</td><td>The package name shown inside the tab.</td></tr>
+                    <tr><td><code>gap</code></td><td>Number</td><td>Vertical spacing in pixels between children (default is <code>12</code>).</td></tr>
+                    <tr><td><code>padding</code></td><td>Number</td><td>Internal margins around children inside package walls (default is <code>16</code>).</td></tr>
+                  </tbody>
+                </table>
+
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Example Usage</h6>
+                <pre class="bg-black p-3 rounded font-monospace text-success" style="font-size: 0.75rem;">AuthPackage: Package {
+  label: "com.example.auth"
+  gap: 15
+  padding: 20
+  
+  AuthService: UMLComponent {
+    label: "AuthService"
+  }
+}
+
+InfraPackage: Package {
+  label: "com.example.infra"
+  themeOverride: {
+    borderColor: "#f7768e"
+    backgroundColor: "#1a1b26"
+  }
+}</pre>
+              </div>
+
+              <!-- Simple Text Tab -->
+              <div class="tab-pane fade" id="v-pills-text" role="tabpanel" aria-labelledby="v-pills-text-tab">
+                <h4 class="mb-1">Simple Text Component</h4>
+                <p class="text-muted small">Renders a single-line text label without any box or border, useful for annotations or standalone headers.</p>
+
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Properties</h6>
+                <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
+                  <thead><tr><th style="width:25%;">Property</th><th style="width:20%;">Type</th><th>Description</th></tr></thead>
+                  <tbody>
+                    <tr><td><code>label</code></td><td>String</td><td>The text string to display.</td></tr>
+                    <tr><td><code>align</code></td><td>String</td><td>Text alignment: <code>"left"</code>, <code>"center"</code>, or <code>"right"</code> (default <code>"center"</code>).</td></tr>
+                  </tbody>
+                </table>
+
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Example Usage</h6>
+                <pre class="bg-black p-3 rounded font-monospace text-success" style="font-size: 0.75rem;">NoteLabel: Text {
+  label: "This is a standalone note"
+  align: "left"
+  themeOverride: {
+    textColor: "#a1a1aa"
+  }
+}</pre>
+              </div>
+
+              <!-- Paragraph Text Tab -->
+              <div class="tab-pane fade" id="v-pills-paragraph" role="tabpanel" aria-labelledby="v-pills-paragraph-tab">
+                <h4 class="mb-1">Paragraph Text Component</h4>
+                <p class="text-muted small">Renders a multi-line paragraph block of text. Supports explicit newlines (<code>\n</code>) for multi-line formatting.</p>
+
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Properties</h6>
+                <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
+                  <thead><tr><th style="width:25%;">Property</th><th style="width:20%;">Type</th><th>Description</th></tr></thead>
+                  <tbody>
+                    <tr><td><code>text</code></td><td>String</td><td>The multi-line text to display (or use <code>label</code> as fallback).</td></tr>
+                    <tr><td><code>align</code></td><td>String</td><td>Text alignment: <code>"left"</code>, <code>"center"</code>, or <code>"right"</code> (default <code>"center"</code>).</td></tr>
+                  </tbody>
+                </table>
+
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Example Usage</h6>
+                <pre class="bg-black p-3 rounded font-monospace text-success" style="font-size: 0.75rem;">DescBlock: Paragraph {
+  text: "1. Perform user verification\n2. Call authorization subsystem\n3. Return result payload"
+  align: "left"
+}</pre>
+              </div>
+
+              <!-- Relationships Tab -->
+              <div class="tab-pane fade" id="v-pills-relationship" role="tabpanel" aria-labelledby="v-pills-relationship-tab">
+
+
+                <h4 class="mb-1">Relationships (Arrows & Connectors)</h4>
+                <p class="text-muted small">Connect components together with arrows and labels to describe flow steps.</p>
+                
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Arrow Directions</h6>
+                <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
+                  <thead>
+                    <tr>
+                      <th style="width: 25%;">Syntax</th>
+                      <th>Connector Type</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><code>A -> B</code></td>
+                      <td>Directed arrow pointing from A to B.</td>
+                    </tr>
+                    <tr>
+                      <td><code>A &lt;- B</code></td>
+                      <td>Directed arrow pointing from B to A.</td>
+                    </tr>
+                    <tr>
+                      <td><code>A &lt;-&gt; B</code></td>
+                      <td>Bidirectional arrow between A and B.</td>
+                    </tr>
+                    <tr>
+                      <td><code>A - B</code></td>
+                      <td>Simple connection line (no arrow heads).</td>
+                    </tr>
+                    <tr>
+                      <td><code>A o-&gt; B</code> / <code>A o-&gt;o B</code></td>
+                      <td>Directed arrow with circle(s) at the source, target (e.g., <code>-&gt;o</code>), or both ends.</td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Cardinalities (Optional)</h6>
+                <p class="small text-muted">Include brackets with multiplicity strings before and/or after the arrow:</p>
+                <pre class="bg-black p-2 px-3 rounded font-monospace text-warning d-inline-block" style="font-size: 0.8rem;">Client [1] -> [0..*] Order</pre>
+
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Connector Styling (Inside style block <code>{...}</code>)</h6>
+                <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
+                  <thead>
+                    <tr>
+                      <th style="width: 25%;">Property</th>
+                      <th style="width: 20%;">Type</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><code>color</code></td>
+                      <td>String</td>
+                      <td>Stroke color of the line/arrow (Hex code like <code>"#60a5fa"</code> or color name).</td>
+                    </tr>
+                    <tr>
+                      <td><code>lineStyle</code></td>
+                      <td>String</td>
+                      <td>Line pattern: <code>"solid"</code>, <code>"dashed"</code>, or <code>"dotted"</code> (defaults to <code>"solid"</code>).</td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Example Usage</h6>
+                <pre class="bg-black p-3 rounded font-monospace text-success" style="font-size: 0.75rem;">Client -> Server : "GET /orders" {
+  lineStyle: "solid"
+  color: "#60a5fa"
+}
+
+Server [1] -> [0..*] Database : "Fetch items" {
+  lineStyle: "dashed"
+  color: "#a1a1aa"
+}</pre>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- hidden file input for load -->
+  <input type="file" id="file-input" style="display: none;" accept=".drako,.draw,.txt" />
+
+  <!-- Color Picker Popup Overlay -->
+  <div id="color-picker-popup" class="color-picker-popup" style="display: none;">
+    <div class="color-grid"></div>
+    <div class="popup-footer">
+      <label class="custom-color-row">
+        <input type="color" id="editor-color-picker" class="inline-color-swatch" title="Custom color" />
+        <input type="text" id="editor-hex-input" class="hex-text-input" maxlength="7" placeholder="#rrggbb" spellcheck="false" />
+        <button id="btn-apply-hex" class="btn-apply-hex" title="Apply hex">↵</button>
+      </label>
+    </div>
+  </div>
+
+  <!-- Customize Theme Modal -->
+  <div class="modal fade" id="theme-modal" tabindex="-1" aria-labelledby="themeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content bg-dark text-white border-secondary">
+        <div class="modal-header border-secondary border-opacity-25">
+          <h5 class="modal-title" id="themeModalLabel"><i class="bi bi-palette-fill text-primary"></i> Customize Theme</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="theme-editor-form" onsubmit="event.preventDefault();">
+            <!-- Theme Select (Load Saved Theme) -->
+            <div class="mb-4">
+              <label for="theme-load-select" class="form-label small text-muted text-uppercase fw-bold">Load Saved Theme</label>
+              <div class="input-group input-group-sm">
+                <select id="theme-load-select" class="form-select bg-black text-white border-secondary border-opacity-50">
+                  <option value="">-- Select a saved theme --</option>
+                </select>
+                <button type="button" id="btn-delete-saved-theme" class="btn btn-outline-danger" title="Delete selected theme">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Divider -->
+            <hr class="border-secondary border-opacity-25 my-3">
+
+            <!-- Edit Colors -->
+            <div class="row g-3">
+              <div class="col-6">
+                <label for="input-primary-color" class="form-label small text-muted">Primary Accent</label>
+                <div class="input-group input-group-sm">
+                  <input type="color" id="picker-primary-color" class="form-control form-control-color bg-black border-secondary border-opacity-50" style="max-width: 42px; padding: 2px;">
+                  <input type="text" id="input-primary-color" class="form-control bg-black text-white border-secondary border-opacity-50 font-monospace" placeholder="#60a5fa" maxlength="7">
+                </div>
+              </div>
+
+              <div class="col-6">
+                <label for="input-secondary-color" class="form-label small text-muted">Secondary Accent</label>
+                <div class="input-group input-group-sm">
+                  <input type="color" id="picker-secondary-color" class="form-control form-control-color bg-black border-secondary border-opacity-50" style="max-width: 42px; padding: 2px;">
+                  <input type="text" id="input-secondary-color" class="form-control bg-black text-white border-secondary border-opacity-50 font-monospace" placeholder="#a1a1aa" maxlength="7">
+                </div>
+              </div>
+
+              <div class="col-6">
+                <label for="input-bg-color" class="form-label small text-muted">Canvas Background</label>
+                <div class="input-group input-group-sm">
+                  <input type="color" id="picker-bg-color" class="form-control form-control-color bg-black border-secondary border-opacity-50" style="max-width: 42px; padding: 2px;">
+                  <input type="text" id="input-bg-color" class="form-control bg-black text-white border-secondary border-opacity-50 font-monospace" placeholder="#18181b" maxlength="7">
+                </div>
+              </div>
+
+              <div class="col-6">
+                <label for="input-text-color" class="form-label small text-muted">Shape Text</label>
+                <div class="input-group input-group-sm">
+                  <input type="color" id="picker-text-color" class="form-control form-control-color bg-black border-secondary border-opacity-50" style="max-width: 42px; padding: 2px;">
+                  <input type="text" id="input-text-color" class="form-control bg-black text-white border-secondary border-opacity-50 font-monospace" placeholder="#f4f4f5" maxlength="7">
+                </div>
+              </div>
+
+              <div class="col-6">
+                <label for="input-border-color" class="form-label small text-muted">Border & Line</label>
+                <div class="input-group input-group-sm">
+                  <input type="color" id="picker-border-color" class="form-control form-control-color bg-black border-secondary border-opacity-50" style="max-width: 42px; padding: 2px;">
+                  <input type="text" id="input-border-color" class="form-control bg-black text-white border-secondary border-opacity-50 font-monospace" placeholder="#52525b" maxlength="7">
+                </div>
+              </div>
+
+              <div class="col-6">
+                <label for="input-font-family" class="form-label small text-muted">Font Family</label>
+                <input type="text" id="input-font-family" class="form-control form-control-sm bg-black text-white border-secondary border-opacity-50" placeholder="Outfit, sans-serif">
+              </div>
+            </div>
+
+            <!-- Save options -->
+            <div class="mt-4">
+              <label for="input-theme-name" class="form-label small text-muted text-uppercase fw-bold">Save Current Configuration</label>
+              <div class="input-group input-group-sm">
+                <input type="text" id="input-theme-name" class="form-control bg-black text-white border-secondary border-opacity-50" placeholder="Theme name (e.g. My Theme)">
+                <button type="button" id="btn-save-custom-theme" class="btn btn-primary d-flex align-items-center gap-1.5">
+                  <i class="bi bi-floppy-fill"></i> Save
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer border-secondary border-opacity-25">
+          <button type="button" id="btn-reset-theme" class="btn btn-outline-warning btn-sm me-auto">Reset to Default</button>
+          <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+          <button type="button" id="btn-apply-theme" class="btn btn-success btn-sm">Apply Theme</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap 5 JS and Dependencies -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  
+</body>
+
+</html>

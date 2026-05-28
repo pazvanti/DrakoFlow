@@ -6,7 +6,8 @@
   "scripts": {
     "build": "tsc",
     "test": "vitest run",
-    "dev": "vite"
+    "dev": "vite",
+    "build:pages": "node scripts/build-gh-pages.js"
   },
   "devDependencies": {
     "typescript": "^5.0.4",

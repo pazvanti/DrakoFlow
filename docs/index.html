@@ -1,0 +1,1481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="DrakoFlow - A modern text-to-diagram engine with interactive drag-and-drop spatial layout and bidirectional editor syncing.">
+  <title>DrakoFlow - Text-to-Diagram Refined</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  
+  <!-- Premium Dark Styling -->
+  <style>
+    :root {
+      --bg-dark: #09090b;
+      --bg-panel: #141416;
+      --bg-card: #18181b;
+      --bg-card-hover: #222226;
+      --border-color: #27272a;
+      --text-main: #f4f4f5;
+      --text-muted: #a1a1aa;
+      --accent-blue: #3b82f6;
+      --accent-purple: #8b5cf6;
+      --accent-green: #10b981;
+      --accent-gradient: linear-gradient(135deg, #60a5fa 0%, #3b82f6 50%, #8b5cf6 100%);
+      --glow-glow: rgba(59, 130, 246, 0.15);
+      --font-outfit: 'Outfit', sans-serif;
+      --font-fira: 'Fira Code', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: var(--font-outfit);
+      line-height: 1.6;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Ambient glow orbs */
+    .glow-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(150px);
+      opacity: 0.12;
+      z-index: 0;
+      pointer-events: none;
+    }
+    
+    @keyframes drift {
+      0% { transform: translate(0, 0) scale(1); }
+      50% { transform: translate(50px, -40px) scale(1.05); }
+      100% { transform: translate(0, 0) scale(1); }
+    }
+    @keyframes float-orb {
+      0% { transform: translate(0, 0) scale(1); }
+      50% { transform: translate(-40px, 50px) scale(0.95); }
+      100% { transform: translate(0, 0) scale(1); }
+    }
+
+    .orb-1 {
+      width: 600px;
+      height: 600px;
+      background: var(--accent-blue);
+      top: -200px;
+      left: -150px;
+      animation: drift 20s ease-in-out infinite;
+    }
+    .orb-2 {
+      width: 500px;
+      height: 500px;
+      background: var(--accent-purple);
+      top: 30%;
+      right: -100px;
+      animation: float-orb 24s ease-in-out infinite;
+    }
+    .orb-3 {
+      width: 450px;
+      height: 450px;
+      background: var(--accent-green);
+      bottom: -100px;
+      left: 10%;
+      animation: drift 28s ease-in-out infinite alternate;
+    }
+
+    a {
+      color: var(--accent-blue);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    a:hover {
+      color: #60a5fa;
+    }
+
+    /* Navigation Header */
+    header.site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background-color: rgba(9, 9, 11, 0.8);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .nav-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      background: var(--accent-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .logo i {
+      background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+    }
+
+    .nav-links a {
+      color: var(--text-muted);
+      font-weight: 500;
+      font-size: 0.95rem;
+    }
+
+    .nav-links a:hover {
+      color: var(--text-main);
+    }
+
+    .btn-launch {
+      background: var(--accent-gradient);
+      color: #ffffff;
+      padding: 0.5rem 1.25rem;
+      border-radius: 9999px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+    .btn-launch:hover {
+      color: #ffffff;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Hero Section */
+    section.hero {
+      position: relative;
+      z-index: 10;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 6rem 2rem 4rem 2rem;
+      text-align: center;
+      opacity: 0;
+      animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    /* Scroll Animation tokens */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1), transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .fade-in.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .features-grid .feature-card {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .features-grid.visible .feature-card {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .features-grid.visible .feature-card:nth-child(1) { transition-delay: 0.05s; }
+    .features-grid.visible .feature-card:nth-child(2) { transition-delay: 0.15s; }
+    .features-grid.visible .feature-card:nth-child(3) { transition-delay: 0.25s; }
+    .features-grid.visible .feature-card:nth-child(4) { transition-delay: 0.35s; }
+    .features-grid.visible .feature-card:nth-child(5) { transition-delay: 0.45s; }
+    .features-grid.visible .feature-card:nth-child(6) { transition-delay: 0.55s; }
+
+    .badge-new {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(59, 130, 246, 0.1);
+      border: 1px solid rgba(59, 130, 246, 0.2);
+      color: #60a5fa;
+      padding: 0.35rem 0.85rem;
+      border-radius: 9999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-bottom: 2rem;
+    }
+
+    .hero h1 {
+      font-size: 4rem;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 1.15;
+      margin-bottom: 1.5rem;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .gradient-text {
+      background: var(--accent-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero p.lead {
+      color: var(--text-muted);
+      font-size: 1.25rem;
+      max-width: 650px;
+      margin: 0 auto 2.5rem auto;
+      font-weight: 400;
+    }
+
+    .hero-ctas {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+    }
+
+    .btn-hero-primary {
+      background: var(--accent-gradient);
+      color: white;
+      padding: 0.85rem 2rem;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 1.05rem;
+      box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .btn-hero-primary i {
+      transition: transform 0.2s;
+    }
+    .btn-hero-primary:hover i {
+      transform: translateX(4px);
+    }
+    .btn-hero-primary:hover {
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+    }
+
+    .btn-hero-secondary {
+      background: rgba(39, 39, 42, 0.6);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 0.85rem 2rem;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 1.05rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      transition: background-color 0.2s, border-color 0.2s;
+    }
+    .btn-hero-secondary:hover {
+      background: rgba(39, 39, 42, 0.9);
+      border-color: #52525b;
+      color: var(--text-main);
+    }
+
+    /* Showcase Mockup Section */
+    section.showcase-container {
+      max-width: 1100px;
+      margin: 2rem auto 6rem auto;
+      padding: 0 2rem;
+      position: relative;
+      z-index: 10;
+    }
+
+    .mockup-wrapper {
+      background-color: var(--bg-panel);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .mockup-header {
+      background-color: rgba(20, 20, 22, 0.8);
+      border-bottom: 1px solid var(--border-color);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .mockup-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .mockup-header-dots {
+      display: flex;
+      gap: 6px;
+    }
+
+    .mockup-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+    .dot-red { background-color: #ef4444; }
+    .dot-yellow { background-color: #f59e0b; }
+    .dot-green { background-color: #10b981; }
+
+    .mockup-body {
+      display: flex;
+      height: 420px;
+    }
+
+    .mockup-editor {
+      width: 40%;
+      border-right: 1px solid var(--border-color);
+      background-color: #0c0c0e;
+      display: flex;
+      font-family: var(--font-fira);
+      font-size: 0.85rem;
+      overflow-y: auto;
+      padding: 1rem;
+      position: relative;
+    }
+
+    .mockup-editor-gutter {
+      width: 25px;
+      color: #4b5563;
+      text-align: right;
+      padding-right: 0.75rem;
+      user-select: none;
+      border-right: 1px solid #1a1a1e;
+      margin-right: 0.75rem;
+    }
+
+    .mockup-editor-content {
+      flex: 1;
+      color: #e4e4e7;
+      white-space: pre;
+    }
+
+    .mockup-canvas {
+      width: 60%;
+      background-color: var(--bg-dark);
+      background-image: radial-gradient(#1f1f23 1.2px, transparent 1.2px);
+      background-size: 16px 16px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .mock-svg {
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+    }
+
+    .mock-component {
+      cursor: default;
+      transition: filter 0.15s ease;
+    }
+
+    .canvas-unlocked .mock-component {
+      cursor: grab;
+    }
+    .canvas-unlocked .mock-component:active {
+      cursor: grabbing;
+    }
+
+    .mock-component rect,
+    .mock-component path {
+      transition: fill 0.2s, stroke-width 0.2s;
+    }
+
+    .mock-component:hover,
+    .mock-component.hovered {
+      filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.5));
+    }
+
+    .mock-component.filtered-out {
+      opacity: 0.15;
+      pointer-events: none;
+    }
+    path.filtered-out,
+    text.filtered-out {
+      opacity: 0.15;
+    }
+
+    /* Highlighter inside code */
+    .hl-comment { color: #6b7280; font-style: italic; }
+    .hl-string { color: #10b981; }
+    .hl-keyword { color: #c084fc; font-weight: 600; }
+    .hl-id { color: #fbbf24; }
+    .hl-property { color: #60a5fa; }
+    .hl-number { color: #f97316; }
+    .hl-operator { color: #22d3ee; }
+    .hl-decorator { color: #f472b6; font-style: italic; }
+
+    .code-line {
+      margin: 0;
+      padding: 0 0.5rem;
+      border-left: 3px solid transparent;
+      line-height: 1.5;
+      transition: background-color 0.15s ease, border-left-color 0.15s ease;
+    }
+
+    .hl-active-token {
+      background-color: rgba(59, 130, 246, 0.12) !important;
+      border-left-color: #3b82f6 !important;
+    }
+
+    /* Canvas Controls overlay */
+    .mockup-controls {
+      position: absolute;
+      bottom: 1.25rem;
+      right: 1.25rem;
+      background-color: rgba(24, 24, 27, 0.85);
+      border: 1px solid var(--border-color);
+      backdrop-filter: blur(8px);
+      border-radius: 6px;
+      padding: 0.25rem;
+      display: flex;
+      gap: 0.25rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    }
+
+    .mockup-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-main);
+      padding: 0.35rem 0.5rem;
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      transition: all 0.2s;
+    }
+
+    .mockup-btn:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+      color: var(--accent-blue);
+    }
+
+    .mockup-tip-overlay {
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+      background: rgba(9, 9, 11, 0.85);
+      border: 1px solid var(--border-color);
+      backdrop-filter: blur(6px);
+      padding: 0.4rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      z-index: 5;
+    }
+
+    .mockup-tag-bar {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: rgba(24, 24, 27, 0.85);
+      border: 1px solid var(--border-color);
+      backdrop-filter: blur(8px);
+      border-radius: 6px;
+      padding: 0.35rem 0.6rem;
+      display: flex;
+      gap: 0.4rem;
+      align-items: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+      z-index: 5;
+    }
+
+    .tag-bar-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-right: 0.2rem;
+    }
+
+    .mock-tag {
+      font-size: 0.7rem;
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+      border: 1px solid var(--border-color);
+      background-color: rgba(9, 9, 11, 0.5);
+      color: var(--text-muted);
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.15s;
+    }
+
+    .mock-tag:hover {
+      color: var(--text-main);
+      border-color: #52525b;
+    }
+
+    .mock-tag.active {
+      background-color: rgba(59, 130, 246, 0.2);
+      border-color: var(--accent-blue);
+      color: #60a5fa;
+    }
+
+    .mock-tag-clear {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      background: none;
+      border: none;
+      cursor: pointer;
+      text-decoration: underline;
+      padding: 0;
+      margin-left: 0.2rem;
+    }
+    .mock-tag-clear:hover {
+      color: var(--text-main);
+    }
+
+    /* Features Grid Section */
+    section.features-section {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 4rem 2rem;
+      position: relative;
+      z-index: 10;
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 4rem;
+    }
+
+    .section-header h2 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 1rem;
+    }
+
+    .section-header p {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 2rem;
+    }
+
+    .feature-card {
+      background-color: rgba(24, 24, 27, 0.5);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 2.5rem 2rem;
+      transition: transform 0.2s, border-color 0.2s, background-color 0.2s;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      backdrop-filter: blur(4px);
+    }
+
+    .feature-card:hover {
+      border-color: #3f3f46;
+      background-color: rgba(39, 39, 42, 0.4);
+      transform: translateY(-2px);
+    }
+
+    .feature-icon-wrapper {
+      width: 48px;
+      height: 48px;
+      border-radius: 10px;
+      background-color: rgba(59, 130, 246, 0.1);
+      border: 1px solid rgba(59, 130, 246, 0.2);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #60a5fa;
+      font-size: 1.35rem;
+    }
+
+    .feature-card:nth-child(2) .feature-icon-wrapper {
+      background-color: rgba(139, 92, 246, 0.1);
+      border-color: rgba(139, 92, 246, 0.2);
+      color: #a78bfa;
+    }
+
+    .feature-card:nth-child(3) .feature-icon-wrapper {
+      background-color: rgba(16, 185, 129, 0.1);
+      border-color: rgba(16, 185, 129, 0.2);
+      color: #34d399;
+    }
+
+    .feature-card h3 {
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+
+    .feature-card p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+
+    /* Tabbed Syntax Guide Section */
+    section.syntax-section {
+      max-width: 1000px;
+      margin: 4rem auto 6rem auto;
+      padding: 0 2rem;
+      position: relative;
+      z-index: 10;
+    }
+
+    .syntax-card {
+      background-color: var(--bg-panel);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .syntax-tabs {
+      background-color: rgba(20, 20, 22, 0.7);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      overflow-x: auto;
+    }
+
+    .syntax-tab {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 1rem 1.5rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+      border-bottom: 2px solid transparent;
+    }
+
+    .syntax-tab:hover {
+      color: var(--text-main);
+      background-color: rgba(255, 255, 255, 0.02);
+    }
+
+    .syntax-tab.active {
+      color: #60a5fa;
+      border-bottom-color: #3b82f6;
+      background-color: rgba(59, 130, 246, 0.05);
+    }
+
+    .syntax-content-wrapper {
+      padding: 2rem;
+    }
+
+    .syntax-panel {
+      display: none;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      align-items: start;
+    }
+
+    .syntax-panel.active {
+      display: grid;
+    }
+
+    .syntax-info h3 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+
+    .syntax-info p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .syntax-info ul {
+      list-style-type: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .syntax-info li {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.9rem;
+      color: var(--text-main);
+    }
+
+    .syntax-info li i {
+      color: #10b981;
+      font-size: 1.1rem;
+    }
+
+    .syntax-code {
+      background-color: #0c0c0e;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 1.25rem;
+      font-family: var(--font-fira);
+      font-size: 0.85rem;
+      line-height: 1.5;
+      overflow-x: auto;
+    }
+
+    .syntax-code pre {
+      margin: 0;
+    }
+
+    /* Bottom CTA Section */
+    section.cta-banner {
+      background: radial-gradient(circle at center, rgba(59, 130, 246, 0.15) 0%, rgba(9, 9, 11, 0) 70%), var(--bg-panel);
+      border-top: 1px solid var(--border-color);
+      border-bottom: 1px solid var(--border-color);
+      text-align: center;
+      padding: 5rem 2rem;
+      position: relative;
+      z-index: 10;
+    }
+
+    .cta-banner h2 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 1rem;
+    }
+
+    .cta-banner p {
+      color: var(--text-muted);
+      font-size: 1.15rem;
+      max-width: 500px;
+      margin: 0 auto 2.5rem auto;
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border-color);
+      background-color: #060608;
+      padding: 3rem 2rem;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      position: relative;
+      z-index: 10;
+    }
+
+    .footer-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .footer-brand {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 2rem;
+    }
+
+    .footer-links a {
+      color: var(--text-muted);
+    }
+    .footer-links a:hover {
+      color: var(--text-main);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 900px) {
+      .hero h1 {
+        font-size: 2.75rem;
+      }
+      .mockup-body {
+        flex-direction: column;
+        height: auto;
+      }
+      .mockup-editor {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+        height: 200px;
+      }
+      .mockup-canvas {
+        width: 100%;
+        height: 350px;
+      }
+      .syntax-panel {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .nav-links {
+        display: none;
+      }
+      .hero h1 {
+        font-size: 2.25rem;
+      }
+      .hero-ctas {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .footer-container {
+        flex-direction: column;
+        gap: 1.5rem;
+        text-align: center;
+      }
+      .footer-links {
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Ambient Glow Background Orbs -->
+  <div class="glow-orb orb-1"></div>
+  <div class="glow-orb orb-2"></div>
+  <div class="glow-orb orb-3"></div>
+
+  <!-- Navigation bar -->
+  <header class="site-header">
+    <div class="nav-container">
+      <div class="logo">
+        <i class="bi bi-diagram-3-fill"></i> DrakoFlow
+      </div>
+      <div class="nav-links">
+        <a href="#features">Features</a>
+        <a href="#demo">Live Demo</a>
+        <a href="#syntax">Syntax Guide</a>
+        <a href="https://github.com/pazvanti/DrakoFlow" target="_blank" rel="noopener"><i class="bi bi-github"></i> GitHub</a>
+      </div>
+      <div>
+        <a href="./drako/index.html" class="btn-launch">Launch App</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="badge-new">
+      <i class="bi bi-sparkles"></i> Alpha version, still in development
+    </div>
+    <h1>Text-to-Diagram, <span class="gradient-text">Refined.</span></h1>
+    <p class="lead">Write clear, declarative DSL scripts. Get precise, high-res diagrams instantly. Reposition components freely with drag-and-drop mechanics and save coordinate overrides directly.</p>
+    <div class="hero-ctas">
+      <a href="./drako/index.html" class="btn-hero-primary">
+        Launch Interactive Editor <i class="bi bi-arrow-right"></i>
+      </a>
+      <a href="https://github.com/pazvanti/DrakoFlow" target="_blank" rel="noopener" class="btn-hero-secondary">
+        <i class="bi bi-github"></i> View GitHub Project
+      </a>
+    </div>
+  </section>
+
+  <!-- Showcase Mockup Section -->
+  <section class="showcase-container fade-in" id="demo">
+    <div class="mockup-wrapper">
+      
+      <!-- Window Title Bar -->
+      <div class="mockup-header">
+        <div class="mockup-header-dots">
+          <div class="mockup-dot dot-red"></div>
+          <div class="mockup-dot dot-yellow"></div>
+          <div class="mockup-dot dot-green"></div>
+        </div>
+        <div class="mockup-title">
+          <i class="bi bi-window-sidebar"></i> Interactive Preview Model
+        </div>
+        <div style="width: 42px;"></div> <!-- Spacer -->
+      </div>
+
+      <!-- Editor & Canvas Split view -->
+      <div class="mockup-body">
+        
+        <!-- Left: Code editor -->
+        <div class="mockup-editor">
+          <div class="mockup-editor-gutter">
+            1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15
+          </div>
+          <div class="mockup-editor-content" id="mock-editor-code">
+            <!-- Dynamically populated by JS to sync coordinates -->
+          </div>
+        </div>
+
+        <!-- Right: Diagram canvas -->
+        <div class="mockup-canvas canvas-locked" id="mock-canvas-container">
+          <div class="mockup-tip-overlay">
+            <i class="bi bi-info-circle-fill text-primary"></i> <span>Unlock layout below to drag components!</span>
+          </div>
+
+
+
+          <svg class="mock-svg" id="mock-svg">
+            <defs>
+              <marker id="mock-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1.5 L 10 5 L 0 8.5 z" fill="#71717a" />
+              </marker>
+            </defs>
+
+            <!-- Relationships / Connections -->
+            <path id="conn-Gateway-AuthService" d="" fill="none" stroke="#71717a" stroke-width="2" marker-end="url(#mock-arrow)" stroke-dasharray="4 2"/>
+            <text id="lbl-conn-Gateway-AuthService" fill="#a1a1aa" font-size="10" font-family="Outfit" text-anchor="middle" font-weight="500">Verify</text>
+            
+            <path id="conn-Gateway-UserDB" d="" fill="none" stroke="#71717a" stroke-width="2" marker-end="url(#mock-arrow)"/>
+            <text id="lbl-conn-Gateway-UserDB" fill="#a1a1aa" font-size="10" font-family="Outfit" text-anchor="middle" font-weight="500">Read/Write</text>
+
+            <!-- Gateway: Rectangle -->
+            <g class="mock-component" id="mock-Gateway" data-id="Gateway">
+              <rect width="130" height="60" rx="8" ry="8" fill="#18181b" stroke="#3b82f6" stroke-width="2"/>
+              <text x="65" y="35" text-anchor="middle" fill="#f4f4f5" font-size="11" font-family="Outfit" font-weight="500">API Gateway</text>
+            </g>
+
+            <!-- AuthService: Cube (3D) -->
+            <g class="mock-component" id="mock-AuthService" data-id="AuthService">
+              <!-- isometric top face -->
+              <path d="M 65 5 L 120 20 L 65 35 L 10 20 Z" fill="#222226" stroke="#8b5cf6" stroke-width="2"/>
+              <!-- isometric left face -->
+              <path d="M 10 20 L 10 55 L 65 70 L 65 35 Z" fill="#18181b" stroke="#8b5cf6" stroke-width="2"/>
+              <!-- isometric right face -->
+              <path d="M 65 35 L 65 70 L 120 55 L 120 20 Z" fill="#131316" stroke="#8b5cf6" stroke-width="2"/>
+              <text x="65" y="50" text-anchor="middle" fill="#f4f4f5" font-size="11" font-family="Outfit" font-weight="500">Auth Service</text>
+            </g>
+
+            <!-- UserDB: Cylinder -->
+            <g class="mock-component" id="mock-UserDB" data-id="UserDB">
+              <!-- barrel wall -->
+              <path d="M 10 15 L 10 55 A 55 12 0 0 0 120 55 L 120 15 Z" fill="#18181b" stroke="#10b981" stroke-width="2" />
+              <!-- top lid -->
+              <ellipse cx="65" cy="15" rx="55" ry="12" fill="#222226" stroke="#10b981" stroke-width="2"/>
+              <!-- bottom lid curve stroke -->
+              <path d="M 10 55 A 55 12 0 0 0 120 55" fill="none" stroke="#10b981" stroke-width="2"/>
+              <text x="65" y="42" text-anchor="middle" fill="#f4f4f5" font-size="11" font-family="Outfit" font-weight="500">Users Database</text>
+            </g>
+          </svg>
+
+          <!-- SVG Navigation Overlay (Mocked controls) -->
+          <div class="mockup-controls">
+            <button class="mockup-btn" title="Zoom In"><i class="bi bi-zoom-in"></i></button>
+            <button class="mockup-btn" title="Zoom Out"><i class="bi bi-zoom-out"></i></button>
+            <button class="mockup-btn" title="Reset"><i class="bi bi-arrow-counterclockwise"></i></button>
+            <div style="width: 1px; background-color: var(--border-color); align-self: stretch; margin: 0 0.15rem;"></div>
+            <button class="mockup-btn" id="mock-btn-lock" title="Unlock Diagram (Enable dragging)">
+              <i class="bi bi-lock-fill text-warning"></i>
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Features Grid Section -->
+  <section class="features-section" id="features">
+    <div class="section-header fade-in">
+      <h2>Engineered for Visual Clarity</h2>
+      <p>Clean design syntax, responsive UI components, and state-of-the-art layout engines packed into a browser-based workflow.</p>
+    </div>
+    
+    <div class="features-grid">
+      <!-- Card 1 -->
+      <div class="feature-card">
+        <div class="feature-icon-wrapper">
+          <i class="bi bi-code-slash"></i>
+        </div>
+        <h3>Text-to-Diagram Engine</h3>
+        <p>Define components, structures, properties, and relationships using a readable, lightweight DSL script. No coding needed.</p>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="feature-card">
+        <div class="feature-icon-wrapper">
+          <i class="bi bi-hand-index-thumb"></i>
+        </div>
+        <h3>Drag-and-Drop Positioning</h3>
+        <p>Arrange objects freely by dragging. Overrides are written directly to your DSL code, preserving coordinates for subsequent loads.</p>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="feature-card">
+        <div class="feature-icon-wrapper">
+          <i class="bi bi-lock"></i>
+        </div>
+        <h3>Diagram Safety Lock</h3>
+        <p>Toggle locks on the canvas to disable item drags. Prevents accidental modifications while viewing or exporting diagrams.</p>
+      </div>
+
+      <!-- Card 4 -->
+      <div class="feature-card">
+        <div class="feature-icon-wrapper">
+          <i class="bi bi-arrow-repeat"></i>
+        </div>
+        <h3>Bidirectional Highlighting</h3>
+        <p>Hovering over an SVG element instantly highlights its source code definition in the editor. Cross-reference files in a flash.</p>
+      </div>
+
+      <!-- Card 5 -->
+      <div class="feature-card">
+        <div class="feature-icon-wrapper">
+          <i class="bi bi-palette"></i>
+        </div>
+        <h3>Curated Themes</h3>
+        <p>Toggle between stunning dark mode and light theme layouts, or completely override styles per component (background, border, text).</p>
+      </div>
+
+      <!-- Card 6 -->
+      <div class="feature-card">
+        <div class="feature-icon-wrapper">
+          <i class="bi bi-file-earmark-image"></i>
+        </div>
+        <h3>High-Res PNG Export</h3>
+        <p>Export diagram selections or full canvases to PNG up to 4K Ultra-HD with custom paddings and background options.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Syntax Guide Section -->
+  <section class="syntax-section fade-in" id="syntax">
+    <div class="section-header">
+      <h2>Simple DSL Reference</h2>
+      <p>Master the syntax in minutes. Learn the core component declarations and structure relationships.</p>
+    </div>
+
+    <div class="syntax-card">
+      <div class="syntax-tabs">
+        <button class="syntax-tab active" data-tab="rectangle">Rectangle</button>
+        <button class="syntax-tab" data-tab="package">Package (UML)</button>
+        <button class="syntax-tab" data-tab="tags">Tags & Filtering</button>
+        <button class="syntax-tab" data-tab="relationships">Relationships</button>
+      </div>
+
+      <div class="syntax-content-wrapper">
+        <!-- Rectangle Panel -->
+        <div class="syntax-panel active" id="panel-rectangle">
+          <div class="syntax-info">
+            <h3>Rectangle Component</h3>
+            <p>The standard rectangular box, supporting corner rounding overrides and local inline theme customizations.</p>
+            <ul>
+              <li><i class="bi bi-check-circle-fill"></i> <code>label</code>: display title of the node</li>
+              <li><i class="bi bi-check-circle-fill"></i> <code>rx</code> / <code>ry</code>: corner rounding values</li>
+              <li><i class="bi bi-check-circle-fill"></i> <code>themeOverride</code>: fill, border, text colors</li>
+            </ul>
+          </div>
+          <div class="syntax-code">
+            <pre><code>Database: Rectangle {
+  label: "User Store"
+  rx: 8
+  ry: 8
+  themeOverride: {
+    backgroundColor: "#1e1e2e"
+    borderColor: "#cdd6f4"
+    textColor: "#f5e0dc"
+  }
+}</code></pre>
+          </div>
+        </div>
+
+        <!-- Package Panel -->
+        <div class="syntax-panel" id="panel-package">
+          <div class="syntax-info">
+            <h3>Package (UML)</h3>
+            <p>Renders a UML folder-style boundary tab containing other components. Extremely useful for microservices domain scoping and module boundaries.</p>
+            <ul>
+              <li><i class="bi bi-check-circle-fill"></i> Nest any shapes or relationships inside the braces</li>
+              <li><i class="bi bi-check-circle-fill"></i> Fully supports nested layout alignment automatically</li>
+            </ul>
+          </div>
+          <div class="syntax-code">
+            <pre><code>MyPackage: Package {
+  label: "billing.domain"
+  gap: 12
+  padding: 16
+
+  BillingService: UMLComponent {
+    label: "BillingService"
+  }
+
+  LedgerDB: Cylinder {
+    label: "Ledger DB"
+  }
+}</code></pre>
+          </div>
+        </div>
+
+        <!-- Tags Panel -->
+        <div class="syntax-panel" id="panel-tags">
+          <div class="syntax-info">
+            <h3>Tags & Filtering</h3>
+            <p>Categorize components with metadata tags to group them and dynamically filter the preview diagram view.</p>
+            <ul>
+              <li><i class="bi bi-check-circle-fill"></i> Syntax: <code>@tags: ["tag1", "tag2"]</code></li>
+              <li><i class="bi bi-check-circle-fill"></i> Decorators are placed directly above component definitions</li>
+              <li><i class="bi bi-check-circle-fill"></i> Interactive filter buttons appear automatically on the preview panel</li>
+            </ul>
+          </div>
+          <div class="syntax-code">
+            <pre><code>@tags: ["frontend", "client"]
+WebClient: Process {
+  label: "Frontend Web Client"
+}
+
+@tags: ["backend", "api"]
+AuthService: Cube {
+  label: "Auth Service"
+}</code></pre>
+          </div>
+        </div>
+        <div class="syntax-panel" id="panel-relationships">
+          <div class="syntax-info">
+            <h3>Relationships</h3>
+            <p>Define routes linking elements. The engine automatically draws orthgonal arrow routes, avoiding overlaps.</p>
+            <ul>
+              <li><i class="bi bi-check-circle-fill"></i> Syntax: <code>SourceID -> TargetID: "Label"</code></li>
+              <li><i class="bi bi-check-circle-fill"></i> Arrow lines adjust in real time during drags</li>
+            </ul>
+          </div>
+          <div class="syntax-code">
+            <pre><code>Gateway -> AuthService: "Token verification"
+Gateway -> RedisCache: "Check Session"</code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Bottom CTA -->
+  <section class="cta-banner fade-in">
+    <h2>Ready to build flowcharts?</h2>
+    <p>Try DrakoFlow directly in your browser. Fully offline-capable, client-side rendering with no account registration needed.</p>
+    <a href="./drako/index.html" class="btn-hero-primary">
+      Launch Interactive Editor <i class="bi bi-arrow-right"></i>
+    </a>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-container">
+      <div class="footer-brand">
+        <span class="logo" style="font-size: 1.25rem;">
+          <i class="bi bi-diagram-3-fill"></i> DrakoFlow
+        </span>
+        <p style="font-size: 0.8rem; margin-top: 0.25rem;">Browser-based client-side diagram mapping.</p>
+      </div>
+      <div class="footer-links">
+        <a href="#features">Features</a>
+        <a href="#demo">Live Demo</a>
+        <a href="#syntax">Syntax</a>
+        <a href="https://github.com/pazvanti/DrakoFlow" target="_blank" rel="noopener">GitHub</a>
+      </div>
+    </div>
+    <div style="text-align: center; margin-top: 2rem; font-size: 0.8rem; opacity: 0.6;">
+      &copy; 2026 DrakoFlow. Released under GNU General Public License v3.
+    </div>
+  </footer>
+
+  <!-- Mockup Interactions Script -->
+  <script>
+    // 1. Initial State of SVG elements inside mockup
+    const components = {
+      Gateway: { x: 50, y: 155, w: 130, h: 60 },
+      AuthService: { x: 340, y: 40, w: 130, h: 70 },
+      UserDB: { x: 340, y: 220, w: 130, h: 70 }
+    };
+
+    let draggedId = null;
+    let dragOffset = { x: 0, y: 0 };
+    let isMockLocked = true;
+
+    const svg = document.getElementById('mock-svg');
+    const canvasContainer = document.getElementById('mock-canvas-container');
+    const lockBtn = document.getElementById('mock-btn-lock');
+
+    // 2. Positions and connection drawer
+    function updateMockUI() {
+      // Set translate on components
+      for (const id in components) {
+        const comp = components[id];
+        const group = document.getElementById(`mock-${id}`);
+        if (group) {
+          group.setAttribute('transform', `translate(${comp.x}, ${comp.y})`);
+        }
+      }
+
+      // Draw routes: Gateway to AuthService, Gateway to UserDB
+      // Right face edge of Gateway:
+      const gX = components.Gateway.x + components.Gateway.w;
+      const gY = components.Gateway.y + components.Gateway.h / 2;
+
+      // Left face edge of AuthService:
+      const aX = components.AuthService.x;
+      const aY = components.AuthService.y + components.AuthService.h / 2;
+
+      // Left face edge of UserDB:
+      const dbX = components.UserDB.x;
+      const dbY = components.UserDB.y + components.UserDB.h / 2;
+
+      drawOrthogonalPath('conn-Gateway-AuthService', gX, gY, aX, aY);
+      drawOrthogonalPath('conn-Gateway-UserDB', gX, gY, dbX, dbY);
+    }
+
+    function drawOrthogonalPath(id, x1, y1, x2, y2) {
+      const path = document.getElementById(id);
+      if (!path) return;
+      const midX = Math.round((x1 + x2) / 2);
+      path.setAttribute('d', `M ${x1} ${y1} L ${midX} ${y1} L ${midX} ${y2} L ${x2} ${y2}`);
+
+      // Position text label
+      const label = document.getElementById(`lbl-${id}`);
+      if (label) {
+        label.setAttribute('x', midX);
+        const midY = Math.round((y1 + y2) / 2);
+        
+        // If it's a vertical segment, shift text slightly to the side of the line
+        if (Math.abs(y1 - y2) > 20) {
+          label.setAttribute('y', midY + 4);
+          label.setAttribute('dx', "-8");
+          label.setAttribute('text-anchor', "end");
+        } else {
+          label.setAttribute('y', midY - 6);
+          label.setAttribute('dx', "0");
+          label.setAttribute('text-anchor', "middle");
+        }
+      }
+    }
+
+    // Rebuild syntax highlighted editor contents
+    function updateMockEditorText() {
+      const g = components.Gateway;
+      const a = components.AuthService;
+      const db = components.UserDB;
+
+      const html = `
+<div class="code-line" data-comp="Gateway"><span class="hl-id">Gateway</span>: <span class="hl-keyword">Rectangle</span> {</div>
+<div class="code-line" data-comp="Gateway">  <span class="hl-property">label</span>: <span class="hl-string">"API Gateway"</span></div>
+<div class="code-line" data-comp="Gateway">  <span class="hl-property">rx</span>: <span class="hl-number">8</span>, <span class="hl-property">ry</span>: <span class="hl-number">8</span></div>
+<div class="code-line" data-comp="Gateway">  <span class="hl-property">x</span>: <span class="hl-number">${g.x}</span>, <span class="hl-property">y</span>: <span class="hl-number">${g.y}</span></div>
+<div class="code-line" data-comp="Gateway">}</div>
+<br>
+<div class="code-line" data-comp="AuthService"><span class="hl-id">AuthService</span>: <span class="hl-keyword">Cube</span> {</div>
+<div class="code-line" data-comp="AuthService">  <span class="hl-property">label</span>: <span class="hl-string">"Auth Service"</span></div>
+<div class="code-line" data-comp="AuthService">  <span class="hl-property">x</span>: <span class="hl-number">${a.x}</span>, <span class="hl-property">y</span>: <span class="hl-number">${a.y}</span></div>
+<div class="code-line" data-comp="AuthService">}</div>
+<br>
+<div class="code-line" data-comp="UserDB"><span class="hl-id">UserDB</span>: <span class="hl-keyword">Cylinder</span> {</div>
+<div class="code-line" data-comp="UserDB">  <span class="hl-property">label</span>: <span class="hl-string">"Users Database"</span></div>
+<div class="code-line" data-comp="UserDB">  <span class="hl-property">x</span>: <span class="hl-number">${db.x}</span>, <span class="hl-property">y</span>: <span class="hl-number">${db.y}</span></div>
+<div class="code-line" data-comp="UserDB">}</div>
+<br>
+<div class="code-line"><span class="hl-id">Gateway</span> <span class="hl-operator">-&gt;</span> <span class="hl-id">AuthService</span>: <span class="hl-string">"Verify"</span></div>
+<div class="code-line"><span class="hl-id">Gateway</span> <span class="hl-operator">-&gt;</span> <span class="hl-id">UserDB</span>: <span class="hl-string">"Read/Write"</span></div>
+`;
+      document.getElementById('mock-editor-code').innerHTML = html;
+      attachMockEditorHoverListeners();
+    }
+
+    // Lock toggle button listener
+    lockBtn.addEventListener('click', () => {
+      isMockLocked = !isMockLocked;
+      const tipSpan = canvasContainer.querySelector('.mockup-tip-overlay span');
+      if (isMockLocked) {
+        lockBtn.innerHTML = '<i class="bi bi-lock-fill text-warning"></i>';
+        lockBtn.setAttribute('title', 'Unlock Diagram (Enable dragging)');
+        canvasContainer.classList.add('canvas-locked');
+        canvasContainer.classList.remove('canvas-unlocked');
+        tipSpan.textContent = 'Unlock layout below to drag components!';
+      } else {
+        lockBtn.innerHTML = '<i class="bi bi-unlock text-success"></i>';
+        lockBtn.setAttribute('title', 'Lock Diagram (Disable dragging)');
+        canvasContainer.classList.add('canvas-unlocked');
+        canvasContainer.classList.remove('canvas-locked');
+        tipSpan.textContent = 'Drag elements on the grid freely!';
+      }
+    });
+
+    // Drag-and-drop mechanics inside SVG
+    svg.addEventListener('mousedown', (e) => {
+      if (isMockLocked) return;
+      const target = e.target.closest('.mock-component');
+      if (!target) return;
+
+      draggedId = target.getAttribute('data-id');
+      const comp = components[draggedId];
+      
+      const rect = svg.getBoundingClientRect();
+      // Calculate coordinates relative to SVG coordinates space (typically width/height matching viewport bounding boxes)
+      const mouseX = ((e.clientX - rect.left) / rect.width) * 500;
+      const mouseY = ((e.clientY - rect.top) / rect.height) * 350;
+      
+      dragOffset.x = mouseX - comp.x;
+      dragOffset.y = mouseY - comp.y;
+      
+      target.classList.add('dragging');
+      e.preventDefault();
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (!draggedId) return;
+      const comp = components[draggedId];
+      
+      const rect = svg.getBoundingClientRect();
+      const mouseX = ((e.clientX - rect.left) / rect.width) * 500;
+      const mouseY = ((e.clientY - rect.top) / rect.height) * 350;
+      
+      // Calculate moves and clamp within canvas boundary
+      comp.x = Math.max(10, Math.min(360, Math.round(mouseX - dragOffset.x)));
+      comp.y = Math.max(10, Math.min(270, Math.round(mouseY - dragOffset.y)));
+      
+      updateMockUI();
+      updateMockEditorText();
+    });
+
+    window.addEventListener('mouseup', () => {
+      if (!draggedId) return;
+      const target = document.getElementById(`mock-${draggedId}`);
+      if (target) {
+        target.classList.remove('dragging');
+      }
+      draggedId = null;
+    });
+
+    // Bidirectional highlighting code
+    function highlightComponent(compId) {
+      const group = document.getElementById(`mock-${compId}`);
+      if (group) group.classList.add('hovered');
+
+      const lines = document.querySelectorAll(`.code-line[data-comp="${compId}"]`);
+      lines.forEach(line => line.classList.add('hl-active-token'));
+    }
+
+    function unhighlightComponent(compId) {
+      const group = document.getElementById(`mock-${compId}`);
+      if (group) group.classList.remove('hovered');
+
+      const lines = document.querySelectorAll(`.code-line[data-comp="${compId}"]`);
+      lines.forEach(line => line.classList.remove('hl-active-token'));
+    }
+
+    function attachMockEditorHoverListeners() {
+      const lines = document.querySelectorAll('.code-line[data-comp]');
+      lines.forEach(line => {
+        const compId = line.getAttribute('data-comp');
+        line.addEventListener('mouseenter', () => highlightComponent(compId));
+        line.addEventListener('mouseleave', () => unhighlightComponent(compId));
+      });
+    }
+
+    // Attach mouseenter/mouseleave to SVG groups
+    document.querySelectorAll('.mock-component').forEach(group => {
+      const compId = group.getAttribute('data-id');
+      group.addEventListener('mouseenter', () => highlightComponent(compId));
+      group.addEventListener('mouseleave', () => unhighlightComponent(compId));
+    });
+
+    // Initialize Mock Viewport
+    updateMockUI();
+    updateMockEditorText();
+
+
+
+    // 3. Syntax Reference Tab controls
+    const tabButtons = document.querySelectorAll('.syntax-tab');
+    const panels = document.querySelectorAll('.syntax-panel');
+
+    tabButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        // Toggle tabs
+        tabButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        // Toggle panels
+        const tabTarget = btn.getAttribute('data-tab');
+        panels.forEach(panel => {
+          panel.classList.remove('active');
+          if (panel.id === `panel-${tabTarget}`) {
+            panel.classList.add('active');
+          }
+        });
+      });
+    });
+
+    // Intersection Observer for scroll animations
+    const observerOptions = {
+      root: null,
+      threshold: 0.1,
+      rootMargin: "0px 0px -50px 0px"
+    };
+
+    const animateObserver = new IntersectionObserver((entries, observer) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, observerOptions);
+
+    document.querySelectorAll('.fade-in, .features-grid').forEach(el => {
+      animateObserver.observe(el);
+    });
+  </script>
+</body>
+</html>
