@@ -1,19 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="DrakoFlow - A modern text-to-diagram engine with interactive drag-and-drop spatial layout and bidirectional editor syncing.">
+  <meta name="description"
+    content="DrakoFlow - A modern text-to-diagram engine with interactive drag-and-drop spatial layout and bidirectional editor syncing.">
   <title>DrakoFlow - Text-to-Diagram Refined</title>
-  
+
+  <link rel="canonical" href="https://pazvanti.github.io/DrakoFlow/" />
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://pazvanti.github.io/DrakoFlow/">
+  <meta property="og:title" content="DrakoFlow - Text-to-Diagram Refined">
+  <meta property="og:description"
+    content="A modern text-to-diagram engine with interactive drag-and-drop spatial layout and bidirectional editor syncing.">
+
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary">
+  <meta property="twitter:url" content="https://pazvanti.github.io/DrakoFlow/">
+  <meta property="twitter:title" content="DrakoFlow - Text-to-Diagram Refined">
+  <meta property="twitter:description"
+    content="A modern text-to-diagram engine with interactive drag-and-drop spatial layout and bidirectional editor syncing.">
+
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Outfit:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+
   <!-- Bootstrap Icons -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-  
+
   <!-- Premium Dark Styling -->
   <style>
     :root {
@@ -57,16 +77,33 @@
       z-index: 0;
       pointer-events: none;
     }
-    
+
     @keyframes drift {
-      0% { transform: translate(0, 0) scale(1); }
-      50% { transform: translate(50px, -40px) scale(1.05); }
-      100% { transform: translate(0, 0) scale(1); }
+      0% {
+        transform: translate(0, 0) scale(1);
+      }
+
+      50% {
+        transform: translate(50px, -40px) scale(1.05);
+      }
+
+      100% {
+        transform: translate(0, 0) scale(1);
+      }
     }
+
     @keyframes float-orb {
-      0% { transform: translate(0, 0) scale(1); }
-      50% { transform: translate(-40px, 50px) scale(0.95); }
-      100% { transform: translate(0, 0) scale(1); }
+      0% {
+        transform: translate(0, 0) scale(1);
+      }
+
+      50% {
+        transform: translate(-40px, 50px) scale(0.95);
+      }
+
+      100% {
+        transform: translate(0, 0) scale(1);
+      }
     }
 
     .orb-1 {
@@ -77,6 +114,7 @@
       left: -150px;
       animation: drift 20s ease-in-out infinite;
     }
+
     .orb-2 {
       width: 500px;
       height: 500px;
@@ -85,6 +123,7 @@
       right: -100px;
       animation: float-orb 24s ease-in-out infinite;
     }
+
     .orb-3 {
       width: 450px;
       height: 450px;
@@ -99,6 +138,7 @@
       text-decoration: none;
       transition: color 0.2s;
     }
+
     a:hover {
       color: #60a5fa;
     }
@@ -132,8 +172,14 @@
       background: var(--accent-gradient);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
+      transition: opacity 0.2s;
     }
-    
+
+    .logo:hover {
+      opacity: 0.9;
+      text-decoration: none;
+    }
+
     .logo i {
       background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
       -webkit-background-clip: text;
@@ -166,6 +212,7 @@
       transition: transform 0.2s, box-shadow 0.2s;
       box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
     }
+
     .btn-launch:hover {
       color: #ffffff;
       transform: translateY(-1px);
@@ -177,6 +224,7 @@
         opacity: 0;
         transform: translateY(20px);
       }
+
       to {
         opacity: 1;
         transform: translateY(0);
@@ -218,12 +266,29 @@
       transform: translateY(0);
     }
 
-    .features-grid.visible .feature-card:nth-child(1) { transition-delay: 0.05s; }
-    .features-grid.visible .feature-card:nth-child(2) { transition-delay: 0.15s; }
-    .features-grid.visible .feature-card:nth-child(3) { transition-delay: 0.25s; }
-    .features-grid.visible .feature-card:nth-child(4) { transition-delay: 0.35s; }
-    .features-grid.visible .feature-card:nth-child(5) { transition-delay: 0.45s; }
-    .features-grid.visible .feature-card:nth-child(6) { transition-delay: 0.55s; }
+    .features-grid.visible .feature-card:nth-child(1) {
+      transition-delay: 0.05s;
+    }
+
+    .features-grid.visible .feature-card:nth-child(2) {
+      transition-delay: 0.15s;
+    }
+
+    .features-grid.visible .feature-card:nth-child(3) {
+      transition-delay: 0.25s;
+    }
+
+    .features-grid.visible .feature-card:nth-child(4) {
+      transition-delay: 0.35s;
+    }
+
+    .features-grid.visible .feature-card:nth-child(5) {
+      transition-delay: 0.45s;
+    }
+
+    .features-grid.visible .feature-card:nth-child(6) {
+      transition-delay: 0.55s;
+    }
 
     .badge-new {
       display: inline-flex;
@@ -283,12 +348,15 @@
       gap: 0.75rem;
       transition: transform 0.2s, box-shadow 0.2s;
     }
+
     .btn-hero-primary i {
       transition: transform 0.2s;
     }
+
     .btn-hero-primary:hover i {
       transform: translateX(4px);
     }
+
     .btn-hero-primary:hover {
       color: white;
       transform: translateY(-2px);
@@ -308,6 +376,7 @@
       gap: 0.75rem;
       transition: background-color 0.2s, border-color 0.2s;
     }
+
     .btn-hero-secondary:hover {
       background: rgba(39, 39, 42, 0.9);
       border-color: #52525b;
@@ -363,9 +432,18 @@
       height: 10px;
       border-radius: 50%;
     }
-    .dot-red { background-color: #ef4444; }
-    .dot-yellow { background-color: #f59e0b; }
-    .dot-green { background-color: #10b981; }
+
+    .dot-red {
+      background-color: #ef4444;
+    }
+
+    .dot-yellow {
+      background-color: #f59e0b;
+    }
+
+    .dot-green {
+      background-color: #10b981;
+    }
 
     .mockup-body {
       display: flex;
@@ -426,6 +504,7 @@
     .canvas-unlocked .mock-component {
       cursor: grab;
     }
+
     .canvas-unlocked .mock-component:active {
       cursor: grabbing;
     }
@@ -444,20 +523,47 @@
       opacity: 0.15;
       pointer-events: none;
     }
+
     path.filtered-out,
     text.filtered-out {
       opacity: 0.15;
     }
 
     /* Highlighter inside code */
-    .hl-comment { color: #6b7280; font-style: italic; }
-    .hl-string { color: #10b981; }
-    .hl-keyword { color: #c084fc; font-weight: 600; }
-    .hl-id { color: #fbbf24; }
-    .hl-property { color: #60a5fa; }
-    .hl-number { color: #f97316; }
-    .hl-operator { color: #22d3ee; }
-    .hl-decorator { color: #f472b6; font-style: italic; }
+    .hl-comment {
+      color: #6b7280;
+      font-style: italic;
+    }
+
+    .hl-string {
+      color: #10b981;
+    }
+
+    .hl-keyword {
+      color: #c084fc;
+      font-weight: 600;
+    }
+
+    .hl-id {
+      color: #fbbf24;
+    }
+
+    .hl-property {
+      color: #60a5fa;
+    }
+
+    .hl-number {
+      color: #f97316;
+    }
+
+    .hl-operator {
+      color: #22d3ee;
+    }
+
+    .hl-decorator {
+      color: #f472b6;
+      font-style: italic;
+    }
 
     .code-line {
       margin: 0;
@@ -579,6 +685,7 @@
       padding: 0;
       margin-left: 0.2rem;
     }
+
     .mock-tag-clear:hover {
       color: var(--text-main);
     }
@@ -838,6 +945,7 @@
     .footer-links a {
       color: var(--text-muted);
     }
+
     .footer-links a:hover {
       color: var(--text-main);
     }
@@ -847,20 +955,24 @@
       .hero h1 {
         font-size: 2.75rem;
       }
+
       .mockup-body {
         flex-direction: column;
         height: auto;
       }
+
       .mockup-editor {
         width: 100%;
         border-right: none;
         border-bottom: 1px solid var(--border-color);
         height: 200px;
       }
+
       .mockup-canvas {
         width: 100%;
         height: 350px;
       }
+
       .syntax-panel {
         grid-template-columns: 1fr;
       }
@@ -870,24 +982,29 @@
       .nav-links {
         display: none;
       }
+
       .hero h1 {
         font-size: 2.25rem;
       }
+
       .hero-ctas {
         flex-direction: column;
         align-items: stretch;
       }
+
       .footer-container {
         flex-direction: column;
         gap: 1.5rem;
         text-align: center;
       }
+
       .footer-links {
         justify-content: center;
       }
     }
   </style>
 </head>
+
 <body>
 
   <!-- Ambient Glow Background Orbs -->
@@ -898,14 +1015,15 @@
   <!-- Navigation bar -->
   <header class="site-header">
     <div class="nav-container">
-      <div class="logo">
+      <a href="https://pazvanti.github.io/DrakoFlow/" class="logo">
         <i class="bi bi-diagram-3-fill"></i> DrakoFlow
-      </div>
+      </a>
       <div class="nav-links">
         <a href="#features">Features</a>
         <a href="#demo">Live Demo</a>
         <a href="#syntax">Syntax Guide</a>
-        <a href="https://github.com/pazvanti/DrakoFlow" target="_blank" rel="noopener"><i class="bi bi-github"></i> GitHub</a>
+        <a href="https://github.com/pazvanti/DrakoFlow" target="_blank" rel="noopener"><i class="bi bi-github"></i>
+          GitHub</a>
       </div>
       <div>
         <a href="./drako/index.html" class="btn-launch">Launch App</a>
@@ -919,7 +1037,8 @@
       <i class="bi bi-sparkles"></i> Alpha version, still in development
     </div>
     <h1>Text-to-Diagram, <span class="gradient-text">Refined.</span></h1>
-    <p class="lead">Write clear, declarative DSL scripts. Get precise, high-res diagrams instantly. Reposition components freely with drag-and-drop mechanics and save coordinate overrides directly.</p>
+    <p class="lead">Write clear, declarative DSL scripts. Get precise, high-res diagrams instantly. Reposition
+      components freely with drag-and-drop mechanics and save coordinate overrides directly.</p>
     <div class="hero-ctas">
       <a href="./drako/index.html" class="btn-hero-primary">
         Launch Interactive Editor <i class="bi bi-arrow-right"></i>
@@ -933,7 +1052,7 @@
   <!-- Showcase Mockup Section -->
   <section class="showcase-container fade-in" id="demo">
     <div class="mockup-wrapper">
-      
+
       <!-- Window Title Bar -->
       <div class="mockup-header">
         <div class="mockup-header-dots">
@@ -949,7 +1068,7 @@
 
       <!-- Editor & Canvas Split view -->
       <div class="mockup-body">
-        
+
         <!-- Left: Code editor -->
         <div class="mockup-editor">
           <div class="mockup-editor-gutter">
@@ -970,44 +1089,53 @@
 
           <svg class="mock-svg" id="mock-svg">
             <defs>
-              <marker id="mock-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <marker id="mock-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6"
+                orient="auto-start-reverse">
                 <path d="M 0 1.5 L 10 5 L 0 8.5 z" fill="#71717a" />
               </marker>
             </defs>
 
             <!-- Relationships / Connections -->
-            <path id="conn-Gateway-AuthService" d="" fill="none" stroke="#71717a" stroke-width="2" marker-end="url(#mock-arrow)" stroke-dasharray="4 2"/>
-            <text id="lbl-conn-Gateway-AuthService" fill="#a1a1aa" font-size="10" font-family="Outfit" text-anchor="middle" font-weight="500">Verify</text>
-            
-            <path id="conn-Gateway-UserDB" d="" fill="none" stroke="#71717a" stroke-width="2" marker-end="url(#mock-arrow)"/>
-            <text id="lbl-conn-Gateway-UserDB" fill="#a1a1aa" font-size="10" font-family="Outfit" text-anchor="middle" font-weight="500">Read/Write</text>
+            <path id="conn-Gateway-AuthService" d="" fill="none" stroke="#71717a" stroke-width="2"
+              marker-end="url(#mock-arrow)" stroke-dasharray="4 2" />
+            <text id="lbl-conn-Gateway-AuthService" fill="#a1a1aa" font-size="10" font-family="Outfit"
+              text-anchor="middle" font-weight="500">Verify</text>
+
+            <path id="conn-Gateway-UserDB" d="" fill="none" stroke="#71717a" stroke-width="2"
+              marker-end="url(#mock-arrow)" />
+            <text id="lbl-conn-Gateway-UserDB" fill="#a1a1aa" font-size="10" font-family="Outfit" text-anchor="middle"
+              font-weight="500">Read/Write</text>
 
             <!-- Gateway: Rectangle -->
             <g class="mock-component" id="mock-Gateway" data-id="Gateway">
-              <rect width="130" height="60" rx="8" ry="8" fill="#18181b" stroke="#3b82f6" stroke-width="2"/>
-              <text x="65" y="35" text-anchor="middle" fill="#f4f4f5" font-size="11" font-family="Outfit" font-weight="500">API Gateway</text>
+              <rect width="130" height="60" rx="8" ry="8" fill="#18181b" stroke="#3b82f6" stroke-width="2" />
+              <text x="65" y="35" text-anchor="middle" fill="#f4f4f5" font-size="11" font-family="Outfit"
+                font-weight="500">API Gateway</text>
             </g>
 
             <!-- AuthService: Cube (3D) -->
             <g class="mock-component" id="mock-AuthService" data-id="AuthService">
               <!-- isometric top face -->
-              <path d="M 65 5 L 120 20 L 65 35 L 10 20 Z" fill="#222226" stroke="#8b5cf6" stroke-width="2"/>
+              <path d="M 65 5 L 120 20 L 65 35 L 10 20 Z" fill="#222226" stroke="#8b5cf6" stroke-width="2" />
               <!-- isometric left face -->
-              <path d="M 10 20 L 10 55 L 65 70 L 65 35 Z" fill="#18181b" stroke="#8b5cf6" stroke-width="2"/>
+              <path d="M 10 20 L 10 55 L 65 70 L 65 35 Z" fill="#18181b" stroke="#8b5cf6" stroke-width="2" />
               <!-- isometric right face -->
-              <path d="M 65 35 L 65 70 L 120 55 L 120 20 Z" fill="#131316" stroke="#8b5cf6" stroke-width="2"/>
-              <text x="65" y="50" text-anchor="middle" fill="#f4f4f5" font-size="11" font-family="Outfit" font-weight="500">Auth Service</text>
+              <path d="M 65 35 L 65 70 L 120 55 L 120 20 Z" fill="#131316" stroke="#8b5cf6" stroke-width="2" />
+              <text x="65" y="50" text-anchor="middle" fill="#f4f4f5" font-size="11" font-family="Outfit"
+                font-weight="500">Auth Service</text>
             </g>
 
             <!-- UserDB: Cylinder -->
             <g class="mock-component" id="mock-UserDB" data-id="UserDB">
               <!-- barrel wall -->
-              <path d="M 10 15 L 10 55 A 55 12 0 0 0 120 55 L 120 15 Z" fill="#18181b" stroke="#10b981" stroke-width="2" />
+              <path d="M 10 15 L 10 55 A 55 12 0 0 0 120 55 L 120 15 Z" fill="#18181b" stroke="#10b981"
+                stroke-width="2" />
               <!-- top lid -->
-              <ellipse cx="65" cy="15" rx="55" ry="12" fill="#222226" stroke="#10b981" stroke-width="2"/>
+              <ellipse cx="65" cy="15" rx="55" ry="12" fill="#222226" stroke="#10b981" stroke-width="2" />
               <!-- bottom lid curve stroke -->
-              <path d="M 10 55 A 55 12 0 0 0 120 55" fill="none" stroke="#10b981" stroke-width="2"/>
-              <text x="65" y="42" text-anchor="middle" fill="#f4f4f5" font-size="11" font-family="Outfit" font-weight="500">Users Database</text>
+              <path d="M 10 55 A 55 12 0 0 0 120 55" fill="none" stroke="#10b981" stroke-width="2" />
+              <text x="65" y="42" text-anchor="middle" fill="#f4f4f5" font-size="11" font-family="Outfit"
+                font-weight="500">Users Database</text>
             </g>
           </svg>
 
@@ -1016,7 +1144,8 @@
             <button class="mockup-btn" title="Zoom In"><i class="bi bi-zoom-in"></i></button>
             <button class="mockup-btn" title="Zoom Out"><i class="bi bi-zoom-out"></i></button>
             <button class="mockup-btn" title="Reset"><i class="bi bi-arrow-counterclockwise"></i></button>
-            <div style="width: 1px; background-color: var(--border-color); align-self: stretch; margin: 0 0.15rem;"></div>
+            <div style="width: 1px; background-color: var(--border-color); align-self: stretch; margin: 0 0.15rem;">
+            </div>
             <button class="mockup-btn" id="mock-btn-lock" title="Unlock Diagram (Enable dragging)">
               <i class="bi bi-lock-fill text-warning"></i>
             </button>
@@ -1033,9 +1162,10 @@
   <section class="features-section" id="features">
     <div class="section-header fade-in">
       <h2>Engineered for Visual Clarity</h2>
-      <p>Clean design syntax, responsive UI components, and state-of-the-art layout engines packed into a browser-based workflow.</p>
+      <p>Clean design syntax, responsive UI components, and state-of-the-art layout engines packed into a browser-based
+        workflow.</p>
     </div>
-    
+
     <div class="features-grid">
       <!-- Card 1 -->
       <div class="feature-card">
@@ -1043,7 +1173,8 @@
           <i class="bi bi-code-slash"></i>
         </div>
         <h3>Text-to-Diagram Engine</h3>
-        <p>Define components, structures, properties, and relationships using a readable, lightweight DSL script. No coding needed.</p>
+        <p>Define components, structures, properties, and relationships using a readable, lightweight DSL script. No
+          coding needed.</p>
       </div>
 
       <!-- Card 2 -->
@@ -1052,7 +1183,8 @@
           <i class="bi bi-hand-index-thumb"></i>
         </div>
         <h3>Drag-and-Drop Positioning</h3>
-        <p>Arrange objects freely by dragging. Overrides are written directly to your DSL code, preserving coordinates for subsequent loads.</p>
+        <p>Arrange objects freely by dragging. Overrides are written directly to your DSL code, preserving coordinates
+          for subsequent loads.</p>
       </div>
 
       <!-- Card 3 -->
@@ -1061,7 +1193,8 @@
           <i class="bi bi-lock"></i>
         </div>
         <h3>Diagram Safety Lock</h3>
-        <p>Toggle locks on the canvas to disable item drags. Prevents accidental modifications while viewing or exporting diagrams.</p>
+        <p>Toggle locks on the canvas to disable item drags. Prevents accidental modifications while viewing or
+          exporting diagrams.</p>
       </div>
 
       <!-- Card 4 -->
@@ -1070,7 +1203,8 @@
           <i class="bi bi-arrow-repeat"></i>
         </div>
         <h3>Bidirectional Highlighting</h3>
-        <p>Hovering over an SVG element instantly highlights its source code definition in the editor. Cross-reference files in a flash.</p>
+        <p>Hovering over an SVG element instantly highlights its source code definition in the editor. Cross-reference
+          files in a flash.</p>
       </div>
 
       <!-- Card 5 -->
@@ -1079,7 +1213,8 @@
           <i class="bi bi-palette"></i>
         </div>
         <h3>Curated Themes</h3>
-        <p>Toggle between stunning dark mode and light theme layouts, or completely override styles per component (background, border, text).</p>
+        <p>Toggle between stunning dark mode and light theme layouts, or completely override styles per component
+          (background, border, text).</p>
       </div>
 
       <!-- Card 6 -->
@@ -1088,7 +1223,8 @@
           <i class="bi bi-file-earmark-image"></i>
         </div>
         <h3>High-Res PNG Export</h3>
-        <p>Export diagram selections or full canvases to PNG up to 4K Ultra-HD with custom paddings and background options.</p>
+        <p>Export diagram selections or full canvases to PNG up to 4K Ultra-HD with custom paddings and background
+          options.</p>
       </div>
     </div>
   </section>
@@ -1113,7 +1249,8 @@
         <div class="syntax-panel active" id="panel-rectangle">
           <div class="syntax-info">
             <h3>Rectangle Component</h3>
-            <p>The standard rectangular box, supporting corner rounding overrides and local inline theme customizations.</p>
+            <p>The standard rectangular box, supporting corner rounding overrides and local inline theme customizations.
+            </p>
             <ul>
               <li><i class="bi bi-check-circle-fill"></i> <code>label</code>: display title of the node</li>
               <li><i class="bi bi-check-circle-fill"></i> <code>rx</code> / <code>ry</code>: corner rounding values</li>
@@ -1138,7 +1275,8 @@
         <div class="syntax-panel" id="panel-package">
           <div class="syntax-info">
             <h3>Package (UML)</h3>
-            <p>Renders a UML folder-style boundary tab containing other components. Extremely useful for microservices domain scoping and module boundaries.</p>
+            <p>Renders a UML folder-style boundary tab containing other components. Extremely useful for microservices
+              domain scoping and module boundaries.</p>
             <ul>
               <li><i class="bi bi-check-circle-fill"></i> Nest any shapes or relationships inside the braces</li>
               <li><i class="bi bi-check-circle-fill"></i> Fully supports nested layout alignment automatically</li>
@@ -1165,11 +1303,14 @@
         <div class="syntax-panel" id="panel-tags">
           <div class="syntax-info">
             <h3>Tags & Filtering</h3>
-            <p>Categorize components with metadata tags to group them and dynamically filter the preview diagram view.</p>
+            <p>Categorize components with metadata tags to group them and dynamically filter the preview diagram view.
+            </p>
             <ul>
               <li><i class="bi bi-check-circle-fill"></i> Syntax: <code>@tags: ["tag1", "tag2"]</code></li>
-              <li><i class="bi bi-check-circle-fill"></i> Decorators are placed directly above component definitions</li>
-              <li><i class="bi bi-check-circle-fill"></i> Interactive filter buttons appear automatically on the preview panel</li>
+              <li><i class="bi bi-check-circle-fill"></i> Decorators are placed directly above component definitions
+              </li>
+              <li><i class="bi bi-check-circle-fill"></i> Interactive filter buttons appear automatically on the preview
+                panel</li>
             </ul>
           </div>
           <div class="syntax-code">
@@ -1187,7 +1328,8 @@ AuthService: Cube {
         <div class="syntax-panel" id="panel-relationships">
           <div class="syntax-info">
             <h3>Relationships</h3>
-            <p>Define routes linking elements. The engine automatically draws orthgonal arrow routes, avoiding overlaps.</p>
+            <p>Define routes linking elements. The engine automatically draws orthgonal arrow routes, avoiding overlaps.
+            </p>
             <ul>
               <li><i class="bi bi-check-circle-fill"></i> Syntax: <code>SourceID -> TargetID: "Label"</code></li>
               <li><i class="bi bi-check-circle-fill"></i> Arrow lines adjust in real time during drags</li>
@@ -1205,7 +1347,13 @@ Gateway -> RedisCache: "Check Session"</code></pre>
   <!-- Bottom CTA -->
   <section class="cta-banner fade-in">
     <h2>Ready to build flowcharts?</h2>
-    <p>Try DrakoFlow directly in your browser. Fully offline-capable, client-side rendering with no account registration needed.</p>
+    <p>Try DrakoFlow directly in your browser. Fully offline-capable, client-side rendering with no account registration
+      needed.</p>
+    <p
+      style="font-size: 0.9rem; opacity: 0.85; margin: -0.5rem auto 1.5rem auto; max-width: 600px; color: var(--accent-green);">
+      <i class="bi bi-shield-check"></i> 100% Client-Side: Your diagrams never leave your computer, with zero
+      server-side interactions.
+    </p>
     <a href="./drako/index.html" class="btn-hero-primary">
       Launch Interactive Editor <i class="bi bi-arrow-right"></i>
     </a>
@@ -1215,9 +1363,9 @@ Gateway -> RedisCache: "Check Session"</code></pre>
   <footer>
     <div class="footer-container">
       <div class="footer-brand">
-        <span class="logo" style="font-size: 1.25rem;">
+        <a href="https://pazvanti.github.io/DrakoFlow/" class="logo" style="font-size: 1.25rem;">
           <i class="bi bi-diagram-3-fill"></i> DrakoFlow
-        </span>
+        </a>
         <p style="font-size: 0.8rem; margin-top: 0.25rem;">Browser-based client-side diagram mapping.</p>
       </div>
       <div class="footer-links">
@@ -1288,7 +1436,7 @@ Gateway -> RedisCache: "Check Session"</code></pre>
       if (label) {
         label.setAttribute('x', midX);
         const midY = Math.round((y1 + y2) / 2);
-        
+
         // If it's a vertical segment, shift text slightly to the side of the line
         if (Math.abs(y1 - y2) > 20) {
           label.setAttribute('y', midY + 4);
@@ -1359,15 +1507,15 @@ Gateway -> RedisCache: "Check Session"</code></pre>
 
       draggedId = target.getAttribute('data-id');
       const comp = components[draggedId];
-      
+
       const rect = svg.getBoundingClientRect();
       // Calculate coordinates relative to SVG coordinates space (typically width/height matching viewport bounding boxes)
       const mouseX = ((e.clientX - rect.left) / rect.width) * 500;
       const mouseY = ((e.clientY - rect.top) / rect.height) * 350;
-      
+
       dragOffset.x = mouseX - comp.x;
       dragOffset.y = mouseY - comp.y;
-      
+
       target.classList.add('dragging');
       e.preventDefault();
     });
@@ -1375,15 +1523,15 @@ Gateway -> RedisCache: "Check Session"</code></pre>
     window.addEventListener('mousemove', (e) => {
       if (!draggedId) return;
       const comp = components[draggedId];
-      
+
       const rect = svg.getBoundingClientRect();
       const mouseX = ((e.clientX - rect.left) / rect.width) * 500;
       const mouseY = ((e.clientY - rect.top) / rect.height) * 350;
-      
+
       // Calculate moves and clamp within canvas boundary
       comp.x = Math.max(10, Math.min(360, Math.round(mouseX - dragOffset.x)));
       comp.y = Math.max(10, Math.min(270, Math.round(mouseY - dragOffset.y)));
-      
+
       updateMockUI();
       updateMockEditorText();
     });
@@ -1477,5 +1625,11 @@ Gateway -> RedisCache: "Check Session"</code></pre>
       animateObserver.observe(el);
     });
   </script>
+
+  <!-- 100% privacy-first analytics -->
+  <script async src="https://scripts.simpleanalyticscdn.com/latest.js"></script>
+  <noscript><img src="https://queue.simpleanalyticscdn.com/noscript.gif" alt=""
+      referrerpolicy="no-referrer-when-downgrade" /></noscript>
 </body>
+
 </html>

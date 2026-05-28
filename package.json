@@ -1,6 +1,7 @@
 {
   "name": "drakoflow",
   "version": "1.0.0",
+  "homepage": "https://pazvanti.github.io/DrakoFlow/",
   "description": "Client-side text-to-diagram engine",
   "main": "dist/main.js",
   "scripts": {
