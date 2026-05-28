@@ -725,3 +725,26 @@ body {
   background: rgba(59, 130, 246, 0.4);
   color: #ffffff;
 }
+
+/* Draggable component hover glow effects */
+.diagram-component {
+  transition: filter 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.diagram-component:hover,
+.diagram-component.hovered {
+  filter: drop-shadow(0 0 10px var(--diagram-hover-glow, rgba(96, 165, 250, 0.5)));
+}
+
+/* Canvas Lock cursor overrides */
+.canvas-locked .diagram-component {
+  cursor: default !important;
+}
+
+/* Editor tokens highlight range styling */
+.hl-active-token {
+  background-color: rgba(96, 165, 250, 0.2);
+  border-bottom: 1.5px solid #60a5fa;
+  border-radius: 2px;
+  box-shadow: 0 0 6px rgba(96, 165, 250, 0.35);
+}

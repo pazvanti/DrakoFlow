@@ -46,7 +46,7 @@ function escapeHtml(text: string): string {
     .replace(/'/g, '&#039;');
 }
 
-export function highlightDSL(code: string): HighlightResult {
+export function highlightDSL(code: string, activeRange?: { start: number; end: number }): HighlightResult {
   const colorTriggers: { startPos: number; color: string }[] = [];
   tokenRegex.lastIndex = 0;
   
@@ -58,39 +58,47 @@ export function highlightDSL(code: string): HighlightResult {
     const value = match[0];
     const escapedValue = escapeHtml(value);
     
+    let tokenHtml = '';
+    
     if (groups.hexColor !== undefined) {
       const hasQuotes = value.startsWith('"');
       const startPos = match.index + (hasQuotes ? 1 : 0);
       const color = hasQuotes ? value.slice(1, -1) : value;
       colorTriggers.push({ startPos, color });
-      html += `<span class="hl-color">${escapedValue}<span class="color-picker-trigger" data-start-pos="${startPos}" style="background-color: ${color};" title="Click to change color"></span></span>`;
+      tokenHtml = `<span class="hl-color">${escapedValue}<span class="color-picker-trigger" data-start-pos="${startPos}" style="background-color: ${color};" title="Click to change color"></span></span>`;
     } else if (groups.decorator !== undefined) {
-      html += `<span class="hl-decorator">${escapedValue}</span>`;
+      tokenHtml = `<span class="hl-decorator">${escapedValue}</span>`;
     } else if (groups.blockComment !== undefined) {
-      html += `<span class="hl-comment">${escapedValue}</span>`;
+      tokenHtml = `<span class="hl-comment">${escapedValue}</span>`;
     } else if (groups.comment !== undefined) {
-      html += `<span class="hl-comment">${escapedValue}</span>`;
+      tokenHtml = `<span class="hl-comment">${escapedValue}</span>`;
     } else if (groups.string !== undefined) {
-      html += `<span class="hl-string">${escapedValue}</span>`;
+      tokenHtml = `<span class="hl-string">${escapedValue}</span>`;
     } else if (groups.accessor !== undefined) {
       // Split leading whitespace from the symbol so we don't colour the indent
       const trimmed = value.trimStart();
       const indent = value.slice(0, value.length - trimmed.length);
-      html += escapeHtml(indent) + `<span class="hl-accessor">${escapeHtml(trimmed)}</span>`;
+      tokenHtml = escapeHtml(indent) + `<span class="hl-accessor">${escapeHtml(trimmed)}</span>`;
     } else if (groups.keyword !== undefined) {
-      html += `<span class="hl-keyword">${escapedValue}</span>`;
+      tokenHtml = `<span class="hl-keyword">${escapedValue}</span>`;
     } else if (groups.id !== undefined) {
-      html += `<span class="hl-id">${escapedValue}</span>`;
+      tokenHtml = `<span class="hl-id">${escapedValue}</span>`;
     } else if (groups.property !== undefined) {
-      html += `<span class="hl-property">${escapedValue}</span>`;
+      tokenHtml = `<span class="hl-property">${escapedValue}</span>`;
     } else if (groups.number !== undefined) {
-      html += `<span class="hl-number">${escapedValue}</span>`;
+      tokenHtml = `<span class="hl-number">${escapedValue}</span>`;
     } else if (groups.boolean !== undefined) {
-      html += `<span class="hl-boolean">${escapedValue}</span>`;
+      tokenHtml = `<span class="hl-boolean">${escapedValue}</span>`;
     } else if (groups.operator !== undefined) {
-      html += `<span class="hl-operator">${escapedValue}</span>`;
+      tokenHtml = `<span class="hl-operator">${escapedValue}</span>`;
     } else {
-      html += escapedValue;
+      tokenHtml = escapedValue;
+    }
+
+    if (activeRange && match.index >= activeRange.start && match.index + value.length <= activeRange.end) {
+      html += `<span class="hl-active-token">${tokenHtml}</span>`;
+    } else {
+      html += tokenHtml;
     }
   }
   

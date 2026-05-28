@@ -44,6 +44,7 @@ beforeEach(() => {
     <button id="btn-zoom-out"></button>
     <button id="btn-zoom-reset"></button>
     <button id="btn-zoom-fit"></button>
+    <button id="btn-toggle-lock"></button>
     <input type="radio" id="export-range-whole" name="export-range" checked />
     <input type="radio" id="export-range-current" name="export-range" />
     <select id="export-res-preset"></select>

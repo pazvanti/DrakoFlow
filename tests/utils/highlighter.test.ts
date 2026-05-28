@@ -49,4 +49,10 @@ describe('highlightDSL', () => {
     // The comment span should contain the opening delimiter
     expect(result.html).toContain('/**');
   });
+
+  it('applies hl-active-token class to tokens within activeRange', () => {
+    const code = 'Client: Process {\n  label: "Client App"\n}';
+    const result = highlightDSL(code, { start: 0, end: 15 });
+    expect(result.html).toContain('class="hl-active-token"');
+  });
 });

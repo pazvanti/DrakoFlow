@@ -95,6 +95,12 @@ let activeDiagramTags: string[] = [];
 let currentComponents: BaseComponent[] = [];
 let currentDisplayRelationships: ParsedRelationship[] = [];
 
+// Range of editor text to highlight when hovering over a component in the SVG
+let activeHighlightRange: { start: number; end: number } | null = null;
+
+// Diagram dragging lock state (locked by default to prevent accidental moves)
+let isDiagramLocked = true;
+
 function collectAllNodes(nodes: ParsedNode[], map = new Map<string, ParsedNode>()): Map<string, ParsedNode> {
   nodes.forEach(node => {
     map.set(node.id, node);
@@ -345,6 +351,7 @@ const btnZoomIn = document.getElementById('btn-zoom-in') as HTMLButtonElement;
 const btnZoomOut = document.getElementById('btn-zoom-out') as HTMLButtonElement;
 const btnZoomReset = document.getElementById('btn-zoom-reset') as HTMLButtonElement;
 const btnZoomFit = document.getElementById('btn-zoom-fit') as HTMLButtonElement;
+const btnToggleLock = document.getElementById('btn-toggle-lock') as HTMLButtonElement;
 
 // Export Modal Elements
 const exportRangeWhole = document.getElementById('export-range-whole') as HTMLInputElement;
@@ -692,7 +699,7 @@ function updateEditorMetrics(): void {
 
   // Update syntax highlighting
   if (highlighting) {
-    const highlightResult = highlightDSL(code);
+    const highlightResult = highlightDSL(code, activeHighlightRange || undefined);
     lastColorTriggers = highlightResult.colorTriggers;
     const codeElem = highlighting.querySelector('code');
     if (codeElem) {
@@ -762,6 +769,11 @@ function fitToScreen(): void {
  */
 function renderDiagram(): void {
   const code = editor.value;
+
+  if (canvasContainer) {
+    const glowColor = currentTheme.primaryColor.startsWith('#') ? currentTheme.primaryColor + '66' : currentTheme.primaryColor;
+    canvasContainer.style.setProperty('--diagram-hover-glow', glowColor);
+  }
 
   try {
     const dslDocument = parseDslDocument(code);
@@ -874,7 +886,29 @@ function renderDiagram(): void {
     viewportG.innerHTML = '';
 
     components.forEach((component: BaseComponent) => {
-      viewportG.appendChild(component.render(currentTheme));
+      const g = component.render(currentTheme);
+      g.classList.add('diagram-component');
+      g.style.cursor = 'grab';
+
+      // Highlight declaration in the editor on mouseenter
+      g.addEventListener('mouseenter', () => {
+        const code = editor.value;
+        const range = getComponentBlockRange(code, component.id);
+        if (range) {
+          activeHighlightRange = range;
+          updateEditorMetrics();
+        }
+        g.classList.add('hovered');
+      });
+
+      // Clear highlighting on mouseleave
+      g.addEventListener('mouseleave', () => {
+        activeHighlightRange = null;
+        updateEditorMetrics();
+        g.classList.remove('hovered');
+      });
+
+      viewportG.appendChild(g);
     });
 
     if (displayRelationships.length > 0) {
@@ -996,13 +1030,52 @@ function findRootComponentElement(target: EventTarget | null): SVGGElement | nul
   return null;
 }
 
+function getComponentBlockRange(code: string, compId: string): { start: number; end: number } | null {
+  const declPattern = new RegExp(`\\b${compId}\\s*:\\s*([a-zA-Z_]\\w*)\\s*\\{`);
+  const match = code.match(declPattern);
+  if (!match) return null;
+
+  const start = match.index!;
+  const bodyStart = start + match[0].length - 1; // index of '{'
+
+  // Find matching closing brace
+  let depth = 0;
+  let closeBraceIndex = -1;
+  for (let idx = bodyStart; idx < code.length; idx++) {
+    if (code[idx] === '{') {
+      depth++;
+    } else if (code[idx] === '}') {
+      depth--;
+      if (depth === 0) {
+        closeBraceIndex = idx;
+        break;
+      }
+    }
+  }
+
+  if (closeBraceIndex === -1) return null;
+  return { start, end: closeBraceIndex + 1 };
+}
+
+function updateLockStateUI(): void {
+  if (isDiagramLocked) {
+    btnToggleLock.title = "Unlock Diagram (Enable dragging)";
+    btnToggleLock.innerHTML = '<i class="bi bi-lock-fill text-warning"></i>';
+    canvasContainer.classList.add('canvas-locked');
+  } else {
+    btnToggleLock.title = "Lock Diagram (Disable dragging)";
+    btnToggleLock.innerHTML = '<i class="bi bi-unlock"></i>';
+    canvasContainer.classList.remove('canvas-locked');
+  }
+}
+
 // Panning and Drag-and-Drop Handlers
 canvasContainer.addEventListener('mousedown', (e) => {
   if (e.button !== 0 && e.button !== 1) return; // Left or Middle mouse button
 
   // Check if we are clicking on a root component element
   const componentG = findRootComponentElement(e.target);
-  if (componentG && e.button === 0) { // Only left click for dragging
+  if (componentG && e.button === 0 && !isDiagramLocked) { // Only left click for dragging if NOT locked
     const comp = currentComponents.find(c => c.id === componentG.id);
     if (comp) {
       dragTarget = comp;
@@ -1148,6 +1221,11 @@ btnZoomReset.addEventListener('click', () => {
 });
 
 btnZoomFit.addEventListener('click', fitToScreen);
+
+btnToggleLock.addEventListener('click', () => {
+  isDiagramLocked = !isDiagramLocked;
+  updateLockStateUI();
+});
 
 themeSelect.addEventListener('change', () => {
   const selectedTheme = themeSelect.value;
@@ -1583,6 +1661,8 @@ fileInput.addEventListener('change', () => {
     const text = e.target?.result;
     if (typeof text === 'string') {
       editor.value = text;
+      isDiagramLocked = true;
+      updateLockStateUI();
       updateEditorMetrics();
       renderDiagram();
       fitToScreen();
@@ -1911,6 +1991,7 @@ if (btnToggleEditor && editorPanel) {
 // Initialization function to set up app UI and state
 function initializeApp(): void {
   editor.value = DEFAULT_DSL;
+  updateLockStateUI();
   updateEditorMetrics();
 
   // Load custom themes from localStorage and populate selects
