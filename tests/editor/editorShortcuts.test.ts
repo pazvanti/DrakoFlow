@@ -95,6 +95,15 @@ beforeEach(() => {
     URL.revokeObjectURL = vi.fn();
   }
 
+  // Mock navigator.clipboard
+  if (typeof navigator !== 'undefined') {
+    Object.assign(navigator, {
+      clipboard: {
+        writeText: vi.fn().mockResolvedValue(undefined)
+      }
+    });
+  }
+
   // Mock bootstrap Modal
   (window as any).bootstrap = {
     Modal: {
@@ -124,6 +133,39 @@ describe('Editor Shortcuts and Tab Indentation', () => {
     const clickSpy = vi.spyOn(btnLoad, 'click');
 
     const event = new KeyboardEvent('keydown', { key: 'o', ctrlKey: true, bubbles: true });
+    window.dispatchEvent(event);
+
+    expect(clickSpy).toHaveBeenCalled();
+  });
+
+  it('should trigger export button click on Ctrl+Shift+E', async () => {
+    await import('../../src/main');
+    const btnExportPng = document.getElementById('btn-export-png') as HTMLButtonElement;
+    const clickSpy = vi.spyOn(btnExportPng, 'click');
+
+    const event = new KeyboardEvent('keydown', { key: 'e', ctrlKey: true, shiftKey: true, bubbles: true });
+    window.dispatchEvent(event);
+
+    expect(clickSpy).toHaveBeenCalled();
+  });
+
+  it('should trigger copy SVG button click on Ctrl+Shift+C', async () => {
+    await import('../../src/main');
+    const btnCopySvg = document.getElementById('btn-copy-svg') as HTMLButtonElement;
+    const clickSpy = vi.spyOn(btnCopySvg, 'click');
+
+    const event = new KeyboardEvent('keydown', { key: 'c', ctrlKey: true, shiftKey: true, bubbles: true });
+    window.dispatchEvent(event);
+
+    expect(clickSpy).toHaveBeenCalled();
+  });
+
+  it('should trigger share button click on Ctrl+Shift+S', async () => {
+    await import('../../src/main');
+    const btnShare = document.getElementById('btn-share') as HTMLButtonElement;
+    const clickSpy = vi.spyOn(btnShare, 'click');
+
+    const event = new KeyboardEvent('keydown', { key: 's', ctrlKey: true, shiftKey: true, bubbles: true });
     window.dispatchEvent(event);
 
     expect(clickSpy).toHaveBeenCalled();
@@ -328,4 +370,53 @@ describe('Editor Shortcuts and Tab Indentation', () => {
     expect(passedSvg).toContain('<svg');
     expect(passedSvg).toContain('viewBox=');
   });
+
+  it('should filter documentation and hide/show category labels based on search input', async () => {
+    const helpModal = document.getElementById('help-modal') as HTMLElement;
+    helpModal.innerHTML = `
+      <input type="text" id="doc-search" />
+      <div id="v-pills-tab">
+        <div class="nav-label">General Docs</div>
+        <button class="nav-link" id="v-pills-relationship-tab">Relationships</button>
+        <button class="nav-link" id="v-pills-shortcuts-tab">Keyboard Shortcuts</button>
+        <div class="nav-label">Shapes & Components</div>
+        <button class="nav-link" id="v-pills-rectangle-tab">Rectangle</button>
+      </div>
+    `;
+
+    await import('../../src/main');
+
+    const docSearch = document.getElementById('doc-search') as HTMLInputElement;
+    const labels = helpModal.querySelectorAll('.nav-label');
+    const relationshipTab = document.getElementById('v-pills-relationship-tab') as HTMLButtonElement;
+    const rectangleTab = document.getElementById('v-pills-rectangle-tab') as HTMLButtonElement;
+
+    // Initially, no query, labels should be visible (i.e. not have 'd-none')
+    expect(labels[0].classList.contains('d-none')).toBe(false);
+    expect(labels[1].classList.contains('d-none')).toBe(false);
+    expect(relationshipTab.classList.contains('d-none')).toBe(false);
+    expect(rectangleTab.classList.contains('d-none')).toBe(false);
+
+    // Enter a query matching "rect"
+    docSearch.value = 'rect';
+    docSearch.dispatchEvent(new Event('input'));
+
+    // Labels should be hidden
+    expect(labels[0].classList.contains('d-none')).toBe(true);
+    expect(labels[1].classList.contains('d-none')).toBe(true);
+    // Rectangle should be visible, Relationship should be hidden
+    expect(relationshipTab.classList.contains('d-none')).toBe(true);
+    expect(rectangleTab.classList.contains('d-none')).toBe(false);
+
+    // Clear search
+    docSearch.value = '';
+    docSearch.dispatchEvent(new Event('input'));
+
+    // Everything should be visible again
+    expect(labels[0].classList.contains('d-none')).toBe(false);
+    expect(labels[1].classList.contains('d-none')).toBe(false);
+    expect(relationshipTab.classList.contains('d-none')).toBe(false);
+    expect(rectangleTab.classList.contains('d-none')).toBe(false);
+  });
 });
+

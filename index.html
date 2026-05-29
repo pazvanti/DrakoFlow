@@ -308,7 +308,7 @@
         <div class="modal-body p-0">
           <div class="d-flex align-items-stretch" style="height: 70vh; min-height: 550px;">
             <!-- Left Sidebar Nav -->
-            <div class="bg-dark-subtle p-3 border-end border-secondary border-opacity-25 flex-shrink-0 d-flex flex-column" style="width: 240px;">
+            <div class="bg-dark-subtle p-3 border-end border-secondary border-opacity-25 flex-shrink-0 d-flex flex-column" style="width: 290px;">
               <!-- Search box for components -->
               <div class="mb-3">
                 <div class="input-group input-group-sm">
@@ -319,7 +319,18 @@
               </div>
 
               <div class="nav flex-column flex-nowrap nav-pills flex-grow-1 overflow-y-auto" id="v-pills-tab" role="tablist" aria-orientation="vertical">
-                <button class="nav-link active text-start py-2 px-3 mb-1" id="v-pills-rectangle-tab" data-bs-toggle="pill" data-bs-target="#v-pills-rectangle" type="button" role="tab" aria-controls="v-pills-rectangle" aria-selected="true">
+                <!-- General Section -->
+                <div class="nav-label text-muted small text-uppercase fw-bold mb-2 px-3 mt-1">General Docs</div>
+                <button class="nav-link active text-start py-2 px-3 mb-1" id="v-pills-relationship-tab" data-bs-toggle="pill" data-bs-target="#v-pills-relationship" type="button" role="tab" aria-controls="v-pills-relationship" aria-selected="true">
+                  <i class="bi bi-arrow-right-short me-2"></i> Relationships
+                </button>
+                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-shortcuts-tab" data-bs-toggle="pill" data-bs-target="#v-pills-shortcuts" type="button" role="tab" aria-controls="v-pills-shortcuts" aria-selected="false">
+                  <i class="bi bi-keyboard me-2"></i> Keyboard Shortcuts
+                </button>
+
+                <!-- Shapes & Components Section -->
+                <div class="nav-label text-muted small text-uppercase fw-bold mb-2 px-3 mt-3">Shapes & Components</div>
+                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-rectangle-tab" data-bs-toggle="pill" data-bs-target="#v-pills-rectangle" type="button" role="tab" aria-controls="v-pills-rectangle" aria-selected="false">
                   <i class="bi bi-square me-2"></i> Rectangle
                 </button>
                 <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-process-tab" data-bs-toggle="pill" data-bs-target="#v-pills-process" type="button" role="tab" aria-controls="v-pills-process" aria-selected="false">
@@ -376,19 +387,13 @@
                 <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-rasterimage-tab" data-bs-toggle="pill" data-bs-target="#v-pills-rasterimage" type="button" role="tab" aria-controls="v-pills-rasterimage" aria-selected="false">
                   <i class="bi bi-image me-2"></i> Raster Image
                 </button>
-                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-relationship-tab" data-bs-toggle="pill" data-bs-target="#v-pills-relationship" type="button" role="tab" aria-controls="v-pills-relationship" aria-selected="false">
-                  <i class="bi bi-arrow-right-short me-2"></i> Relationships
-                </button>
-                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-shortcuts-tab" data-bs-toggle="pill" data-bs-target="#v-pills-shortcuts" type="button" role="tab" aria-controls="v-pills-shortcuts" aria-selected="false">
-                  <i class="bi bi-keyboard me-2"></i> Keyboard Shortcuts
-                </button>
               </div>
             </div>
             
             <!-- Right Tab Content -->
             <div class="tab-content p-4 flex-grow-1 overflow-y-auto" id="v-pills-tabContent" style="max-height: 100%;">
               <!-- Rectangle Tab -->
-              <div class="tab-pane fade show active" id="v-pills-rectangle" role="tabpanel" aria-labelledby="v-pills-rectangle-tab">
+              <div class="tab-pane fade" id="v-pills-rectangle" role="tabpanel" aria-labelledby="v-pills-rectangle-tab">
                 <h4 class="mb-1">Rectangle Component</h4>
                 <p class="text-muted small">A standard rectangular component supporting corner rounding, label text, and local styling overrides.</p>
                 
@@ -1216,7 +1221,7 @@ InfraPackage: Package {
               </div>
 
               <!-- Relationships Tab -->
-              <div class="tab-pane fade" id="v-pills-relationship" role="tabpanel" aria-labelledby="v-pills-relationship-tab">
+              <div class="tab-pane fade show active" id="v-pills-relationship" role="tabpanel" aria-labelledby="v-pills-relationship-tab">
 
 
                 <h4 class="mb-1">Relationships (Arrows & Connectors)</h4>
@@ -1314,6 +1319,18 @@ Server [1] -> [0..*] Database : "Fetch items" {
                     <tr>
                       <td><kbd class="bg-secondary text-white">Ctrl + O</kbd> or <kbd class="bg-secondary text-white">Cmd + O</kbd></td>
                       <td>Open the local file picker to load a diagram DSL script into a new tab.</td>
+                    </tr>
+                    <tr>
+                      <td><kbd class="bg-secondary text-white">Ctrl + Shift + E</kbd> or <kbd class="bg-secondary text-white">Cmd + Shift + E</kbd></td>
+                      <td>Open the PNG export configuration settings dialog.</td>
+                    </tr>
+                    <tr>
+                      <td><kbd class="bg-secondary text-white">Ctrl + Shift + C</kbd> or <kbd class="bg-secondary text-white">Cmd + Shift + C</kbd></td>
+                      <td>Copy the active diagram as standalone SVG markup to the clipboard.</td>
+                    </tr>
+                    <tr>
+                      <td><kbd class="bg-secondary text-white">Ctrl + Shift + S</kbd> or <kbd class="bg-secondary text-white">Cmd + Shift + S</kbd></td>
+                      <td>Open the serverless sharing modal to copy the compressed diagram URL.</td>
                     </tr>
                     <tr>
                       <td><kbd class="bg-secondary text-white">Tab</kbd></td>

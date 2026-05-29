@@ -1204,16 +1204,33 @@ editor.addEventListener('keydown', (e: KeyboardEvent) => {
   }
 });
 
-// Keyboard Shortcuts: Ctrl+S to save, Ctrl+O to load
+// Keyboard Shortcuts: Ctrl+S to save, Ctrl+O to load, Ctrl+Shift+E to export PNG, Ctrl+Shift+C to copy SVG, Ctrl+Shift+S to share
 window.addEventListener('keydown', (e: KeyboardEvent) => {
   const isModifier = e.ctrlKey || e.metaKey;
   if (isModifier) {
-    if (e.key === 's' || e.key === 'S') {
-      e.preventDefault();
-      btnSave.click();
-    } else if (e.key === 'o' || e.key === 'O') {
-      e.preventDefault();
-      btnLoad.click();
+    if (e.shiftKey) {
+      if (e.key === 'e' || e.key === 'E') {
+        e.preventDefault();
+        btnExportPng.click();
+      } else if (e.key === 'c' || e.key === 'C') {
+        if (btnCopySvg) {
+          e.preventDefault();
+          btnCopySvg.click();
+        }
+      } else if (e.key === 's' || e.key === 'S') {
+        if (btnShare) {
+          e.preventDefault();
+          btnShare.click();
+        }
+      }
+    } else {
+      if (e.key === 's' || e.key === 'S') {
+        e.preventDefault();
+        btnSave.click();
+      } else if (e.key === 'o' || e.key === 'O') {
+        e.preventDefault();
+        btnLoad.click();
+      }
     }
   }
 });
@@ -2146,6 +2163,7 @@ function setupDocSearch(): void {
   searchInput.addEventListener('input', () => {
     const query = searchInput.value.toLowerCase().trim();
     const buttons = tabList.querySelectorAll('.nav-link') as NodeListOf<HTMLButtonElement>;
+    const labels = tabList.querySelectorAll('.nav-label') as NodeListOf<HTMLElement>;
     
     buttons.forEach(btn => {
       const text = btn.textContent || '';
@@ -2153,6 +2171,14 @@ function setupDocSearch(): void {
         btn.classList.remove('d-none');
       } else {
         btn.classList.add('d-none');
+      }
+    });
+
+    labels.forEach(lbl => {
+      if (query !== '') {
+        lbl.classList.add('d-none');
+      } else {
+        lbl.classList.remove('d-none');
       }
     });
   });
@@ -2198,7 +2224,7 @@ function openDocumentationModal(componentType?: string): void {
     };
     
     const key = componentType.toLowerCase();
-    const tabId = tabMap[key] || 'v-pills-rectangle-tab';
+    const tabId = tabMap[key] || 'v-pills-relationship-tab';
     
     // Find the tab element and show it
     const tabEl = document.getElementById(tabId);
