@@ -11,9 +11,13 @@
     "build:pages": "node scripts/build-gh-pages.js"
   },
   "devDependencies": {
-    "typescript": "^5.0.4",
-    "vitest": "^0.34.6",
+    "@types/lz-string": "^1.5.0",
     "jsdom": "^22.1.0",
-    "vite": "^4.5.3"
+    "typescript": "^5.0.4",
+    "vite": "^4.5.3",
+    "vitest": "^0.34.6"
+  },
+  "dependencies": {
+    "lz-string": "^1.5.0"
   }
 }

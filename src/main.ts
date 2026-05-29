@@ -8,6 +8,7 @@ import { layoutRootComponents } from './engine/layout';
 import { renderRelationships } from './engine/relationshipRenderer';
 import { highlightDSL } from './utils/highlighter';
 import { ParsedRelationship } from './engine/Relationship';
+import LZString from 'lz-string';
 
 const DEFAULT_DSL = `// Welcome to DrakoFlow!
 // Type below to build sequence/flow interactions.
@@ -392,6 +393,13 @@ let currentFileName = "diagram.drako";
 // Editor tabs elements & state
 const tabsContainer = document.getElementById('tabs-container') as HTMLElement | null;
 const btnAddTab = document.getElementById('btn-add-tab') as HTMLButtonElement | null;
+
+// Share diagram elements
+const btnShare = document.getElementById('btn-share') as HTMLButtonElement | null;
+const shareUrlInput = document.getElementById('share-url-input') as HTMLInputElement | null;
+const btnCopyShareUrl = document.getElementById('btn-copy-share-url') as HTMLButtonElement | null;
+const shareCopyToast = document.getElementById('share-copy-toast') as HTMLElement | null;
+const btnCopySvg = document.getElementById('btn-copy-svg') as HTMLButtonElement | null;
 
 interface DiagramTab {
   id: string;
@@ -1878,6 +1886,105 @@ fileInput.addEventListener('change', () => {
   fileInput.value = '';
 });
 
+// Wire up share button click to compress and open modal
+if (btnShare) {
+  btnShare.addEventListener('click', () => {
+    const code = editor.value;
+    const compressed = LZString.compressToEncodedURIComponent(code);
+    const shareUrl = `${window.location.origin}${window.location.pathname}?diagram=${compressed}`;
+    
+    if (shareUrlInput) {
+      shareUrlInput.value = shareUrl;
+    }
+    if (shareCopyToast) {
+      shareCopyToast.classList.add('d-none');
+    }
+    
+    const modalEl = document.getElementById('share-modal');
+    if (modalEl) {
+      const bootstrap = (window as any).bootstrap;
+      if (bootstrap) {
+        bootstrap.Modal.getOrCreateInstance(modalEl).show();
+      }
+    }
+  });
+}
+
+// Wire up share URL copy button click
+if (btnCopyShareUrl && shareUrlInput) {
+  btnCopyShareUrl.addEventListener('click', () => {
+    shareUrlInput.select();
+    shareUrlInput.setSelectionRange(0, 99999);
+    navigator.clipboard.writeText(shareUrlInput.value)
+      .then(() => {
+        if (shareCopyToast) {
+          shareCopyToast.classList.remove('d-none');
+        }
+      })
+      .catch(err => {
+        console.error('Failed to copy share URL:', err);
+      });
+  });
+}
+
+// Wire up Copy SVG button click
+if (btnCopySvg) {
+  btnCopySvg.addEventListener('click', () => {
+    try {
+      const svgClone = diagramSvg.cloneNode(true) as SVGSVGElement;
+      
+      const viewportGClone = svgClone.querySelector('#viewport-g') as SVGElement;
+      if (viewportGClone) {
+        viewportGClone.removeAttribute('transform');
+      }
+
+      const originalTransform = viewportG.getAttribute('transform');
+      viewportG.setAttribute('transform', 'none');
+      const bbox = viewportG.getBBox();
+      if (originalTransform) {
+        viewportG.setAttribute('transform', originalTransform);
+      } else {
+        viewportG.removeAttribute('transform');
+      }
+
+      const padding = 20;
+      const minX = bbox.x - padding;
+      const minY = bbox.y - padding;
+      const exportWidth = bbox.width + 2 * padding;
+      const exportHeight = bbox.height + 2 * padding;
+
+      svgClone.setAttribute('viewBox', `${minX} ${minY} ${exportWidth} ${exportHeight}`);
+      svgClone.setAttribute('width', exportWidth.toString());
+      svgClone.setAttribute('height', exportHeight.toString());
+
+      const svgString = new XMLSerializer().serializeToString(svgClone);
+
+      navigator.clipboard.writeText(svgString)
+        .then(() => {
+          const originalHtml = btnCopySvg.innerHTML;
+          btnCopySvg.innerHTML = '<i class="bi bi-check-circle-fill text-success"></i> Copied!';
+          btnCopySvg.classList.add('border-success');
+          setTimeout(() => {
+            btnCopySvg.innerHTML = originalHtml;
+            btnCopySvg.classList.remove('border-success');
+          }, 2000);
+
+          statusText.innerHTML = '<i class="bi bi-check-circle-fill"></i> SVG copied to clipboard!';
+          statusText.className = 'd-flex align-items-center gap-1.5 text-success';
+        })
+        .catch(err => {
+          console.error('Failed to copy SVG:', err);
+          statusText.innerHTML = `<i class="bi bi-exclamation-triangle-fill"></i> Copy Failed: ${err.message}`;
+          statusText.className = 'd-flex align-items-center gap-1.5 text-danger';
+        });
+    } catch (error: any) {
+      console.error('Failed to prepare SVG:', error);
+      statusText.innerHTML = `<i class="bi bi-exclamation-triangle-fill"></i> Copy Failed: ${error.message}`;
+      statusText.className = 'd-flex align-items-center gap-1.5 text-danger';
+    }
+  });
+}
+
 function getExportAspect(): number {
   const range = exportRangeWhole.checked ? 'whole' : 'current';
   if (range === 'current') {
@@ -2085,7 +2192,9 @@ function openDocumentationModal(componentType?: string): void {
       'text': 'v-pills-text-tab',
       'paragraph': 'v-pills-paragraph-tab',
       'relationship': 'v-pills-relationship-tab',
-      'relationships': 'v-pills-relationship-tab'
+      'relationships': 'v-pills-relationship-tab',
+      'shortcuts': 'v-pills-shortcuts-tab',
+      'keyboard': 'v-pills-shortcuts-tab'
     };
     
     const key = componentType.toLowerCase();
@@ -2203,12 +2312,31 @@ if (btnToggleEditor && editorPanel) {
 // Startup Initialization
 // Initialization function to set up app UI and state
 function initializeApp(): void {
+  // Check for diagram parameter in URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const urlDiagram = urlParams.get('diagram');
+  let initialDsl = DEFAULT_DSL;
+  let initialFileName = currentFileName;
+
+  if (urlDiagram) {
+    try {
+      const decompressed = LZString.decompressFromEncodedURIComponent(urlDiagram);
+      if (decompressed) {
+        initialDsl = decompressed;
+        initialFileName = "shared_diagram.drako";
+        currentFileName = initialFileName;
+      }
+    } catch (e) {
+      console.error('Failed to decompress diagram from URL:', e);
+    }
+  }
+
   // Initialize tabs state
   tabs = [
     {
       id: 'default',
-      name: currentFileName,
-      content: DEFAULT_DSL,
+      name: initialFileName,
+      content: initialDsl,
       isDirty: false,
       zoomLevel: 1.0,
       panOffset: { x: 0, y: 0 },
@@ -2240,7 +2368,10 @@ function initializeApp(): void {
     });
   }
 
-  editor.value = DEFAULT_DSL;
+  editor.value = initialDsl;
+  if (editorFilename) {
+    editorFilename.innerHTML = `${initialFileName} <i class="bi bi-pencil-square ms-1" style="font-size: 0.7rem; opacity: 0.6;"></i>`;
+  }
   updateLockStateUI();
   updateEditorMetrics();
   renderTabs();

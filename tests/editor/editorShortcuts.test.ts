@@ -74,6 +74,12 @@ beforeEach(() => {
       <div id="unsaved-changes-message"></div>
       <button id="btn-confirm-close-tab"></button>
     </div>
+    <button id="btn-share"></button>
+    <button id="btn-copy-svg"></button>
+    <input id="share-url-input" />
+    <button id="btn-copy-share-url"></button>
+    <div id="share-copy-toast"></div>
+    <div class="modal fade" id="share-modal"></div>
   `;
 
   // Mock SVG getBBox
@@ -246,5 +252,80 @@ describe('Editor Shortcuts and Tab Indentation', () => {
 
     // Verify Tab 1 lock state (unlocked = false) is restored
     expect(btnToggleLock.innerHTML).toContain('bi-unlock');
+  });
+
+  it('should compress current editor code and generate share link', async () => {
+    await import('../../src/main');
+    const editor = document.getElementById('editor') as HTMLTextAreaElement;
+    editor.value = 'My test diagram DSL';
+    editor.dispatchEvent(new Event('input'));
+
+    const btnShare = document.getElementById('btn-share') as HTMLButtonElement;
+    btnShare.click();
+
+    const shareUrlInput = document.getElementById('share-url-input') as HTMLInputElement;
+    expect(shareUrlInput.value).toContain('?diagram=');
+
+    const url = new URL(shareUrlInput.value);
+    const diagramParam = url.searchParams.get('diagram');
+    expect(diagramParam).not.toBeNull();
+
+    const LZString = (await import('lz-string')).default;
+    const decompressed = LZString.decompressFromEncodedURIComponent(diagramParam!);
+    expect(decompressed).toBe('My test diagram DSL');
+  });
+
+  it('should handle copying the share URL to clipboard', async () => {
+    await import('../../src/main');
+    const shareUrlInput = document.getElementById('share-url-input') as HTMLInputElement;
+    shareUrlInput.value = 'http://localhost/?diagram=test_compressed';
+
+    const clipboardMock = {
+      writeText: vi.fn().mockResolvedValue(undefined)
+    };
+    Object.assign(navigator, { clipboard: clipboardMock });
+
+    const btnCopyShareUrl = document.getElementById('btn-copy-share-url') as HTMLButtonElement;
+    btnCopyShareUrl.click();
+
+    expect(clipboardMock.writeText).toHaveBeenCalledWith('http://localhost/?diagram=test_compressed');
+  });
+
+  it('should decompress diagram URL parameter on initialization', async () => {
+    const LZString = (await import('lz-string')).default;
+    const testDsl = 'Shared DSL from URL';
+    const compressed = LZString.compressToEncodedURIComponent(testDsl);
+
+    const getSpy = vi.spyOn(URLSearchParams.prototype, 'get').mockImplementation((key) => {
+      if (key === 'diagram') return compressed;
+      return null;
+    });
+
+    await import('../../src/main');
+
+    const editor = document.getElementById('editor') as HTMLTextAreaElement;
+    expect(editor.value).toBe(testDsl);
+    
+    const editorFilename = document.getElementById('editor-filename') as HTMLElement;
+    expect(editorFilename.textContent).toContain('shared_diagram.drako');
+
+    getSpy.mockRestore();
+  });
+
+  it('should copy current diagram as SVG markup to clipboard', async () => {
+    await import('../../src/main');
+
+    const clipboardMock = {
+      writeText: vi.fn().mockResolvedValue(undefined)
+    };
+    Object.assign(navigator, { clipboard: clipboardMock });
+
+    const btnCopySvg = document.getElementById('btn-copy-svg') as HTMLButtonElement;
+    btnCopySvg.click();
+
+    expect(clipboardMock.writeText).toHaveBeenCalled();
+    const passedSvg = clipboardMock.writeText.mock.calls[0][0];
+    expect(passedSvg).toContain('<svg');
+    expect(passedSvg).toContain('viewBox=');
   });
 });

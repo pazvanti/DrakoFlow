@@ -48,6 +48,14 @@
         title="Export as High-Res PNG">
         <i class="bi bi-file-earmark-image"></i> Export PNG
       </button>
+      <button id="btn-copy-svg" class="btn btn-outline-warning btn-sm d-flex align-items-center gap-1.5"
+        title="Copy Diagram as SVG">
+        <i class="bi bi-filetype-svg"></i> Copy SVG
+      </button>
+      <button id="btn-share" class="btn btn-outline-info btn-sm d-flex align-items-center gap-1.5"
+        title="Share Diagram as URL">
+        <i class="bi bi-share"></i> Share
+      </button>
     </div>
   </header>
 
@@ -370,6 +378,9 @@
                 </button>
                 <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-relationship-tab" data-bs-toggle="pill" data-bs-target="#v-pills-relationship" type="button" role="tab" aria-controls="v-pills-relationship" aria-selected="false">
                   <i class="bi bi-arrow-right-short me-2"></i> Relationships
+                </button>
+                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-shortcuts-tab" data-bs-toggle="pill" data-bs-target="#v-pills-shortcuts" type="button" role="tab" aria-controls="v-pills-shortcuts" aria-selected="false">
+                  <i class="bi bi-keyboard me-2"></i> Keyboard Shortcuts
                 </button>
               </div>
             </div>
@@ -1281,6 +1292,40 @@ Server [1] -> [0..*] Database : "Fetch items" {
   color: "#a1a1aa"
 }</pre>
               </div>
+
+              <!-- Keyboard Shortcuts Tab -->
+              <div class="tab-pane fade" id="v-pills-shortcuts" role="tabpanel" aria-labelledby="v-pills-shortcuts-tab">
+                <h4 class="mb-1">Keyboard Shortcuts</h4>
+                <p class="text-muted small">DrakoFlow supports standard editor key combinations for faster navigation and file management.</p>
+                
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Shortcuts List</h6>
+                <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
+                  <thead>
+                    <tr>
+                      <th style="width: 30%;">Shortcut</th>
+                      <th>Action Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><kbd class="bg-secondary text-white">Ctrl + S</kbd> or <kbd class="bg-secondary text-white">Cmd + S</kbd></td>
+                      <td>Save the active diagram to a local DSL script file download.</td>
+                    </tr>
+                    <tr>
+                      <td><kbd class="bg-secondary text-white">Ctrl + O</kbd> or <kbd class="bg-secondary text-white">Cmd + O</kbd></td>
+                      <td>Open the local file picker to load a diagram DSL script into a new tab.</td>
+                    </tr>
+                    <tr>
+                      <td><kbd class="bg-secondary text-white">Tab</kbd></td>
+                      <td>Indent active line or selection by 2 spaces.</td>
+                    </tr>
+                    <tr>
+                      <td><kbd class="bg-secondary text-white">Shift + Tab</kbd></td>
+                      <td>Outdent active line or selection by 2 spaces.</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>
@@ -1414,6 +1459,35 @@ Server [1] -> [0..*] Database : "Fetch items" {
         <div class="modal-footer border-secondary border-opacity-25">
           <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
           <button type="button" id="btn-confirm-close-tab" class="btn btn-danger btn-sm">Close Tab</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Share Diagram Modal -->
+  <div class="modal fade" id="share-modal" tabindex="-1" aria-labelledby="shareModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content bg-dark border-secondary border-opacity-50 text-white">
+        <div class="modal-header border-secondary border-opacity-25">
+          <h5 class="modal-title" id="shareModalLabel">
+            <i class="bi bi-share-fill text-info me-2"></i> Share Diagram
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p class="small text-muted">Copy the serverless URL below to share your diagram with others. It contains your compressed diagram DSL.</p>
+          <div class="input-group">
+            <input type="text" id="share-url-input" class="form-control bg-black text-white border-secondary border-opacity-50 font-monospace small" readonly>
+            <button id="btn-copy-share-url" class="btn btn-info d-flex align-items-center gap-1.5" type="button">
+              <i class="bi bi-clipboard"></i> Copy
+            </button>
+          </div>
+          <div id="share-copy-toast" class="text-success small mt-2 d-none">
+            <i class="bi bi-check-circle-fill"></i> URL copied to clipboard!
+          </div>
+        </div>
+        <div class="modal-footer border-secondary border-opacity-25">
+          <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Close</button>
         </div>
       </div>
     </div>
