@@ -18,6 +18,15 @@ import { TextComponent, TextProps } from '../components/TextComponent';
 import { ParagraphComponent, ParagraphProps } from '../components/ParagraphComponent';
 import { SVGImageComponent } from '../components/SVGImageComponent';
 import { RasterImageComponent } from '../components/RasterImageComponent';
+import { CloudComponent } from '../components/CloudComponent';
+import { NodeComponent } from '../components/NodeComponent';
+import { ArtifactComponent } from '../components/ArtifactComponent';
+import { FolderComponent } from '../components/FolderComponent';
+import { FrameComponent } from '../components/FrameComponent';
+import { StorageComponent } from '../components/StorageComponent';
+import { StackComponent } from '../components/StackComponent';
+import { FileComponent } from '../components/FileComponent';
+import { CardComponent } from '../components/CardComponent';
 import { collectReferencedIds, ParsedChildEntry, ParsedNode } from '../dsl/parser';
 import { isComponentType } from '../dsl/componentTypes';
 
@@ -215,6 +224,93 @@ function instantiateFromDefinition(
         height: node.properties.height as number | undefined
       };
       component = new RasterImageComponent(metadata, props, themeOverride);
+      break;
+    }
+    case 'Cloud': {
+      const props = {
+        label: node.properties.label as string | undefined,
+        gap: node.properties.gap as number | undefined,
+        padding: node.properties.padding as number | undefined
+      };
+      const comp = new CloudComponent(metadata, props, themeOverride);
+      comp.children = resolveChildEntries(node.childEntries, registry);
+      component = comp;
+      break;
+    }
+    case 'Node': {
+      const props = {
+        label: node.properties.label as string | undefined,
+        gap: node.properties.gap as number | undefined,
+        padding: node.properties.padding as number | undefined
+      };
+      const comp = new NodeComponent(metadata, props, themeOverride);
+      comp.children = resolveChildEntries(node.childEntries, registry);
+      component = comp;
+      break;
+    }
+    case 'Artifact': {
+      const props = {
+        label: node.properties.label as string | undefined,
+        gap: node.properties.gap as number | undefined,
+        padding: node.properties.padding as number | undefined
+      };
+      const comp = new ArtifactComponent(metadata, props, themeOverride);
+      comp.children = resolveChildEntries(node.childEntries, registry);
+      component = comp;
+      break;
+    }
+    case 'Folder': {
+      const props = {
+        label: node.properties.label as string | undefined,
+        gap: node.properties.gap as number | undefined,
+        padding: node.properties.padding as number | undefined
+      };
+      const comp = new FolderComponent(metadata, props, themeOverride);
+      comp.children = resolveChildEntries(node.childEntries, registry);
+      component = comp;
+      break;
+    }
+    case 'Frame': {
+      const props = {
+        label: node.properties.label as string | undefined,
+        gap: node.properties.gap as number | undefined,
+        padding: node.properties.padding as number | undefined
+      };
+      const comp = new FrameComponent(metadata, props, themeOverride);
+      comp.children = resolveChildEntries(node.childEntries, registry);
+      component = comp;
+      break;
+    }
+    case 'Storage': {
+      const props = {
+        label: node.properties.label as string | undefined
+      };
+      component = new StorageComponent(metadata, props, themeOverride);
+      break;
+    }
+    case 'Stack': {
+      const props = {
+        label: node.properties.label as string | undefined
+      };
+      component = new StackComponent(metadata, props, themeOverride);
+      break;
+    }
+    case 'File': {
+      const props = {
+        label: node.properties.label as string | undefined
+      };
+      component = new FileComponent(metadata, props, themeOverride);
+      break;
+    }
+    case 'Card': {
+      const props = {
+        label: node.properties.label as string | undefined,
+        gap: node.properties.gap as number | undefined,
+        padding: node.properties.padding as number | undefined
+      };
+      const comp = new CardComponent(metadata, props, themeOverride);
+      comp.children = resolveChildEntries(node.childEntries, registry);
+      component = comp;
       break;
     }
     default:

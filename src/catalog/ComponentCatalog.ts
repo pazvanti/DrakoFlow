@@ -175,6 +175,69 @@ MyContainer: VerticalContainer {
     description: "A raster image (PNG/JPEG) loaded via base64 encoded text. Resizes using the scale parameter.",
     tags: ["Shapes", "Media"],
     template: 'MyRaster: RasterImage {\n  content: "iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg=="\n  scale: 2.0\n}'
+  },
+  {
+    type: "Cloud",
+    displayName: "Cloud Container",
+    description: "A container styled as a cloud network, useful for grouping external microservices, APIs, or SaaS tools.",
+    tags: ["Layout", "Containers", "Deployment"],
+    template: 'MyCloud: Cloud {\n  label: "AWS Cloud"\n  gap: 12\n  padding: 24\n}'
+  },
+  {
+    type: "Node",
+    displayName: "Node / Host",
+    description: "A 3D box representing physical execution environments, VM hosts, or web servers.",
+    tags: ["Layout", "Containers", "Deployment"],
+    template: 'MyNode: Node {\n  label: "Application Server"\n  gap: 12\n  padding: 16\n}'
+  },
+  {
+    type: "Artifact",
+    displayName: "Artifact",
+    description: "A block or container representing deployed software packages, JAR files, or database backups, decorated with a document icon.",
+    tags: ["Layout", "Containers", "Deployment"],
+    template: 'MyArtifact: Artifact {\n  label: "app-build.jar"\n}'
+  },
+  {
+    type: "Folder",
+    displayName: "Folder Container",
+    description: "A file-system folder style layout to organize documents or nested services.",
+    tags: ["Layout", "Containers", "Deployment"],
+    template: 'MyFolder: Folder {\n  label: "src/configs"\n  gap: 12\n  padding: 16\n}'
+  },
+  {
+    type: "Frame",
+    displayName: "Frame Boundary",
+    description: "A general layout frame with an angled title tab plate on the top-left.",
+    tags: ["Layout", "Containers", "Deployment"],
+    template: 'MyFrame: Frame {\n  label: "User Domain"\n  gap: 12\n  padding: 16\n}'
+  },
+  {
+    type: "Storage",
+    displayName: "Horizontal Storage",
+    description: "A database drum or storage system lying horizontally.",
+    tags: ["Shapes", "Storage", "Deployment"],
+    template: 'MyStorage: Storage {\n  label: "NAS Storage Volume"\n}'
+  },
+  {
+    type: "Stack",
+    displayName: "Stack / Replica Set",
+    description: "A stack of layered boxes to indicate component replicas or load-balanced services.",
+    tags: ["Shapes", "Deployment"],
+    template: 'MyStack: Stack {\n  label: "Web App Replicas (3x)"\n}'
+  },
+  {
+    type: "File",
+    displayName: "File / Document",
+    description: "A sheet of paper shape with a folded top-right corner, ideal for representing static files.",
+    tags: ["Shapes", "Deployment"],
+    template: 'MyFile: File {\n  label: "docker-compose.yml"\n}'
+  },
+  {
+    type: "Card",
+    displayName: "Stripe Card",
+    description: "A clean modern card container with a left accent color strip.",
+    tags: ["Layout", "Containers", "Deployment"],
+    template: 'MyCard: Card {\n  label: "Active Task"\n  gap: 12\n  padding: 12\n}'
   }
 ];
 

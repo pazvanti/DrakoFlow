@@ -9,7 +9,8 @@ describe('CatalogService', () => {
     expect(tags).toContain('Flowchart');
     expect(tags).toContain('Layout');
     expect(tags).toContain('Containers');
-    expect(tags.length).toBeGreaterThanOrEqual(5);
+    expect(tags).toContain('Deployment');
+    expect(tags.length).toBeGreaterThanOrEqual(6);
   });
 
   it('should filter items by text query', () => {

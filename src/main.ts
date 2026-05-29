@@ -2220,7 +2220,16 @@ function openDocumentationModal(componentType?: string): void {
       'relationship': 'v-pills-relationship-tab',
       'relationships': 'v-pills-relationship-tab',
       'shortcuts': 'v-pills-shortcuts-tab',
-      'keyboard': 'v-pills-shortcuts-tab'
+      'keyboard': 'v-pills-shortcuts-tab',
+      'cloud': 'v-pills-cloud-tab',
+      'node': 'v-pills-node-tab',
+      'artifact': 'v-pills-artifact-tab',
+      'folder': 'v-pills-folder-tab',
+      'frame': 'v-pills-frame-tab',
+      'storage': 'v-pills-storage-tab',
+      'stack': 'v-pills-stack-tab',
+      'file': 'v-pills-file-tab',
+      'card': 'v-pills-card-tab'
     };
     
     const key = componentType.toLowerCase();

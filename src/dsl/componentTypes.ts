@@ -18,7 +18,16 @@ export const COMPONENT_TYPES = [
   'Text',
   'Paragraph',
   'SVGImage',
-  'RasterImage'
+  'RasterImage',
+  'Cloud',
+  'Node',
+  'Artifact',
+  'Folder',
+  'Frame',
+  'Storage',
+  'Stack',
+  'File',
+  'Card'
 ] as const;
 
 export type ComponentTypeName = (typeof COMPONENT_TYPES)[number];

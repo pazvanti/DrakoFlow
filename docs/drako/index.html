@@ -17,7 +17,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <!-- Custom External Stylesheet -->
   
-  <script type="module" crossorigin src="./assets/index-9519cdbb.js"></script>
+  <script type="module" crossorigin src="./assets/index-e95c3ee5.js"></script>
   <link rel="stylesheet" href="./assets/index-cd16680b.css">
 </head>
 
@@ -388,6 +388,33 @@
                 </button>
                 <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-rasterimage-tab" data-bs-toggle="pill" data-bs-target="#v-pills-rasterimage" type="button" role="tab" aria-controls="v-pills-rasterimage" aria-selected="false">
                   <i class="bi bi-image me-2"></i> Raster Image
+                </button>
+                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-cloud-tab" data-bs-toggle="pill" data-bs-target="#v-pills-cloud" type="button" role="tab" aria-controls="v-pills-cloud" aria-selected="false">
+                  <i class="bi bi-cloud me-2"></i> Cloud
+                </button>
+                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-node-tab" data-bs-toggle="pill" data-bs-target="#v-pills-node" type="button" role="tab" aria-controls="v-pills-node" aria-selected="false">
+                  <i class="bi bi-box me-2"></i> Node
+                </button>
+                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-artifact-tab" data-bs-toggle="pill" data-bs-target="#v-pills-artifact" type="button" role="tab" aria-controls="v-pills-artifact" aria-selected="false">
+                  <i class="bi bi-file-earmark-code me-2"></i> Artifact
+                </button>
+                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-folder-tab" data-bs-toggle="pill" data-bs-target="#v-pills-folder" type="button" role="tab" aria-controls="v-pills-folder" aria-selected="false">
+                  <i class="bi bi-folder me-2"></i> Folder
+                </button>
+                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-frame-tab" data-bs-toggle="pill" data-bs-target="#v-pills-frame" type="button" role="tab" aria-controls="v-pills-frame" aria-selected="false">
+                  <i class="bi bi-aspect-ratio me-2"></i> Frame
+                </button>
+                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-storage-tab" data-bs-toggle="pill" data-bs-target="#v-pills-storage" type="button" role="tab" aria-controls="v-pills-storage" aria-selected="false">
+                  <i class="bi bi-database me-2"></i> Storage
+                </button>
+                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-stack-tab" data-bs-toggle="pill" data-bs-target="#v-pills-stack" type="button" role="tab" aria-controls="v-pills-stack" aria-selected="false">
+                  <i class="bi bi-layers me-2"></i> Stack
+                </button>
+                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-file-tab" data-bs-toggle="pill" data-bs-target="#v-pills-file" type="button" role="tab" aria-controls="v-pills-file" aria-selected="false">
+                  <i class="bi bi-file-earmark me-2"></i> File
+                </button>
+                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-card-tab" data-bs-toggle="pill" data-bs-target="#v-pills-card" type="button" role="tab" aria-controls="v-pills-card" aria-selected="false">
+                  <i class="bi bi-card-text me-2"></i> Card
                 </button>
               </div>
             </div>
@@ -1344,6 +1371,263 @@ Server [1] -> [0..*] Database : "Fetch items" {
                     </tr>
                   </tbody>
                 </table>
+              </div>
+
+              <!-- Cloud Tab -->
+              <div class="tab-pane fade" id="v-pills-cloud" role="tabpanel" aria-labelledby="v-pills-cloud-tab">
+                <h4 class="mb-1">Cloud Component</h4>
+                <p class="text-muted small">A container component styled as a cloud, ideal for representing external services, APIs, or internet-based infrastructure networks.</p>
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Properties</h6>
+                <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
+                  <thead>
+                    <tr>
+                      <th style="width: 25%;">Property</th>
+                      <th style="width: 20%;">Type</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><code>label</code></td>
+                      <td>String</td>
+                      <td>The text label displayed inside the cloud container.</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Example Usage</h6>
+                <pre class="bg-black p-3 rounded font-monospace text-success" style="font-size: 0.75rem;">AWSCloud: Cloud {
+  label: "Amazon Web Services"
+  padding: 30
+}</pre>
+              </div>
+
+              <!-- Node Tab -->
+              <div class="tab-pane fade" id="v-pills-node" role="tabpanel" aria-labelledby="v-pills-node-tab">
+                <h4 class="mb-1">Node Component</h4>
+                <p class="text-muted small">A 3D box component representing a physical machine, virtual server, or device. Nodes can host other sub-components.</p>
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Properties</h6>
+                <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
+                  <thead>
+                    <tr>
+                      <th style="width: 25%;">Property</th>
+                      <th style="width: 20%;">Type</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><code>label</code></td>
+                      <td>String</td>
+                      <td>The name of the node displayed near the top.</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Example Usage</h6>
+                <pre class="bg-black p-3 rounded font-monospace text-success" style="font-size: 0.75rem;">WebServer: Node {
+  label: "Ubuntu App Server"
+  
+  AppInstance: Rectangle {
+    label: "Node.js Application"
+  }
+}</pre>
+              </div>
+
+              <!-- Artifact Tab -->
+              <div class="tab-pane fade" id="v-pills-artifact" role="tabpanel" aria-labelledby="v-pills-artifact-tab">
+                <h4 class="mb-1">Artifact Component</h4>
+                <p class="text-muted small">Represents a deployed file or software package (like a JAR, zip, or executable), decorated with a document sheet icon in the top-right corner.</p>
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Properties</h6>
+                <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
+                  <thead>
+                    <tr>
+                      <th style="width: 25%;">Property</th>
+                      <th style="width: 20%;">Type</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><code>label</code></td>
+                      <td>String</td>
+                      <td>The name of the artifact.</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Example Usage</h6>
+                <pre class="bg-black p-3 rounded font-monospace text-success" style="font-size: 0.75rem;">DeployableArchive: Artifact {
+  label: "drakoflow-v1.war"
+}</pre>
+              </div>
+
+              <!-- Folder Tab -->
+              <div class="tab-pane fade" id="v-pills-folder" role="tabpanel" aria-labelledby="v-pills-folder-tab">
+                <h4 class="mb-1">Folder Component</h4>
+                <p class="text-muted small">A container component styled as a folder outline. Useful for showing file-system structures or grouping related packages.</p>
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Properties</h6>
+                <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
+                  <thead>
+                    <tr>
+                      <th style="width: 25%;">Property</th>
+                      <th style="width: 20%;">Type</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><code>label</code></td>
+                      <td>String</td>
+                      <td>Folder name shown inside the tab.</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Example Usage</h6>
+                <pre class="bg-black p-3 rounded font-monospace text-success" style="font-size: 0.75rem;">StaticAssets: Folder {
+  label: "public/img"
+  
+  LogoImage: Rectangle {
+    label: "logo.png"
+  }
+}</pre>
+              </div>
+
+              <!-- Frame Tab -->
+              <div class="tab-pane fade" id="v-pills-frame" role="tabpanel" aria-labelledby="v-pills-frame-tab">
+                <h4 class="mb-1">Frame Component</h4>
+                <p class="text-muted small">A general-purpose container representing a logical boundaries frame. Displays a top-left title tab with an angled cut.</p>
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Properties</h6>
+                <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
+                  <thead>
+                    <tr>
+                      <th style="width: 25%;">Property</th>
+                      <th style="width: 20%;">Type</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><code>label</code></td>
+                      <td>String</td>
+                      <td>The frame name.</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Example Usage</h6>
+                <pre class="bg-black p-3 rounded font-monospace text-success" style="font-size: 0.75rem;">AuthFrame: Frame {
+  label: "Authentication Subsystem"
+  
+  LoginAPI: Rectangle {
+    label: "/api/login"
+  }
+}</pre>
+              </div>
+
+              <!-- Storage Tab -->
+              <div class="tab-pane fade" id="v-pills-storage" role="tabpanel" aria-labelledby="v-pills-storage-tab">
+                <h4 class="mb-1">Storage Component</h4>
+                <p class="text-muted small">Represents a storage volume or storage drum, rendered as a horizontal cylinder/barrel.</p>
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Properties</h6>
+                <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
+                  <thead>
+                    <tr>
+                      <th style="width: 25%;">Property</th>
+                      <th style="width: 20%;">Type</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><code>label</code></td>
+                      <td>String</td>
+                      <td>Storage name label.</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Example Usage</h6>
+                <pre class="bg-black p-3 rounded font-monospace text-success" style="font-size: 0.75rem;">BackupDrive: Storage {
+  label: "NAS Backup Volume"
+}</pre>
+              </div>
+
+              <!-- Stack Tab -->
+              <div class="tab-pane fade" id="v-pills-stack" role="tabpanel" aria-labelledby="v-pills-stack-tab">
+                <h4 class="mb-1">Stack Component</h4>
+                <p class="text-muted small">A component styled as a stack of boxes to represent layered components or clusters of similar instances.</p>
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Properties</h6>
+                <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
+                  <thead>
+                    <tr>
+                      <th style="width: 25%;">Property</th>
+                      <th style="width: 20%;">Type</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><code>label</code></td>
+                      <td>String</td>
+                      <td>The name of the stack.</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Example Usage</h6>
+                <pre class="bg-black p-3 rounded font-monospace text-success" style="font-size: 0.75rem;">AppReplica: Stack {
+  label: "App Nodes (3x Replicas)"
+}</pre>
+              </div>
+
+              <!-- File Tab -->
+              <div class="tab-pane fade" id="v-pills-file" role="tabpanel" aria-labelledby="v-pills-file-tab">
+                <h4 class="mb-1">File Component</h4>
+                <p class="text-muted small">A clean sheet of paper representation with a folded top-right corner to indicate a file resource.</p>
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Properties</h6>
+                <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
+                  <thead>
+                    <tr>
+                      <th style="width: 25%;">Property</th>
+                      <th style="width: 20%;">Type</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><code>label</code></td>
+                      <td>String</td>
+                      <td>Name of the file.</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Example Usage</h6>
+                <pre class="bg-black p-3 rounded font-monospace text-success" style="font-size: 0.75rem;">ConfigFile: File {
+  label: "config.json"
+}</pre>
+              </div>
+
+              <!-- Card Tab -->
+              <div class="tab-pane fade" id="v-pills-card" role="tabpanel" aria-labelledby="v-pills-card-tab">
+                <h4 class="mb-1">Card Component</h4>
+                <p class="text-muted small">A clean, modern container styled as a card with a left-accent color stripe representing smaller hosts, tasks, or logical components.</p>
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Properties</h6>
+                <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
+                  <thead>
+                    <tr>
+                      <th style="width: 25%;">Property</th>
+                      <th style="width: 20%;">Type</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><code>label</code></td>
+                      <td>String</td>
+                      <td>The card header label.</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Example Usage</h6>
+                <pre class="bg-black p-3 rounded font-monospace text-success" style="font-size: 0.75rem;">TaskItem: Card {
+  label: "Background Job"
+  padding: 12
+}</pre>
               </div>
             </div>
           </div>
