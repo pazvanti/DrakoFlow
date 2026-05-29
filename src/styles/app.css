@@ -765,3 +765,105 @@ body {
   border-radius: 2px;
   box-shadow: inset 0 -1.5px 0 #60a5fa, 0 0 6px rgba(96, 165, 250, 0.35);
 }
+
+/* Editor Tabs Styles */
+.editor-tabs-bar {
+  display: flex;
+  background-color: #121214;
+  border-bottom: 1px solid var(--app-border-color);
+  height: 36px;
+  align-items: center;
+  justify-content: space-between;
+  overflow: hidden;
+  user-select: none;
+}
+
+.tabs-container {
+  display: flex;
+  height: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none; /* Hide scrollbar for Firefox */
+  flex: 1;
+}
+
+.tabs-container::-webkit-scrollbar {
+  display: none; /* Hide scrollbar for Chrome/Safari */
+}
+
+.editor-tab-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0 0.85rem;
+  height: 100%;
+  border-right: 1px solid var(--app-border-color);
+  cursor: pointer;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.75rem;
+  color: var(--app-text-muted);
+  background-color: rgba(24, 24, 27, 0.4);
+  transition: all 0.2s ease;
+  position: relative;
+  border-bottom: 2px solid transparent;
+}
+
+.editor-tab-item:hover {
+  background-color: rgba(255, 255, 255, 0.03);
+  color: var(--app-text-main);
+}
+
+.editor-tab-item.active {
+  background-color: var(--app-bg-editor);
+  color: var(--app-text-main);
+  border-bottom: 2px solid var(--app-accent-color);
+  font-weight: 500;
+}
+
+.tab-dirty-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #f59e0b;
+  display: inline-block;
+  margin-left: 0.25rem;
+  flex-shrink: 0;
+  box-shadow: 0 0 4px #f59e0b;
+}
+
+.tab-close-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  margin-left: 0.35rem;
+  font-size: 0.65rem;
+  color: var(--app-text-muted);
+  transition: all 0.2s;
+}
+
+.tab-close-btn:hover {
+  background-color: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}
+
+.btn-add-tab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 100%;
+  border: none;
+  background: transparent;
+  color: var(--app-text-muted);
+  border-left: 1px solid var(--app-border-color);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-add-tab:hover {
+  color: var(--app-text-main);
+  background-color: rgba(255, 255, 255, 0.05);
+}

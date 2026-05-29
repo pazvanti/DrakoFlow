@@ -389,6 +389,192 @@ const editorFilename = document.getElementById('editor-filename') as HTMLElement
 const btnToggleEditor = document.getElementById('btn-toggle-editor') as HTMLButtonElement;
 let currentFileName = "diagram.drako";
 
+// Editor tabs elements & state
+const tabsContainer = document.getElementById('tabs-container') as HTMLElement | null;
+const btnAddTab = document.getElementById('btn-add-tab') as HTMLButtonElement | null;
+
+interface DiagramTab {
+  id: string;
+  name: string;
+  content: string;
+  isDirty: boolean;
+  zoomLevel: number;
+  panOffset: { x: number; y: number };
+  isDiagramLocked: boolean;
+}
+
+let tabs: DiagramTab[] = [];
+let activeTabId = "";
+
+/**
+ * Create a new tab with optional content and name, then select it.
+ */
+function createNewTab(content: string = DEFAULT_DSL, name?: string): void {
+  const tabId = `tab-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
+  let tabName = name;
+  if (!tabName) {
+    let count = 1;
+    while (tabs.some(t => t.name === `diagram_${count}.drako`)) {
+      count++;
+    }
+    tabName = `diagram_${count}.drako`;
+  } else {
+    let base = tabName;
+    let ext = "";
+    if (tabName.endsWith('.drako')) {
+      base = tabName.substring(0, tabName.length - 6);
+      ext = ".drako";
+    }
+    let count = 1;
+    while (tabs.some(t => t.name === tabName)) {
+      tabName = `${base} (${count})${ext}`;
+      count++;
+    }
+  }
+
+  const newTab: DiagramTab = {
+    id: tabId,
+    name: tabName,
+    content,
+    isDirty: false,
+    zoomLevel: 1.0,
+    panOffset: { x: 0, y: 0 },
+    isDiagramLocked: true
+  };
+
+  tabs.push(newTab);
+  switchTab(tabId);
+}
+
+/**
+ * Switch active tab.
+ */
+function switchTab(tabId: string): void {
+  const currentTab = tabs.find(t => t.id === activeTabId);
+  if (currentTab) {
+    currentTab.content = editor.value;
+    currentTab.zoomLevel = zoomLevel;
+    currentTab.panOffset = { ...panOffset };
+    currentTab.isDiagramLocked = isDiagramLocked;
+  }
+
+  const nextTab = tabs.find(t => t.id === tabId);
+  if (!nextTab) return;
+
+  activeTabId = tabId;
+  currentFileName = nextTab.name;
+  
+  if (editorFilename) {
+    editorFilename.innerHTML = `${currentFileName} <i class="bi bi-pencil-square ms-1" style="font-size: 0.7rem; opacity: 0.6;"></i>`;
+  }
+
+  editor.value = nextTab.content;
+  
+  // Restore tab-specific zoom, pan and lock state
+  zoomLevel = nextTab.zoomLevel;
+  panOffset = { ...nextTab.panOffset };
+  isDiagramLocked = nextTab.isDiagramLocked;
+  
+  updateLockStateUI();
+  updateEditorMetrics();
+  renderDiagram();
+  applyTransformations();
+  renderTabs();
+}
+
+let pendingCloseTabId: string | null = null;
+
+/**
+ * Force close a tab bypassing dirty check.
+ */
+function forceCloseTab(tabId: string): void {
+  const tabIndex = tabs.findIndex(t => t.id === tabId);
+  tabs = tabs.filter(t => t.id !== tabId);
+
+  if (activeTabId === tabId) {
+    if (tabs.length > 0) {
+      const nextActiveIndex = Math.max(0, tabIndex - 1);
+      switchTab(tabs[nextActiveIndex].id);
+    } else {
+      createNewTab();
+    }
+  } else {
+    renderTabs();
+  }
+}
+
+/**
+ * Close a tab. Warn if there are unsaved changes.
+ */
+function closeTab(tabId: string, event?: Event): void {
+  if (event) {
+    event.stopPropagation();
+  }
+
+  const targetTab = tabs.find(t => t.id === tabId);
+  if (!targetTab) return;
+
+  if (targetTab.isDirty) {
+    pendingCloseTabId = tabId;
+    const msgEl = document.getElementById('unsaved-changes-message');
+    if (msgEl) {
+      msgEl.textContent = `Do you want to close "${targetTab.name}"? You have unsaved changes.`;
+    }
+    const modalEl = document.getElementById('unsaved-changes-modal');
+    if (modalEl) {
+      const bootstrap = (window as any).bootstrap;
+      if (bootstrap) {
+        bootstrap.Modal.getOrCreateInstance(modalEl).show();
+      }
+    }
+  } else {
+    forceCloseTab(tabId);
+  }
+}
+
+/**
+ * Render the tabs bar in the UI.
+ */
+function renderTabs(): void {
+  if (!tabsContainer) return;
+  tabsContainer.innerHTML = '';
+
+  tabs.forEach(tab => {
+    const isActive = tab.id === activeTabId;
+    
+    const tabEl = document.createElement('div');
+    tabEl.className = `editor-tab-item ${isActive ? 'active' : ''}`;
+    tabEl.title = tab.name;
+    tabEl.dataset.tabId = tab.id;
+
+    const nameSpan = document.createElement('span');
+    nameSpan.className = 'tab-name';
+    nameSpan.textContent = tab.name;
+    tabEl.appendChild(nameSpan);
+
+    if (tab.isDirty) {
+      const dot = document.createElement('span');
+      dot.className = 'tab-dirty-dot';
+      tabEl.appendChild(dot);
+    }
+
+    const closeBtn = document.createElement('span');
+    closeBtn.className = 'tab-close-btn';
+    closeBtn.innerHTML = '<i class="bi bi-x"></i>';
+    closeBtn.title = 'Close tab';
+    closeBtn.addEventListener('click', (e) => {
+      closeTab(tab.id, e);
+    });
+    tabEl.appendChild(closeBtn);
+
+    tabEl.addEventListener('click', () => {
+      switchTab(tab.id);
+    });
+
+    tabsContainer.appendChild(tabEl);
+  });
+}
+
 /**
  * Render tag filters as clickable pills
  */
@@ -772,6 +958,14 @@ function fitToScreen(): void {
  * Parse DSL, layout components, and render to the SVG viewport.
  */
 function renderDiagram(): void {
+  // Sync editor content with active tab and mark as dirty if changed
+  const activeTab = tabs.find(t => t.id === activeTabId);
+  if (activeTab && activeTab.content !== editor.value) {
+    activeTab.content = editor.value;
+    activeTab.isDirty = true;
+    renderTabs();
+  }
+
   const code = editor.value;
 
   if (canvasContainer) {
@@ -1644,6 +1838,11 @@ librarySearch.addEventListener('input', () => {
 // Save file
 btnSave.addEventListener('click', () => {
   downloadDSLFile(editor.value, currentFileName);
+  const activeTab = tabs.find(t => t.id === activeTabId);
+  if (activeTab) {
+    activeTab.isDirty = false;
+    renderTabs();
+  }
 });
 
 // Load file triggers
@@ -1655,16 +1854,19 @@ fileInput.addEventListener('change', () => {
   const file = fileInput.files?.[0];
   if (!file) return;
 
-  currentFileName = file.name;
-  if (editorFilename) {
-    editorFilename.innerHTML = `${currentFileName} <i class="bi bi-pencil-square ms-1" style="font-size: 0.7rem; opacity: 0.6;"></i>`;
-  }
-
   const reader = new FileReader();
   reader.onload = (e) => {
     const text = e.target?.result;
     if (typeof text === 'string') {
-      editor.value = text;
+      const wasDefaultUntouched = tabs.length === 1 && tabs[0].id === 'default' && !tabs[0].isDirty && tabs[0].content === DEFAULT_DSL;
+      
+      createNewTab(text, file.name);
+
+      if (wasDefaultUntouched) {
+        tabs = tabs.filter(t => t.id !== 'default');
+        renderTabs();
+      }
+
       isDiagramLocked = true;
       updateLockStateUI();
       updateEditorMetrics();
@@ -1673,6 +1875,7 @@ fileInput.addEventListener('change', () => {
     }
   };
   reader.readAsText(file);
+  fileInput.value = '';
 });
 
 function getExportAspect(): number {
@@ -1945,6 +2148,12 @@ if (editorFilename) {
         value += '.drako';
       }
       currentFileName = value;
+      // Update active tab name
+      const activeTab = tabs.find(t => t.id === activeTabId);
+      if (activeTab) {
+        activeTab.name = value;
+        renderTabs();
+      }
       editorFilename.innerHTML = `${currentFileName} <i class="bi bi-pencil-square ms-1" style="font-size: 0.7rem; opacity: 0.6;"></i>`;
     };
 
@@ -1994,9 +2203,47 @@ if (btnToggleEditor && editorPanel) {
 // Startup Initialization
 // Initialization function to set up app UI and state
 function initializeApp(): void {
+  // Initialize tabs state
+  tabs = [
+    {
+      id: 'default',
+      name: currentFileName,
+      content: DEFAULT_DSL,
+      isDirty: false,
+      zoomLevel: 1.0,
+      panOffset: { x: 0, y: 0 },
+      isDiagramLocked: true
+    }
+  ];
+  activeTabId = 'default';
+
+  if (btnAddTab) {
+    btnAddTab.addEventListener('click', () => {
+      createNewTab();
+    });
+  }
+
+  const btnConfirmCloseTab = document.getElementById('btn-confirm-close-tab');
+  if (btnConfirmCloseTab) {
+    btnConfirmCloseTab.addEventListener('click', () => {
+      if (pendingCloseTabId) {
+        forceCloseTab(pendingCloseTabId);
+        pendingCloseTabId = null;
+      }
+      const modalEl = document.getElementById('unsaved-changes-modal');
+      if (modalEl) {
+        const bootstrap = (window as any).bootstrap;
+        if (bootstrap) {
+          bootstrap.Modal.getOrCreateInstance(modalEl).hide();
+        }
+      }
+    });
+  }
+
   editor.value = DEFAULT_DSL;
   updateLockStateUI();
   updateEditorMetrics();
+  renderTabs();
 
   // Load custom themes from localStorage and populate selects
   refreshActiveThemes();

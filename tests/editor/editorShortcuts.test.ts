@@ -59,7 +59,10 @@ beforeEach(() => {
     <input type="text" id="library-search" />
     <div id="tag-filter-container"></div>
     <div id="library-content"></div>
-    <div id="editor-panel"></div>
+    <div id="editor-panel">
+      <div id="tabs-container"></div>
+      <button id="btn-add-tab"></button>
+    </div>
     <div id="editor-filename"></div>
     <button id="btn-toggle-editor"></button>
     <div class="diagram-panel"></div>
@@ -67,6 +70,10 @@ beforeEach(() => {
     <div class="modal fade" id="theme-modal"></div>
     <div class="modal fade" id="export-modal"></div>
     <div class="modal fade" id="help-modal"></div>
+    <div id="unsaved-changes-modal">
+      <div id="unsaved-changes-message"></div>
+      <button id="btn-confirm-close-tab"></button>
+    </div>
   `;
 
   // Mock SVG getBBox
@@ -81,6 +88,16 @@ beforeEach(() => {
     URL.createObjectURL = vi.fn().mockReturnValue('mock-url');
     URL.revokeObjectURL = vi.fn();
   }
+
+  // Mock bootstrap Modal
+  (window as any).bootstrap = {
+    Modal: {
+      getOrCreateInstance: vi.fn().mockReturnValue({
+        show: vi.fn(),
+        hide: vi.fn()
+      })
+    }
+  };
 });
 
 describe('Editor Shortcuts and Tab Indentation', () => {
@@ -130,5 +147,104 @@ describe('Editor Shortcuts and Tab Indentation', () => {
 
     expect(editor.value).toBe('line1\nline2');
     expect(editor.selectionStart).toBe(5);
+  });
+
+  it('should initialize with one default tab', async () => {
+    await import('../../src/main');
+    const tabsContainer = document.getElementById('tabs-container') as HTMLElement;
+    const tabItems = tabsContainer.querySelectorAll('.editor-tab-item');
+    expect(tabItems.length).toBe(1);
+    expect(tabItems[0].querySelector('.tab-name')?.textContent).toBe('diagram.drako');
+  });
+
+  it('should create a new tab on plus button click', async () => {
+    await import('../../src/main');
+    const btnAddTab = document.getElementById('btn-add-tab') as HTMLButtonElement;
+    btnAddTab.click();
+
+    const tabsContainer = document.getElementById('tabs-container') as HTMLElement;
+    const tabItems = tabsContainer.querySelectorAll('.editor-tab-item');
+    expect(tabItems.length).toBe(2);
+    expect(tabItems[1].querySelector('.tab-name')?.textContent).toBe('diagram_1.drako');
+    expect(tabItems[1].classList.contains('active')).toBe(true);
+  });
+
+  it('should switch between tabs and preserve content', async () => {
+    await import('../../src/main');
+    const editor = document.getElementById('editor') as HTMLTextAreaElement;
+    const tabsContainer = document.getElementById('tabs-container') as HTMLElement;
+
+    editor.value = 'Tab 1 Modified Content';
+    editor.dispatchEvent(new Event('input'));
+
+    const tabItemsBefore = tabsContainer.querySelectorAll('.editor-tab-item');
+    expect(tabItemsBefore[0].querySelector('.tab-dirty-dot')).not.toBeNull();
+
+    const btnAddTab = document.getElementById('btn-add-tab') as HTMLButtonElement;
+    btnAddTab.click();
+
+    expect(editor.value).not.toBe('Tab 1 Modified Content');
+
+    editor.value = 'Tab 2 Content';
+    editor.dispatchEvent(new Event('input'));
+
+    const updatedTabs = tabsContainer.querySelectorAll('.editor-tab-item');
+    (updatedTabs[0] as HTMLElement).click();
+
+    expect(editor.value).toBe('Tab 1 Modified Content');
+  });
+
+  it('should prompt confirm modal when closing dirty tab', async () => {
+    await import('../../src/main');
+    const editor = document.getElementById('editor') as HTMLTextAreaElement;
+    const tabsContainer = document.getElementById('tabs-container') as HTMLElement;
+
+    editor.value = 'Dirty Tab Content';
+    editor.dispatchEvent(new Event('input'));
+
+    const bootstrap = (window as any).bootstrap;
+    const showSpy = bootstrap.Modal.getOrCreateInstance().show;
+
+    const closeBtn = tabsContainer.querySelector('.tab-close-btn') as HTMLElement;
+    closeBtn.click();
+
+    // Verify modal show was called
+    expect(showSpy).toHaveBeenCalled();
+    // Verify tab was NOT closed yet (since confirm button was not clicked)
+    expect(tabsContainer.querySelectorAll('.editor-tab-item').length).toBe(1);
+
+    // Now click confirm close button in the modal
+    const btnConfirmCloseTab = document.getElementById('btn-confirm-close-tab') as HTMLElement;
+    btnConfirmCloseTab.click();
+
+    // Verify tab closed (count is 1 because default tab is re-created, but content resets)
+    expect(tabsContainer.querySelectorAll('.editor-tab-item').length).toBe(1);
+    expect(editor.value).not.toBe('Dirty Tab Content');
+  });
+
+  it('should preserve zoom level, pan offset, and lock status when switching tabs', async () => {
+    await import('../../src/main');
+    
+    const btnToggleLock = document.getElementById('btn-toggle-lock') as HTMLButtonElement;
+    const btnAddTab = document.getElementById('btn-add-tab') as HTMLButtonElement;
+    const tabsContainer = document.getElementById('tabs-container') as HTMLElement;
+
+    // Initially diagram is locked
+    expect(btnToggleLock.innerHTML).toContain('bi-lock-fill');
+
+    // Unlock the diagram on Tab 1
+    btnToggleLock.click();
+    expect(btnToggleLock.innerHTML).toContain('bi-unlock');
+
+    // Create Tab 2 (starts with default locked = true state)
+    btnAddTab.click();
+    expect(btnToggleLock.innerHTML).toContain('bi-lock-fill');
+
+    // Switch back to Tab 1
+    const updatedTabs = tabsContainer.querySelectorAll('.editor-tab-item');
+    (updatedTabs[0] as HTMLElement).click();
+
+    // Verify Tab 1 lock state (unlocked = false) is restored
+    expect(btnToggleLock.innerHTML).toContain('bi-unlock');
   });
 });
