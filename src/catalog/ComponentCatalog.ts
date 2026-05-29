@@ -161,6 +161,20 @@ MyContainer: VerticalContainer {
     description: "Renders a block of multi-line paragraph text. Supports newlines (\\n) and alignments.",
     tags: ["Shapes", "Annotation"],
     template: 'MyParagraph: Paragraph {\n  text: "Line 1 of description\\nLine 2 of description\\nLine 3 of description"\n  align: "left"\n}'
+  },
+  {
+    type: "SVGImage",
+    displayName: "SVG Image",
+    description: "An SVG vector image container that resizes using the scale parameter.",
+    tags: ["Shapes", "Media"],
+    template: 'MySVG: SVGImage {\n  content: "<svg width=\\"100\\" height=\\"100\\"><circle cx=\\"50\\" cy=\\"50\\" r=\\"40\\" fill=\\"#3b82f6\\" stroke=\\"#ffffff\\" stroke-width=\\"4\\"/></svg>"\n  scale: 1.0\n}'
+  },
+  {
+    type: "RasterImage",
+    displayName: "Raster Image (Base64)",
+    description: "A raster image (PNG/JPEG) loaded via base64 encoded text. Resizes using the scale parameter.",
+    tags: ["Shapes", "Media"],
+    template: 'MyRaster: RasterImage {\n  content: "iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg=="\n  scale: 2.0\n}'
   }
 ];
 

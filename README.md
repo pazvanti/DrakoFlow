@@ -89,6 +89,8 @@ AuthService <-> UserDB: "Read/Write credentials"
 - `Diamond`: Decision gateway box for branching flowcharts.
 - `Hexagon`: Domain-driven boundary mapping.
 - `Process`: Process step boxes with vertical segmented bars.
+- `SVGImage`: Renders raw vector graphic code via the `content` property, supporting resizing via a `scale` multiplier.
+- `RasterImage`: Renders raster graphics (PNG, JPEG, GIF) via base64 encoded text in the `content` property, supporting auto-resolving sizes and resizing via the `scale` parameter.
 
 ---
 

@@ -163,4 +163,15 @@ MyNode: Process {
     expect(nodes[0].id).toBe('MyNode');
     expect(nodes[0].properties.label).toBe('Worker');
   });
+
+  it('unescapes backslashes in double-quoted string values', () => {
+    const code = `MyNode: Rectangle {
+  label: "Hello \\"World\\""
+  content: "<svg width=\\"10\\"></svg>"
+}`;
+    const nodes = parseDsl(code);
+    expect(nodes).toHaveLength(1);
+    expect(nodes[0].properties.label).toBe('Hello "World"');
+    expect(nodes[0].properties.content).toBe('<svg width="10"></svg>');
+  });
 });

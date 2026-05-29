@@ -16,7 +16,9 @@ export const COMPONENT_TYPES = [
   'Module',
   'Package',
   'Text',
-  'Paragraph'
+  'Paragraph',
+  'SVGImage',
+  'RasterImage'
 ] as const;
 
 export type ComponentTypeName = (typeof COMPONENT_TYPES)[number];

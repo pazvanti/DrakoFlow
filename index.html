@@ -349,8 +349,14 @@
                 <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-text-tab" data-bs-toggle="pill" data-bs-target="#v-pills-text" type="button" role="tab" aria-controls="v-pills-text" aria-selected="false">
                   <i class="bi bi-type me-2"></i> Simple Text
                 </button>
-                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-paragraph-tab" data-bs-toggle="pill" data-bs-target="#v-pills-paragraph" type="button" role="tab" aria-controls="v-pills-paragraph" aria-selected="false">
+                 <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-paragraph-tab" data-bs-toggle="pill" data-bs-target="#v-pills-paragraph" type="button" role="tab" aria-controls="v-pills-paragraph" aria-selected="false">
                   <i class="bi bi-justify-left me-2"></i> Paragraph Text
+                </button>
+                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-svgimage-tab" data-bs-toggle="pill" data-bs-target="#v-pills-svgimage" type="button" role="tab" aria-controls="v-pills-svgimage" aria-selected="false">
+                  <i class="bi bi-filetype-svg me-2"></i> SVG Image
+                </button>
+                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-rasterimage-tab" data-bs-toggle="pill" data-bs-target="#v-pills-rasterimage" type="button" role="tab" aria-controls="v-pills-rasterimage" aria-selected="false">
+                  <i class="bi bi-image me-2"></i> Raster Image
                 </button>
                 <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-relationship-tab" data-bs-toggle="pill" data-bs-target="#v-pills-relationship" type="button" role="tab" aria-controls="v-pills-relationship" aria-selected="false">
                   <i class="bi bi-arrow-right-short me-2"></i> Relationships
@@ -1095,6 +1101,96 @@ InfraPackage: Package {
                 <pre class="bg-black p-3 rounded font-monospace text-success" style="font-size: 0.75rem;">DescBlock: Paragraph {
   text: "1. Perform user verification\n2. Call authorization subsystem\n3. Return result payload"
   align: "left"
+}</pre>
+              </div>
+
+              <!-- SVGImage Tab -->
+              <div class="tab-pane fade" id="v-pills-svgimage" role="tabpanel" aria-labelledby="v-pills-svgimage-tab">
+                <h4 class="mb-1">SVG Image Component</h4>
+                <p class="text-muted small">Renders a vector graphic inside the diagram using raw inline SVG code. The graphic can be scaled dynamically.</p>
+                
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Properties</h6>
+                <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
+                  <thead>
+                    <tr>
+                      <th style="width: 25%;">Property</th>
+                      <th style="width: 20%;">Type</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><code>content</code></td>
+                      <td>String</td>
+                      <td>The raw SVG source code to render.</td>
+                    </tr>
+                    <tr>
+                      <td><code>scale</code></td>
+                      <td>Number</td>
+                      <td>Double value scaling factor (default: <code>1.0</code>).</td>
+                    </tr>
+                    <tr>
+                      <td><code>width</code></td>
+                      <td>Number</td>
+                      <td>Optional base width override. If not specified, extracted from SVG headers.</td>
+                    </tr>
+                    <tr>
+                      <td><code>height</code></td>
+                      <td>Number</td>
+                      <td>Optional base height override. If not specified, extracted from SVG headers.</td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Example Usage</h6>
+                <pre class="bg-black p-3 rounded font-monospace text-success" style="font-size: 0.75rem;">LogoNode: SVGImage {
+  content: "&lt;svg width=\"100\" height=\"100\"&gt;&lt;circle cx=\"50\" cy=\"50\" r=\"40\" fill=\"#3b82f6\" stroke=\"#ffffff\" stroke-width=\"4\"/&gt;&lt;/svg&gt;"
+  scale: 1.5
+}</pre>
+              </div>
+
+              <!-- RasterImage Tab -->
+              <div class="tab-pane fade" id="v-pills-rasterimage" role="tabpanel" aria-labelledby="v-pills-rasterimage-tab">
+                <h4 class="mb-1">Raster Image Component (Base64)</h4>
+                <p class="text-muted small">Renders standard raster images (PNG, JPEG, GIF) directly inside the canvas by pasting their base64 encoded text.</p>
+                
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Properties</h6>
+                <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
+                  <thead>
+                    <tr>
+                      <th style="width: 25%;">Property</th>
+                      <th style="width: 20%;">Type</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><code>content</code></td>
+                      <td>String</td>
+                      <td>The base64 encoded image string (supports with or without <code>data:image/...;base64,</code> prefix).</td>
+                    </tr>
+                    <tr>
+                      <td><code>scale</code></td>
+                      <td>Number</td>
+                      <td>Double value scaling factor (default: <code>1.0</code>).</td>
+                    </tr>
+                    <tr>
+                      <td><code>width</code></td>
+                      <td>Number</td>
+                      <td>Optional base width override. If not specified, resolved automatically from the binary header.</td>
+                    </tr>
+                    <tr>
+                      <td><code>height</code></td>
+                      <td>Number</td>
+                      <td>Optional base height override. If not specified, resolved automatically from the binary header.</td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Example Usage</h6>
+                <pre class="bg-black p-3 rounded font-monospace text-success" style="font-size: 0.75rem;">AvatarNode: RasterImage {
+  content: "iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg=="
+  scale: 4.0
 }</pre>
               </div>
 

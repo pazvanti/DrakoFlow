@@ -703,7 +703,11 @@ function updateEditorMetrics(): void {
     lastColorTriggers = highlightResult.colorTriggers;
     const codeElem = highlighting.querySelector('code');
     if (codeElem) {
-      codeElem.innerHTML = highlightResult.html;
+      let html = highlightResult.html;
+      if (code.endsWith('\n')) {
+        html += '\n';
+      }
+      codeElem.innerHTML = html;
       attachColorPickerListeners();
     }
   }

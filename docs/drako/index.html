@@ -16,9 +16,9 @@
   <!-- Bootstrap Icons -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <!-- Custom External Stylesheet -->
-
-  <script type="module" crossorigin src="./assets/index-8af13474.js"></script>
-  <link rel="stylesheet" href="./assets/index-80f31965.css">
+  
+  <script type="module" crossorigin src="./assets/index-743e5ccf.js"></script>
+  <link rel="stylesheet" href="./assets/index-237d1570.css">
 </head>
 
 <body>
@@ -69,8 +69,7 @@
         <h2 class="panel-title">
           <i class="bi bi-collection"></i> Library
         </h2>
-        <button id="btn-show-docs" class="btn btn-link text-muted p-0" title="Open Documentation"
-          style="font-size: 1.15rem; line-height: 1; text-decoration: none;">
+        <button id="btn-show-docs" class="btn btn-link text-muted p-0" title="Open Documentation" style="font-size: 1.15rem; line-height: 1; text-decoration: none;">
           <i class="bi bi-question-circle"></i>
         </button>
       </div>
@@ -103,8 +102,7 @@
         <h2 class="panel-title">
           <i class="bi bi-code-square"></i> DSL Editor
         </h2>
-        <span id="editor-filename" class="text-muted font-monospace filename-label"
-          style="font-size: 0.75rem; cursor: pointer;" title="Click to rename">
+        <span id="editor-filename" class="text-muted font-monospace filename-label" style="font-size: 0.75rem; cursor: pointer;" title="Click to rename">
           diagram.drako <i class="bi bi-pencil-square ms-1" style="font-size: 0.7rem; opacity: 0.6;"></i>
         </span>
       </div>
@@ -141,8 +139,7 @@
           <i class="bi bi-image"></i> Diagram Preview
         </h2>
         <div class="d-flex align-items-center gap-2">
-          <button id="btn-toggle-editor" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1.5"
-            title="Toggle Editor Panel" style="font-size: 0.75rem;">
+          <button id="btn-toggle-editor" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1.5" title="Toggle Editor Panel" style="font-size: 0.75rem;">
             <i class="bi bi-layout-sidebar"></i> <span>Hide Editor</span>
           </button>
           <select id="theme-select"
@@ -151,23 +148,17 @@
             <option value="drako-dark">Drako Dark</option>
             <option value="drako-light">Drako Light</option>
           </select>
-          <button id="btn-edit-theme"
-            class="btn btn-outline-secondary btn-sm d-flex align-items-center justify-content-center"
-            title="Customize Theme" style="font-size: 0.75rem; width: 32px; height: 28px;">
+          <button id="btn-edit-theme" class="btn btn-outline-secondary btn-sm d-flex align-items-center justify-content-center" title="Customize Theme" style="font-size: 0.75rem; width: 32px; height: 28px;">
             <i class="bi bi-sliders"></i>
           </button>
         </div>
       </div>
 
       <!-- Tag Filter Bar for Diagram -->
-      <div id="diagram-tag-filter-bar"
-        class="p-2 border-bottom border-secondary border-opacity-25 bg-dark-subtle d-none align-items-center gap-2 flex-wrap"
-        style="font-size: 0.75rem;">
-        <span class="text-muted text-uppercase fw-bold"
-          style="font-size: 0.7rem; letter-spacing: 0.05em; user-select: none;">Filter Tags:</span>
+      <div id="diagram-tag-filter-bar" class="p-2 border-bottom border-secondary border-opacity-25 bg-dark-subtle d-none align-items-center gap-2 flex-wrap" style="font-size: 0.75rem;">
+        <span class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem; letter-spacing: 0.05em; user-select: none;">Filter Tags:</span>
         <div id="diagram-tag-filters" class="d-flex flex-wrap gap-1"></div>
-        <button id="btn-clear-diagram-filters" class="btn btn-link text-muted p-0 ms-auto text-decoration-none"
-          style="font-size: 0.7rem;">Clear All</button>
+        <button id="btn-clear-diagram-filters" class="btn btn-link text-muted p-0 ms-auto text-decoration-none" style="font-size: 0.7rem;">Clear All</button>
       </div>
 
       <!-- Graphical Viewport -->
@@ -208,8 +199,7 @@
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content bg-dark border-secondary border-opacity-50 text-white">
         <div class="modal-header border-secondary border-opacity-25">
-          <h5 class="modal-title" id="exportModalLabel"><i class="bi bi-file-earmark-image-fill text-primary"></i>
-            Export PNG Options</h5>
+          <h5 class="modal-title" id="exportModalLabel"><i class="bi bi-file-earmark-image-fill text-primary"></i> Export PNG Options</h5>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
@@ -219,15 +209,13 @@
               <label class="form-label text-muted small text-uppercase fw-bold">Export Range</label>
               <div class="d-flex gap-4">
                 <div class="form-check">
-                  <input class="form-check-input" type="radio" name="export-range" id="export-range-whole" value="whole"
-                    checked style="cursor: pointer;">
+                  <input class="form-check-input" type="radio" name="export-range" id="export-range-whole" value="whole" checked style="cursor: pointer;">
                   <label class="form-check-label" for="export-range-whole" style="cursor: pointer;">
                     Whole Diagram
                   </label>
                 </div>
                 <div class="form-check">
-                  <input class="form-check-input" type="radio" name="export-range" id="export-range-current"
-                    value="current" style="cursor: pointer;">
+                  <input class="form-check-input" type="radio" name="export-range" id="export-range-current" value="current" style="cursor: pointer;">
                   <label class="form-check-label" for="export-range-current" style="cursor: pointer;">
                     Current View
                   </label>
@@ -240,8 +228,7 @@
               <label class="form-label text-muted small text-uppercase fw-bold">Resolution (Width)</label>
               <div class="row g-2 align-items-center mb-2">
                 <div class="col-8">
-                  <select id="export-res-preset"
-                    class="form-select bg-dark border-secondary border-opacity-50 text-white" style="cursor: pointer;">
+                  <select id="export-res-preset" class="form-select bg-dark border-secondary border-opacity-50 text-white" style="cursor: pointer;">
                     <option value="1024">Standard (1024px)</option>
                     <option value="2048" selected>High-Res (2048px)</option>
                     <option value="4096">Ultra-HD (4096px)</option>
@@ -249,9 +236,7 @@
                   </select>
                 </div>
                 <div class="col-4">
-                  <input type="number" id="export-custom-width"
-                    class="form-control bg-dark border-secondary border-opacity-50 text-white text-center" value="2048"
-                    min="200" max="8192" disabled>
+                  <input type="number" id="export-custom-width" class="form-control bg-dark border-secondary border-opacity-50 text-white text-center" value="2048" min="200" max="8192" disabled>
                 </div>
               </div>
               <div id="export-size-preview" class="text-muted small">
@@ -261,13 +246,11 @@
 
             <!-- Padding Settings -->
             <div class="mb-3" id="export-padding-group">
-              <label for="export-padding"
-                class="form-label text-muted small text-uppercase fw-bold d-flex justify-content-between">
+              <label for="export-padding" class="form-label text-muted small text-uppercase fw-bold d-flex justify-content-between">
                 Padding
                 <span class="badge bg-secondary-subtle text-secondary-emphasis" id="export-padding-val">40px</span>
               </label>
-              <input type="range" class="form-range" min="0" max="200" step="5" id="export-padding" value="40"
-                style="cursor: pointer;">
+              <input type="range" class="form-range" min="0" max="200" step="5" id="export-padding" value="40" style="cursor: pointer;">
             </div>
 
             <!-- Background Selection -->
@@ -275,15 +258,13 @@
               <label class="form-label text-muted small text-uppercase fw-bold">Background</label>
               <div class="d-flex gap-4">
                 <div class="form-check">
-                  <input class="form-check-input" type="radio" name="export-bg" id="export-bg-theme" value="theme"
-                    checked style="cursor: pointer;">
+                  <input class="form-check-input" type="radio" name="export-bg" id="export-bg-theme" value="theme" checked style="cursor: pointer;">
                   <label class="form-check-label" for="export-bg-theme" style="cursor: pointer;">
                     Theme Background
                   </label>
                 </div>
                 <div class="form-check">
-                  <input class="form-check-input" type="radio" name="export-bg" id="export-bg-transparent"
-                    value="transparent" style="cursor: pointer;">
+                  <input class="form-check-input" type="radio" name="export-bg" id="export-bg-transparent" value="transparent" style="cursor: pointer;">
                   <label class="form-check-label" for="export-bg-transparent" style="cursor: pointer;">
                     Transparent
                   </label>
@@ -305,130 +286,93 @@
     <div class="modal-dialog modal-dialog-centered modal-xl">
       <div class="modal-content bg-dark border-secondary border-opacity-50 text-white">
         <div class="modal-header border-secondary border-opacity-25">
-          <h5 class="modal-title" id="helpModalLabel"><i class="bi bi-book-half text-primary"></i> Component
-            Documentation</h5>
+          <h5 class="modal-title" id="helpModalLabel"><i class="bi bi-book-half text-primary"></i> Component Documentation</h5>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body p-0">
           <div class="d-flex align-items-stretch" style="height: 70vh; min-height: 550px;">
             <!-- Left Sidebar Nav -->
-            <div
-              class="bg-dark-subtle p-3 border-end border-secondary border-opacity-25 flex-shrink-0 d-flex flex-column"
-              style="width: 240px;">
+            <div class="bg-dark-subtle p-3 border-end border-secondary border-opacity-25 flex-shrink-0 d-flex flex-column" style="width: 240px;">
               <!-- Search box for components -->
               <div class="mb-3">
                 <div class="input-group input-group-sm">
                   <span class="input-group-text custom-input-group-text"><i class="bi bi-search"></i></span>
                   <input type="text" id="doc-search"
-                    class="form-control bg-dark border-secondary border-opacity-50 text-white"
-                    placeholder="Search docs...">
+                    class="form-control bg-dark border-secondary border-opacity-50 text-white" placeholder="Search docs...">
                 </div>
               </div>
 
-              <div class="nav flex-column nav-pills me-3 flex-grow-1 overflow-y-auto" id="v-pills-tab" role="tablist"
-                aria-orientation="vertical">
-                <button class="nav-link active text-start py-2 px-3 mb-1" id="v-pills-rectangle-tab"
-                  data-bs-toggle="pill" data-bs-target="#v-pills-rectangle" type="button" role="tab"
-                  aria-controls="v-pills-rectangle" aria-selected="true">
+              <div class="nav flex-column nav-pills me-3 flex-grow-1 overflow-y-auto" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                <button class="nav-link active text-start py-2 px-3 mb-1" id="v-pills-rectangle-tab" data-bs-toggle="pill" data-bs-target="#v-pills-rectangle" type="button" role="tab" aria-controls="v-pills-rectangle" aria-selected="true">
                   <i class="bi bi-square me-2"></i> Rectangle
                 </button>
-                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-process-tab" data-bs-toggle="pill"
-                  data-bs-target="#v-pills-process" type="button" role="tab" aria-controls="v-pills-process"
-                  aria-selected="false">
+                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-process-tab" data-bs-toggle="pill" data-bs-target="#v-pills-process" type="button" role="tab" aria-controls="v-pills-process" aria-selected="false">
                   <i class="bi bi-bezier2 me-2"></i> Process
                 </button>
-                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-ellipse-tab" data-bs-toggle="pill"
-                  data-bs-target="#v-pills-ellipse" type="button" role="tab" aria-controls="v-pills-ellipse"
-                  aria-selected="false">
+                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-ellipse-tab" data-bs-toggle="pill" data-bs-target="#v-pills-ellipse" type="button" role="tab" aria-controls="v-pills-ellipse" aria-selected="false">
                   <i class="bi bi-circle me-2"></i> Circle / Ellipse
                 </button>
-                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-container-tab" data-bs-toggle="pill"
-                  data-bs-target="#v-pills-container" type="button" role="tab" aria-controls="v-pills-container"
-                  aria-selected="false">
+                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-container-tab" data-bs-toggle="pill" data-bs-target="#v-pills-container" type="button" role="tab" aria-controls="v-pills-container" aria-selected="false">
                   <i class="bi bi-grid-1x2 me-2"></i> Container
                 </button>
-                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-cylinder-tab" data-bs-toggle="pill"
-                  data-bs-target="#v-pills-cylinder" type="button" role="tab" aria-controls="v-pills-cylinder"
-                  aria-selected="false">
+                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-cylinder-tab" data-bs-toggle="pill" data-bs-target="#v-pills-cylinder" type="button" role="tab" aria-controls="v-pills-cylinder" aria-selected="false">
                   <i class="bi bi-database me-2"></i> Cylinder
                 </button>
-                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-cube-tab" data-bs-toggle="pill"
-                  data-bs-target="#v-pills-cube" type="button" role="tab" aria-controls="v-pills-cube"
-                  aria-selected="false">
+                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-cube-tab" data-bs-toggle="pill" data-bs-target="#v-pills-cube" type="button" role="tab" aria-controls="v-pills-cube" aria-selected="false">
                   <i class="bi bi-box me-2"></i> Cube
                 </button>
-                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-diamond-tab" data-bs-toggle="pill"
-                  data-bs-target="#v-pills-diamond" type="button" role="tab" aria-controls="v-pills-diamond"
-                  aria-selected="false">
+                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-diamond-tab" data-bs-toggle="pill" data-bs-target="#v-pills-diamond" type="button" role="tab" aria-controls="v-pills-diamond" aria-selected="false">
                   <i class="bi bi-suit-diamond me-2"></i> Diamond
                 </button>
-                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-hexagon-tab" data-bs-toggle="pill"
-                  data-bs-target="#v-pills-hexagon" type="button" role="tab" aria-controls="v-pills-hexagon"
-                  aria-selected="false">
+                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-hexagon-tab" data-bs-toggle="pill" data-bs-target="#v-pills-hexagon" type="button" role="tab" aria-controls="v-pills-hexagon" aria-selected="false">
                   <i class="bi bi-hexagon me-2"></i> Hexagon
                 </button>
-                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-actor-tab" data-bs-toggle="pill"
-                  data-bs-target="#v-pills-actor" type="button" role="tab" aria-controls="v-pills-actor"
-                  aria-selected="false">
+                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-actor-tab" data-bs-toggle="pill" data-bs-target="#v-pills-actor" type="button" role="tab" aria-controls="v-pills-actor" aria-selected="false">
                   <i class="bi bi-person me-2"></i> Actor
                 </button>
-                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-parallelogram-tab" data-bs-toggle="pill"
-                  data-bs-target="#v-pills-parallelogram" type="button" role="tab" aria-controls="v-pills-parallelogram"
-                  aria-selected="false">
+                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-parallelogram-tab" data-bs-toggle="pill" data-bs-target="#v-pills-parallelogram" type="button" role="tab" aria-controls="v-pills-parallelogram" aria-selected="false">
                   <i class="bi bi-distribute-vertical me-2"></i> Parallelogram
                 </button>
-                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-class-tab" data-bs-toggle="pill"
-                  data-bs-target="#v-pills-class" type="button" role="tab" aria-controls="v-pills-class"
-                  aria-selected="false">
+                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-class-tab" data-bs-toggle="pill" data-bs-target="#v-pills-class" type="button" role="tab" aria-controls="v-pills-class" aria-selected="false">
                   <i class="bi bi-layout-text-window me-2"></i> Class / List
                 </button>
-                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-interface-tab" data-bs-toggle="pill"
-                  data-bs-target="#v-pills-interface" type="button" role="tab" aria-controls="v-pills-interface"
-                  aria-selected="false">
+                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-interface-tab" data-bs-toggle="pill" data-bs-target="#v-pills-interface" type="button" role="tab" aria-controls="v-pills-interface" aria-selected="false">
                   <i class="bi bi-braces me-2"></i> Interface
                 </button>
-                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-umlcomponent-tab" data-bs-toggle="pill"
-                  data-bs-target="#v-pills-umlcomponent" type="button" role="tab" aria-controls="v-pills-umlcomponent"
-                  aria-selected="false">
+                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-umlcomponent-tab" data-bs-toggle="pill" data-bs-target="#v-pills-umlcomponent" type="button" role="tab" aria-controls="v-pills-umlcomponent" aria-selected="false">
                   <i class="bi bi-puzzle me-2"></i> Component
                 </button>
-                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-module-tab" data-bs-toggle="pill"
-                  data-bs-target="#v-pills-module" type="button" role="tab" aria-controls="v-pills-module"
-                  aria-selected="false">
+                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-module-tab" data-bs-toggle="pill" data-bs-target="#v-pills-module" type="button" role="tab" aria-controls="v-pills-module" aria-selected="false">
                   <i class="bi bi-file-earmark-code me-2"></i> Module
                 </button>
-                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-package-tab" data-bs-toggle="pill"
-                  data-bs-target="#v-pills-package" type="button" role="tab" aria-controls="v-pills-package"
-                  aria-selected="false">
+                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-package-tab" data-bs-toggle="pill" data-bs-target="#v-pills-package" type="button" role="tab" aria-controls="v-pills-package" aria-selected="false">
                   <i class="bi bi-folder2 me-2"></i> Package
                 </button>
-                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-text-tab" data-bs-toggle="pill"
-                  data-bs-target="#v-pills-text" type="button" role="tab" aria-controls="v-pills-text"
-                  aria-selected="false">
+                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-text-tab" data-bs-toggle="pill" data-bs-target="#v-pills-text" type="button" role="tab" aria-controls="v-pills-text" aria-selected="false">
                   <i class="bi bi-type me-2"></i> Simple Text
                 </button>
-                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-paragraph-tab" data-bs-toggle="pill"
-                  data-bs-target="#v-pills-paragraph" type="button" role="tab" aria-controls="v-pills-paragraph"
-                  aria-selected="false">
+                 <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-paragraph-tab" data-bs-toggle="pill" data-bs-target="#v-pills-paragraph" type="button" role="tab" aria-controls="v-pills-paragraph" aria-selected="false">
                   <i class="bi bi-justify-left me-2"></i> Paragraph Text
                 </button>
-                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-relationship-tab" data-bs-toggle="pill"
-                  data-bs-target="#v-pills-relationship" type="button" role="tab" aria-controls="v-pills-relationship"
-                  aria-selected="false">
+                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-svgimage-tab" data-bs-toggle="pill" data-bs-target="#v-pills-svgimage" type="button" role="tab" aria-controls="v-pills-svgimage" aria-selected="false">
+                  <i class="bi bi-filetype-svg me-2"></i> SVG Image
+                </button>
+                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-rasterimage-tab" data-bs-toggle="pill" data-bs-target="#v-pills-rasterimage" type="button" role="tab" aria-controls="v-pills-rasterimage" aria-selected="false">
+                  <i class="bi bi-image me-2"></i> Raster Image
+                </button>
+                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-relationship-tab" data-bs-toggle="pill" data-bs-target="#v-pills-relationship" type="button" role="tab" aria-controls="v-pills-relationship" aria-selected="false">
                   <i class="bi bi-arrow-right-short me-2"></i> Relationships
                 </button>
               </div>
             </div>
-
+            
             <!-- Right Tab Content -->
             <div class="tab-content p-4 flex-grow-1 overflow-y-auto" id="v-pills-tabContent" style="max-height: 100%;">
               <!-- Rectangle Tab -->
-              <div class="tab-pane fade show active" id="v-pills-rectangle" role="tabpanel"
-                aria-labelledby="v-pills-rectangle-tab">
+              <div class="tab-pane fade show active" id="v-pills-rectangle" role="tabpanel" aria-labelledby="v-pills-rectangle-tab">
                 <h4 class="mb-1">Rectangle Component</h4>
-                <p class="text-muted small">A standard rectangular component supporting corner rounding, label text, and
-                  local styling overrides.</p>
-
+                <p class="text-muted small">A standard rectangular component supporting corner rounding, label text, and local styling overrides.</p>
+                
                 <h6 class="mt-4 fw-bold small text-uppercase text-primary">Properties</h6>
                 <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
                   <thead>
@@ -462,8 +406,7 @@
                   </tbody>
                 </table>
 
-                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Theme Overrides (Inside
-                  <code>themeOverride</code> block)</h6>
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Theme Overrides (Inside <code>themeOverride</code> block)</h6>
                 <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
                   <thead>
                     <tr>
@@ -503,9 +446,8 @@
               <!-- Process Tab -->
               <div class="tab-pane fade" id="v-pills-process" role="tabpanel" aria-labelledby="v-pills-process-tab">
                 <h4 class="mb-1">Process Component</h4>
-                <p class="text-muted small">A process step box with vertical segment lines, commonly used in flowchart
-                  steps or sequence actors.</p>
-
+                <p class="text-muted small">A process step box with vertical segment lines, commonly used in flowchart steps or sequence actors.</p>
+                
                 <h6 class="mt-4 fw-bold small text-uppercase text-primary">Properties</h6>
                 <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
                   <thead>
@@ -534,8 +476,7 @@
                   </tbody>
                 </table>
 
-                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Theme Overrides (Inside
-                  <code>themeOverride</code> block)</h6>
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Theme Overrides (Inside <code>themeOverride</code> block)</h6>
                 <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
                   <thead>
                     <tr>
@@ -574,9 +515,8 @@
               <!-- Ellipse Tab -->
               <div class="tab-pane fade" id="v-pills-ellipse" role="tabpanel" aria-labelledby="v-pills-ellipse-tab">
                 <h4 class="mb-1">Circle / Ellipse Component</h4>
-                <p class="text-muted small">Renders a circle (using radius) or an oval/ellipse shape (using rx and ry).
-                </p>
-
+                <p class="text-muted small">Renders a circle (using radius) or an oval/ellipse shape (using rx and ry).</p>
+                
                 <h6 class="mt-4 fw-bold small text-uppercase text-primary">Properties</h6>
                 <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
                   <thead>
@@ -615,8 +555,7 @@
                   </tbody>
                 </table>
 
-                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Theme Overrides (Inside
-                  <code>themeOverride</code> block)</h6>
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Theme Overrides (Inside <code>themeOverride</code> block)</h6>
                 <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
                   <thead>
                     <tr>
@@ -655,9 +594,8 @@
               <!-- Container Tab -->
               <div class="tab-pane fade" id="v-pills-container" role="tabpanel" aria-labelledby="v-pills-container-tab">
                 <h4 class="mb-1">Vertical Container Component</h4>
-                <p class="text-muted small">A container layout that stacks nested child components vertically with
-                  customizable gaps and padding.</p>
-
+                <p class="text-muted small">A container layout that stacks nested child components vertically with customizable gaps and padding.</p>
+                
                 <h6 class="mt-4 fw-bold small text-uppercase text-primary">Properties</h6>
                 <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
                   <thead>
@@ -691,8 +629,7 @@
                   </tbody>
                 </table>
 
-                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Theme Overrides (Inside
-                  <code>themeOverride</code> block)</h6>
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Theme Overrides (Inside <code>themeOverride</code> block)</h6>
                 <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
                   <thead>
                     <tr>
@@ -732,7 +669,7 @@
               <div class="tab-pane fade" id="v-pills-cylinder" role="tabpanel" aria-labelledby="v-pills-cylinder-tab">
                 <h4 class="mb-1">Cylinder Component</h4>
                 <p class="text-muted small">A 3D cylinder shape commonly used to represent databases or data stores.</p>
-
+                
                 <h6 class="mt-4 fw-bold small text-uppercase text-primary">Properties</h6>
                 <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
                   <thead>
@@ -760,9 +697,8 @@
               <!-- Cube Tab -->
               <div class="tab-pane fade" id="v-pills-cube" role="tabpanel" aria-labelledby="v-pills-cube-tab">
                 <h4 class="mb-1">Cube Component</h4>
-                <p class="text-muted small">A 3D isometric box shape commonly representing services, processes, or
-                  modules.</p>
-
+                <p class="text-muted small">A 3D isometric box shape commonly representing services, processes, or modules.</p>
+                
                 <h6 class="mt-4 fw-bold small text-uppercase text-primary">Properties</h6>
                 <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
                   <thead>
@@ -790,9 +726,8 @@
               <!-- Diamond Tab -->
               <div class="tab-pane fade" id="v-pills-diamond" role="tabpanel" aria-labelledby="v-pills-diamond-tab">
                 <h4 class="mb-1">Diamond Component</h4>
-                <p class="text-muted small">A diamond shape used for decision gateways or conditional branches in
-                  flowcharts.</p>
-
+                <p class="text-muted small">A diamond shape used for decision gateways or conditional branches in flowcharts.</p>
+                
                 <h6 class="mt-4 fw-bold small text-uppercase text-primary">Properties</h6>
                 <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
                   <thead>
@@ -820,9 +755,8 @@
               <!-- Hexagon Tab -->
               <div class="tab-pane fade" id="v-pills-hexagon" role="tabpanel" aria-labelledby="v-pills-hexagon-tab">
                 <h4 class="mb-1">Hexagon Component</h4>
-                <p class="text-muted small">A flat-topped hexagon shape commonly representing subsystems, domains, or
-                  nodes.</p>
-
+                <p class="text-muted small">A flat-topped hexagon shape commonly representing subsystems, domains, or nodes.</p>
+                
                 <h6 class="mt-4 fw-bold small text-uppercase text-primary">Properties</h6>
                 <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
                   <thead>
@@ -850,9 +784,8 @@
               <!-- Actor Tab -->
               <div class="tab-pane fade" id="v-pills-actor" role="tabpanel" aria-labelledby="v-pills-actor-tab">
                 <h4 class="mb-1">Actor Component</h4>
-                <p class="text-muted small">A UML stick figure representing system users, actors, or external
-                  integrations.</p>
-
+                <p class="text-muted small">A UML stick figure representing system users, actors, or external integrations.</p>
+                
                 <h6 class="mt-4 fw-bold small text-uppercase text-primary">Properties</h6>
                 <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
                   <thead>
@@ -878,12 +811,10 @@
               </div>
 
               <!-- Parallelogram Tab -->
-              <div class="tab-pane fade" id="v-pills-parallelogram" role="tabpanel"
-                aria-labelledby="v-pills-parallelogram-tab">
+              <div class="tab-pane fade" id="v-pills-parallelogram" role="tabpanel" aria-labelledby="v-pills-parallelogram-tab">
                 <h4 class="mb-1">Parallelogram Component</h4>
-                <p class="text-muted small">A skewed parallelogram shape representing data, input/output files, or
-                  reports.</p>
-
+                <p class="text-muted small">A skewed parallelogram shape representing data, input/output files, or reports.</p>
+                
                 <h6 class="mt-4 fw-bold small text-uppercase text-primary">Properties</h6>
                 <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
                   <thead>
@@ -911,9 +842,7 @@
               <!-- Class / List Tab -->
               <div class="tab-pane fade" id="v-pills-class" role="tabpanel" aria-labelledby="v-pills-class-tab">
                 <h4 class="mb-1">Class / List Component</h4>
-                <p class="text-muted small">A multi-compartment shape for UML class diagrams (with attributes and
-                  methods sections) or structured lists (with a header and item rows). Compartments are separated by
-                  semicolons.</p>
+                <p class="text-muted small">A multi-compartment shape for UML class diagrams (with attributes and methods sections) or structured lists (with a header and item rows). Compartments are separated by semicolons.</p>
 
                 <h6 class="mt-4 fw-bold small text-uppercase text-primary">Properties</h6>
                 <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
@@ -933,14 +862,12 @@
                     <tr>
                       <td><code>attributes</code></td>
                       <td>String</td>
-                      <td>Semicolon-separated attribute rows (e.g. <code>"id: string; name: string"</code>). Renders a
-                        second compartment below the header.</td>
+                      <td>Semicolon-separated attribute rows (e.g. <code>"id: string; name: string"</code>). Renders a second compartment below the header.</td>
                     </tr>
                     <tr>
                       <td><code>methods</code></td>
                       <td>String</td>
-                      <td>Semicolon-separated method rows (e.g. <code>"getId(): string; save(): void"</code>). Renders a
-                        third compartment below attributes.</td>
+                      <td>Semicolon-separated method rows (e.g. <code>"getId(): string; save(): void"</code>). Renders a third compartment below attributes.</td>
                     </tr>
                     <tr>
                       <td><code>items</code></td>
@@ -950,8 +877,7 @@
                   </tbody>
                 </table>
 
-                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Theme Overrides (Inside
-                  <code>themeOverride</code> block)</h6>
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Theme Overrides (Inside <code>themeOverride</code> block)</h6>
                 <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
                   <thead>
                     <tr>
@@ -985,26 +911,10 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <tr>
-                      <td><code>+</code></td>
-                      <td>Public</td>
-                      <td style="color:#4ade80;">Green</td>
-                    </tr>
-                    <tr>
-                      <td><code>-</code></td>
-                      <td>Private</td>
-                      <td style="color:#f87171;">Red</td>
-                    </tr>
-                    <tr>
-                      <td><code>#</code></td>
-                      <td>Protected</td>
-                      <td style="color:#fb923c;">Amber</td>
-                    </tr>
-                    <tr>
-                      <td><code>~</code></td>
-                      <td>Package / Internal</td>
-                      <td style="color:#a78bfa;">Violet</td>
-                    </tr>
+                    <tr><td><code>+</code></td><td>Public</td><td style="color:#4ade80;">Green</td></tr>
+                    <tr><td><code>-</code></td><td>Private</td><td style="color:#f87171;">Red</td></tr>
+                    <tr><td><code>#</code></td><td>Protected</td><td style="color:#fb923c;">Amber</td></tr>
+                    <tr><td><code>~</code></td><td>Package / Internal</td><td style="color:#a78bfa;">Violet</td></tr>
                   </tbody>
                 </table>
 
@@ -1040,25 +950,13 @@
               <!-- Interface Tab -->
               <div class="tab-pane fade" id="v-pills-interface" role="tabpanel" aria-labelledby="v-pills-interface-tab">
                 <h4 class="mb-1">Interface Component</h4>
-                <p class="text-muted small">A UML interface shape — rectangle with an <code>«interface»</code>
-                  stereotype label in italics above the bold interface name, and a separator line below the header for
-                  method rows.</p>
+                <p class="text-muted small">A UML interface shape — rectangle with an <code>«interface»</code> stereotype label in italics above the bold interface name, and a separator line below the header for method rows.</p>
 
                 <h6 class="mt-4 fw-bold small text-uppercase text-primary">Properties</h6>
                 <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
-                  <thead>
-                    <tr>
-                      <th style="width:25%;">Property</th>
-                      <th style="width:20%;">Type</th>
-                      <th>Description</th>
-                    </tr>
-                  </thead>
+                  <thead><tr><th style="width:25%;">Property</th><th style="width:20%;">Type</th><th>Description</th></tr></thead>
                   <tbody>
-                    <tr>
-                      <td><code>label</code></td>
-                      <td>String</td>
-                      <td>The interface name displayed in the header.</td>
-                    </tr>
+                    <tr><td><code>label</code></td><td>String</td><td>The interface name displayed in the header.</td></tr>
                   </tbody>
                 </table>
 
@@ -1077,27 +975,15 @@ IRepository: Interface {
               </div>
 
               <!-- Component Tab -->
-              <div class="tab-pane fade" id="v-pills-umlcomponent" role="tabpanel"
-                aria-labelledby="v-pills-umlcomponent-tab">
+              <div class="tab-pane fade" id="v-pills-umlcomponent" role="tabpanel" aria-labelledby="v-pills-umlcomponent-tab">
                 <h4 class="mb-1">Component Shape</h4>
-                <p class="text-muted small">A UML component box — rectangle with the standard two-notch component icon
-                  on the right side, representing a deployable software component or service.</p>
+                <p class="text-muted small">A UML component box — rectangle with the standard two-notch component icon on the right side, representing a deployable software component or service.</p>
 
                 <h6 class="mt-4 fw-bold small text-uppercase text-primary">Properties</h6>
                 <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
-                  <thead>
-                    <tr>
-                      <th style="width:25%;">Property</th>
-                      <th style="width:20%;">Type</th>
-                      <th>Description</th>
-                    </tr>
-                  </thead>
+                  <thead><tr><th style="width:25%;">Property</th><th style="width:20%;">Type</th><th>Description</th></tr></thead>
                   <tbody>
-                    <tr>
-                      <td><code>label</code></td>
-                      <td>String</td>
-                      <td>The component name displayed inside the shape.</td>
-                    </tr>
+                    <tr><td><code>label</code></td><td>String</td><td>The component name displayed inside the shape.</td></tr>
                   </tbody>
                 </table>
 
@@ -1117,24 +1003,13 @@ AuthService: UMLComponent {
               <!-- Module Tab -->
               <div class="tab-pane fade" id="v-pills-module" role="tabpanel" aria-labelledby="v-pills-module-tab">
                 <h4 class="mb-1">Module Shape</h4>
-                <p class="text-muted small">A file-card shape with a small tab on the top-left corner — commonly used to
-                  represent a code module, file, or library unit.</p>
+                <p class="text-muted small">A file-card shape with a small tab on the top-left corner — commonly used to represent a code module, file, or library unit.</p>
 
                 <h6 class="mt-4 fw-bold small text-uppercase text-primary">Properties</h6>
                 <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
-                  <thead>
-                    <tr>
-                      <th style="width:25%;">Property</th>
-                      <th style="width:20%;">Type</th>
-                      <th>Description</th>
-                    </tr>
-                  </thead>
+                  <thead><tr><th style="width:25%;">Property</th><th style="width:20%;">Type</th><th>Description</th></tr></thead>
                   <tbody>
-                    <tr>
-                      <td><code>label</code></td>
-                      <td>String</td>
-                      <td>The module name displayed in the body.</td>
-                    </tr>
+                    <tr><td><code>label</code></td><td>String</td><td>The module name displayed in the body.</td></tr>
                   </tbody>
                 </table>
 
@@ -1154,34 +1029,15 @@ HttpModule: Module {
               <!-- Package Tab -->
               <div class="tab-pane fade" id="v-pills-package" role="tabpanel" aria-labelledby="v-pills-package-tab">
                 <h4 class="mb-1">Package Shape</h4>
-                <p class="text-muted small">A UML package — folder-style shape with a wider angled tab on the top-left
-                  that displays the package name, and a large open body area for nested elements.</p>
+                <p class="text-muted small">A UML package — folder-style shape with a wider angled tab on the top-left that displays the package name, and a large open body area for nested elements.</p>
 
                 <h6 class="mt-4 fw-bold small text-uppercase text-primary">Properties</h6>
                 <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
-                  <thead>
-                    <tr>
-                      <th style="width:25%;">Property</th>
-                      <th style="width:20%;">Type</th>
-                      <th>Description</th>
-                    </tr>
-                  </thead>
+                  <thead><tr><th style="width:25%;">Property</th><th style="width:20%;">Type</th><th>Description</th></tr></thead>
                   <tbody>
-                    <tr>
-                      <td><code>label</code></td>
-                      <td>String</td>
-                      <td>The package name shown inside the tab.</td>
-                    </tr>
-                    <tr>
-                      <td><code>gap</code></td>
-                      <td>Number</td>
-                      <td>Vertical spacing in pixels between children (default is <code>12</code>).</td>
-                    </tr>
-                    <tr>
-                      <td><code>padding</code></td>
-                      <td>Number</td>
-                      <td>Internal margins around children inside package walls (default is <code>16</code>).</td>
-                    </tr>
+                    <tr><td><code>label</code></td><td>String</td><td>The package name shown inside the tab.</td></tr>
+                    <tr><td><code>gap</code></td><td>Number</td><td>Vertical spacing in pixels between children (default is <code>12</code>).</td></tr>
+                    <tr><td><code>padding</code></td><td>Number</td><td>Internal margins around children inside package walls (default is <code>16</code>).</td></tr>
                   </tbody>
                 </table>
 
@@ -1208,30 +1064,14 @@ InfraPackage: Package {
               <!-- Simple Text Tab -->
               <div class="tab-pane fade" id="v-pills-text" role="tabpanel" aria-labelledby="v-pills-text-tab">
                 <h4 class="mb-1">Simple Text Component</h4>
-                <p class="text-muted small">Renders a single-line text label without any box or border, useful for
-                  annotations or standalone headers.</p>
+                <p class="text-muted small">Renders a single-line text label without any box or border, useful for annotations or standalone headers.</p>
 
                 <h6 class="mt-4 fw-bold small text-uppercase text-primary">Properties</h6>
                 <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
-                  <thead>
-                    <tr>
-                      <th style="width:25%;">Property</th>
-                      <th style="width:20%;">Type</th>
-                      <th>Description</th>
-                    </tr>
-                  </thead>
+                  <thead><tr><th style="width:25%;">Property</th><th style="width:20%;">Type</th><th>Description</th></tr></thead>
                   <tbody>
-                    <tr>
-                      <td><code>label</code></td>
-                      <td>String</td>
-                      <td>The text string to display.</td>
-                    </tr>
-                    <tr>
-                      <td><code>align</code></td>
-                      <td>String</td>
-                      <td>Text alignment: <code>"left"</code>, <code>"center"</code>, or <code>"right"</code> (default
-                        <code>"center"</code>).</td>
-                    </tr>
+                    <tr><td><code>label</code></td><td>String</td><td>The text string to display.</td></tr>
+                    <tr><td><code>align</code></td><td>String</td><td>Text alignment: <code>"left"</code>, <code>"center"</code>, or <code>"right"</code> (default <code>"center"</code>).</td></tr>
                   </tbody>
                 </table>
 
@@ -1248,30 +1088,14 @@ InfraPackage: Package {
               <!-- Paragraph Text Tab -->
               <div class="tab-pane fade" id="v-pills-paragraph" role="tabpanel" aria-labelledby="v-pills-paragraph-tab">
                 <h4 class="mb-1">Paragraph Text Component</h4>
-                <p class="text-muted small">Renders a multi-line paragraph block of text. Supports explicit newlines
-                  (<code>\n</code>) for multi-line formatting.</p>
+                <p class="text-muted small">Renders a multi-line paragraph block of text. Supports explicit newlines (<code>\n</code>) for multi-line formatting.</p>
 
                 <h6 class="mt-4 fw-bold small text-uppercase text-primary">Properties</h6>
                 <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
-                  <thead>
-                    <tr>
-                      <th style="width:25%;">Property</th>
-                      <th style="width:20%;">Type</th>
-                      <th>Description</th>
-                    </tr>
-                  </thead>
+                  <thead><tr><th style="width:25%;">Property</th><th style="width:20%;">Type</th><th>Description</th></tr></thead>
                   <tbody>
-                    <tr>
-                      <td><code>text</code></td>
-                      <td>String</td>
-                      <td>The multi-line text to display (or use <code>label</code> as fallback).</td>
-                    </tr>
-                    <tr>
-                      <td><code>align</code></td>
-                      <td>String</td>
-                      <td>Text alignment: <code>"left"</code>, <code>"center"</code>, or <code>"right"</code> (default
-                        <code>"center"</code>).</td>
-                    </tr>
+                    <tr><td><code>text</code></td><td>String</td><td>The multi-line text to display (or use <code>label</code> as fallback).</td></tr>
+                    <tr><td><code>align</code></td><td>String</td><td>Text alignment: <code>"left"</code>, <code>"center"</code>, or <code>"right"</code> (default <code>"center"</code>).</td></tr>
                   </tbody>
                 </table>
 
@@ -1282,15 +1106,103 @@ InfraPackage: Package {
 }</pre>
               </div>
 
+              <!-- SVGImage Tab -->
+              <div class="tab-pane fade" id="v-pills-svgimage" role="tabpanel" aria-labelledby="v-pills-svgimage-tab">
+                <h4 class="mb-1">SVG Image Component</h4>
+                <p class="text-muted small">Renders a vector graphic inside the diagram using raw inline SVG code. The graphic can be scaled dynamically.</p>
+                
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Properties</h6>
+                <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
+                  <thead>
+                    <tr>
+                      <th style="width: 25%;">Property</th>
+                      <th style="width: 20%;">Type</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><code>content</code></td>
+                      <td>String</td>
+                      <td>The raw SVG source code to render.</td>
+                    </tr>
+                    <tr>
+                      <td><code>scale</code></td>
+                      <td>Number</td>
+                      <td>Double value scaling factor (default: <code>1.0</code>).</td>
+                    </tr>
+                    <tr>
+                      <td><code>width</code></td>
+                      <td>Number</td>
+                      <td>Optional base width override. If not specified, extracted from SVG headers.</td>
+                    </tr>
+                    <tr>
+                      <td><code>height</code></td>
+                      <td>Number</td>
+                      <td>Optional base height override. If not specified, extracted from SVG headers.</td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Example Usage</h6>
+                <pre class="bg-black p-3 rounded font-monospace text-success" style="font-size: 0.75rem;">LogoNode: SVGImage {
+  content: "&lt;svg width=\"100\" height=\"100\"&gt;&lt;circle cx=\"50\" cy=\"50\" r=\"40\" fill=\"#3b82f6\" stroke=\"#ffffff\" stroke-width=\"4\"/&gt;&lt;/svg&gt;"
+  scale: 1.5
+}</pre>
+              </div>
+
+              <!-- RasterImage Tab -->
+              <div class="tab-pane fade" id="v-pills-rasterimage" role="tabpanel" aria-labelledby="v-pills-rasterimage-tab">
+                <h4 class="mb-1">Raster Image Component (Base64)</h4>
+                <p class="text-muted small">Renders standard raster images (PNG, JPEG, GIF) directly inside the canvas by pasting their base64 encoded text.</p>
+                
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Properties</h6>
+                <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
+                  <thead>
+                    <tr>
+                      <th style="width: 25%;">Property</th>
+                      <th style="width: 20%;">Type</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><code>content</code></td>
+                      <td>String</td>
+                      <td>The base64 encoded image string (supports with or without <code>data:image/...;base64,</code> prefix).</td>
+                    </tr>
+                    <tr>
+                      <td><code>scale</code></td>
+                      <td>Number</td>
+                      <td>Double value scaling factor (default: <code>1.0</code>).</td>
+                    </tr>
+                    <tr>
+                      <td><code>width</code></td>
+                      <td>Number</td>
+                      <td>Optional base width override. If not specified, resolved automatically from the binary header.</td>
+                    </tr>
+                    <tr>
+                      <td><code>height</code></td>
+                      <td>Number</td>
+                      <td>Optional base height override. If not specified, resolved automatically from the binary header.</td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Example Usage</h6>
+                <pre class="bg-black p-3 rounded font-monospace text-success" style="font-size: 0.75rem;">AvatarNode: RasterImage {
+  content: "iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg=="
+  scale: 4.0
+}</pre>
+              </div>
+
               <!-- Relationships Tab -->
-              <div class="tab-pane fade" id="v-pills-relationship" role="tabpanel"
-                aria-labelledby="v-pills-relationship-tab">
+              <div class="tab-pane fade" id="v-pills-relationship" role="tabpanel" aria-labelledby="v-pills-relationship-tab">
 
 
                 <h4 class="mb-1">Relationships (Arrows & Connectors)</h4>
-                <p class="text-muted small">Connect components together with arrows and labels to describe flow steps.
-                </p>
-
+                <p class="text-muted small">Connect components together with arrows and labels to describe flow steps.</p>
+                
                 <h6 class="mt-4 fw-bold small text-uppercase text-primary">Arrow Directions</h6>
                 <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
                   <thead>
@@ -1318,20 +1230,16 @@ InfraPackage: Package {
                     </tr>
                     <tr>
                       <td><code>A o-&gt; B</code> / <code>A o-&gt;o B</code></td>
-                      <td>Directed arrow with circle(s) at the source, target (e.g., <code>-&gt;o</code>), or both ends.
-                      </td>
+                      <td>Directed arrow with circle(s) at the source, target (e.g., <code>-&gt;o</code>), or both ends.</td>
                     </tr>
                   </tbody>
                 </table>
 
                 <h6 class="mt-4 fw-bold small text-uppercase text-primary">Cardinalities (Optional)</h6>
-                <p class="small text-muted">Include brackets with multiplicity strings before and/or after the arrow:
-                </p>
-                <pre class="bg-black p-2 px-3 rounded font-monospace text-warning d-inline-block"
-                  style="font-size: 0.8rem;">Client [1] -> [0..*] Order</pre>
+                <p class="small text-muted">Include brackets with multiplicity strings before and/or after the arrow:</p>
+                <pre class="bg-black p-2 px-3 rounded font-monospace text-warning d-inline-block" style="font-size: 0.8rem;">Client [1] -> [0..*] Order</pre>
 
-                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Connector Styling (Inside style block
-                  <code>{...}</code>)</h6>
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Connector Styling (Inside style block <code>{...}</code>)</h6>
                 <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
                   <thead>
                     <tr>
@@ -1349,8 +1257,7 @@ InfraPackage: Package {
                     <tr>
                       <td><code>lineStyle</code></td>
                       <td>String</td>
-                      <td>Line pattern: <code>"solid"</code>, <code>"dashed"</code>, or <code>"dotted"</code> (defaults
-                        to <code>"solid"</code>).</td>
+                      <td>Line pattern: <code>"solid"</code>, <code>"dashed"</code>, or <code>"dotted"</code> (defaults to <code>"solid"</code>).</td>
                     </tr>
                   </tbody>
                 </table>
@@ -1382,8 +1289,7 @@ Server [1] -> [0..*] Database : "Fetch items" {
     <div class="popup-footer">
       <label class="custom-color-row">
         <input type="color" id="editor-color-picker" class="inline-color-swatch" title="Custom color" />
-        <input type="text" id="editor-hex-input" class="hex-text-input" maxlength="7" placeholder="#rrggbb"
-          spellcheck="false" />
+        <input type="text" id="editor-hex-input" class="hex-text-input" maxlength="7" placeholder="#rrggbb" spellcheck="false" />
         <button id="btn-apply-hex" class="btn-apply-hex" title="Apply hex">↵</button>
       </label>
     </div>
@@ -1394,23 +1300,19 @@ Server [1] -> [0..*] Database : "Fetch items" {
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content bg-dark text-white border-secondary">
         <div class="modal-header border-secondary border-opacity-25">
-          <h5 class="modal-title" id="themeModalLabel"><i class="bi bi-palette-fill text-primary"></i> Customize Theme
-          </h5>
+          <h5 class="modal-title" id="themeModalLabel"><i class="bi bi-palette-fill text-primary"></i> Customize Theme</h5>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
           <form id="theme-editor-form" onsubmit="event.preventDefault();">
             <!-- Theme Select (Load Saved Theme) -->
             <div class="mb-4">
-              <label for="theme-load-select" class="form-label small text-muted text-uppercase fw-bold">Load Saved
-                Theme</label>
+              <label for="theme-load-select" class="form-label small text-muted text-uppercase fw-bold">Load Saved Theme</label>
               <div class="input-group input-group-sm">
-                <select id="theme-load-select"
-                  class="form-select bg-black text-white border-secondary border-opacity-50">
+                <select id="theme-load-select" class="form-select bg-black text-white border-secondary border-opacity-50">
                   <option value="">-- Select a saved theme --</option>
                 </select>
-                <button type="button" id="btn-delete-saved-theme" class="btn btn-outline-danger"
-                  title="Delete selected theme">
+                <button type="button" id="btn-delete-saved-theme" class="btn btn-outline-danger" title="Delete selected theme">
                   <i class="bi bi-trash"></i>
                 </button>
               </div>
@@ -1424,81 +1326,55 @@ Server [1] -> [0..*] Database : "Fetch items" {
               <div class="col-6">
                 <label for="input-primary-color" class="form-label small text-muted">Primary Accent</label>
                 <div class="input-group input-group-sm">
-                  <input type="color" id="picker-primary-color"
-                    class="form-control form-control-color bg-black border-secondary border-opacity-50"
-                    style="max-width: 42px; padding: 2px;">
-                  <input type="text" id="input-primary-color"
-                    class="form-control bg-black text-white border-secondary border-opacity-50 font-monospace"
-                    placeholder="#60a5fa" maxlength="7">
+                  <input type="color" id="picker-primary-color" class="form-control form-control-color bg-black border-secondary border-opacity-50" style="max-width: 42px; padding: 2px;">
+                  <input type="text" id="input-primary-color" class="form-control bg-black text-white border-secondary border-opacity-50 font-monospace" placeholder="#60a5fa" maxlength="7">
                 </div>
               </div>
 
               <div class="col-6">
                 <label for="input-secondary-color" class="form-label small text-muted">Secondary Accent</label>
                 <div class="input-group input-group-sm">
-                  <input type="color" id="picker-secondary-color"
-                    class="form-control form-control-color bg-black border-secondary border-opacity-50"
-                    style="max-width: 42px; padding: 2px;">
-                  <input type="text" id="input-secondary-color"
-                    class="form-control bg-black text-white border-secondary border-opacity-50 font-monospace"
-                    placeholder="#a1a1aa" maxlength="7">
+                  <input type="color" id="picker-secondary-color" class="form-control form-control-color bg-black border-secondary border-opacity-50" style="max-width: 42px; padding: 2px;">
+                  <input type="text" id="input-secondary-color" class="form-control bg-black text-white border-secondary border-opacity-50 font-monospace" placeholder="#a1a1aa" maxlength="7">
                 </div>
               </div>
 
               <div class="col-6">
                 <label for="input-bg-color" class="form-label small text-muted">Canvas Background</label>
                 <div class="input-group input-group-sm">
-                  <input type="color" id="picker-bg-color"
-                    class="form-control form-control-color bg-black border-secondary border-opacity-50"
-                    style="max-width: 42px; padding: 2px;">
-                  <input type="text" id="input-bg-color"
-                    class="form-control bg-black text-white border-secondary border-opacity-50 font-monospace"
-                    placeholder="#18181b" maxlength="7">
+                  <input type="color" id="picker-bg-color" class="form-control form-control-color bg-black border-secondary border-opacity-50" style="max-width: 42px; padding: 2px;">
+                  <input type="text" id="input-bg-color" class="form-control bg-black text-white border-secondary border-opacity-50 font-monospace" placeholder="#18181b" maxlength="7">
                 </div>
               </div>
 
               <div class="col-6">
                 <label for="input-text-color" class="form-label small text-muted">Shape Text</label>
                 <div class="input-group input-group-sm">
-                  <input type="color" id="picker-text-color"
-                    class="form-control form-control-color bg-black border-secondary border-opacity-50"
-                    style="max-width: 42px; padding: 2px;">
-                  <input type="text" id="input-text-color"
-                    class="form-control bg-black text-white border-secondary border-opacity-50 font-monospace"
-                    placeholder="#f4f4f5" maxlength="7">
+                  <input type="color" id="picker-text-color" class="form-control form-control-color bg-black border-secondary border-opacity-50" style="max-width: 42px; padding: 2px;">
+                  <input type="text" id="input-text-color" class="form-control bg-black text-white border-secondary border-opacity-50 font-monospace" placeholder="#f4f4f5" maxlength="7">
                 </div>
               </div>
 
               <div class="col-6">
                 <label for="input-border-color" class="form-label small text-muted">Border & Line</label>
                 <div class="input-group input-group-sm">
-                  <input type="color" id="picker-border-color"
-                    class="form-control form-control-color bg-black border-secondary border-opacity-50"
-                    style="max-width: 42px; padding: 2px;">
-                  <input type="text" id="input-border-color"
-                    class="form-control bg-black text-white border-secondary border-opacity-50 font-monospace"
-                    placeholder="#52525b" maxlength="7">
+                  <input type="color" id="picker-border-color" class="form-control form-control-color bg-black border-secondary border-opacity-50" style="max-width: 42px; padding: 2px;">
+                  <input type="text" id="input-border-color" class="form-control bg-black text-white border-secondary border-opacity-50 font-monospace" placeholder="#52525b" maxlength="7">
                 </div>
               </div>
 
               <div class="col-6">
                 <label for="input-font-family" class="form-label small text-muted">Font Family</label>
-                <input type="text" id="input-font-family"
-                  class="form-control form-control-sm bg-black text-white border-secondary border-opacity-50"
-                  placeholder="Outfit, sans-serif">
+                <input type="text" id="input-font-family" class="form-control form-control-sm bg-black text-white border-secondary border-opacity-50" placeholder="Outfit, sans-serif">
               </div>
             </div>
 
             <!-- Save options -->
             <div class="mt-4">
-              <label for="input-theme-name" class="form-label small text-muted text-uppercase fw-bold">Save Current
-                Configuration</label>
+              <label for="input-theme-name" class="form-label small text-muted text-uppercase fw-bold">Save Current Configuration</label>
               <div class="input-group input-group-sm">
-                <input type="text" id="input-theme-name"
-                  class="form-control bg-black text-white border-secondary border-opacity-50"
-                  placeholder="Theme name (e.g. My Theme)">
-                <button type="button" id="btn-save-custom-theme"
-                  class="btn btn-primary d-flex align-items-center gap-1.5">
+                <input type="text" id="input-theme-name" class="form-control bg-black text-white border-secondary border-opacity-50" placeholder="Theme name (e.g. My Theme)">
+                <button type="button" id="btn-save-custom-theme" class="btn btn-primary d-flex align-items-center gap-1.5">
                   <i class="bi bi-floppy-fill"></i> Save
                 </button>
               </div>
@@ -1506,8 +1382,7 @@ Server [1] -> [0..*] Database : "Fetch items" {
           </form>
         </div>
         <div class="modal-footer border-secondary border-opacity-25">
-          <button type="button" id="btn-reset-theme" class="btn btn-outline-warning btn-sm me-auto">Reset to
-            Default</button>
+          <button type="button" id="btn-reset-theme" class="btn btn-outline-warning btn-sm me-auto">Reset to Default</button>
           <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Close</button>
           <button type="button" id="btn-apply-theme" class="btn btn-success btn-sm">Apply Theme</button>
         </div>
@@ -1517,10 +1392,7 @@ Server [1] -> [0..*] Database : "Fetch items" {
 
   <!-- Bootstrap 5 JS and Dependencies -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <!-- 100% privacy-first analytics -->
-  <script async src="https://scripts.simpleanalyticscdn.com/latest.js"></script>
-  <noscript><img src="https://queue.simpleanalyticscdn.com/noscript.gif" alt=""
-      referrerpolicy="no-referrer-when-downgrade" /></noscript>
+  
 </body>
 
 </html>

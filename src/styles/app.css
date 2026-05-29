@@ -162,7 +162,7 @@ body {
   caret-color: var(--app-text-main);
   resize: none;
   z-index: 1;
-  overflow-y: auto;
+  overflow-y: scroll;
   overflow-x: auto;
   border: none;
   outline: none;
@@ -173,7 +173,25 @@ body {
   background: transparent;
   pointer-events: none;
   z-index: 0;
-  overflow: hidden;
+  overflow-y: scroll;
+  overflow-x: auto;
+  scrollbar-color: transparent transparent;
+}
+
+/* Hide scrollbars visually on the highlighting pre container while maintaining identical layout metrics */
+.editor-highlight::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+  background: transparent;
+}
+.editor-highlight::-webkit-scrollbar-thumb {
+  background: transparent;
+}
+.editor-highlight::-webkit-scrollbar-thumb:hover {
+  background: transparent;
+}
+.editor-highlight::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 .editor-highlight code {
@@ -744,7 +762,6 @@ body {
 /* Editor tokens highlight range styling */
 .hl-active-token {
   background-color: rgba(96, 165, 250, 0.2);
-  border-bottom: 1.5px solid #60a5fa;
   border-radius: 2px;
-  box-shadow: 0 0 6px rgba(96, 165, 250, 0.35);
+  box-shadow: inset 0 -1.5px 0 #60a5fa, 0 0 6px rgba(96, 165, 250, 0.35);
 }

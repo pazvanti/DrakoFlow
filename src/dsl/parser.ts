@@ -253,6 +253,15 @@ function parseRelationshipStyleBlock(body: string): RelationshipStyle {
   return style;
 }
 
+function unescapeString(str: string): string {
+  return str.replace(/\\(.)/g, (match, char) => {
+    if (char === 'n') return '\n';
+    if (char === 't') return '\t';
+    if (char === 'r') return '\r';
+    return char;
+  });
+}
+
 function readQuotedString(
   text: string,
   start: number
@@ -267,7 +276,7 @@ function readQuotedString(
       continue;
     }
     if (text[j] === '"') {
-      return { value: text.slice(i + 1, j), end: j + 1 };
+      return { value: unescapeString(text.slice(i + 1, j)), end: j + 1 };
     }
     j++;
   }
@@ -305,9 +314,9 @@ function parseNode(id: string, type: string, body: string): ParsedNode {
       continue;
     }
 
-    // Named line-list sub-block: `attributes: { ... }`, `methods: { ... }`, `items: { ... }`
+    // Named line-list sub-block: `attributes: { ... }`, `methods: { ... }`, `items: { ... }`, `content: { ... }`
     // Each non-empty line inside the block becomes one entry in the string[].
-    const subBlockMatch = body.slice(i).match(/^(attributes|methods|items)\s*:\s*\{/);
+    const subBlockMatch = body.slice(i).match(/^(attributes|methods|items|content)\s*:\s*\{/);
     if (subBlockMatch) {
       const blockKey = subBlockMatch[1];
       const open = i + subBlockMatch[0].length - 1;
@@ -413,7 +422,7 @@ function parseKeyValueBlock(body: string): Record<string, string> {
   const result: Record<string, string> = {};
   const pairs = body.matchAll(/(\w+)\s*:\s*"([^"]*)"/g);
   for (const match of pairs) {
-    result[match[1]] = match[2];
+    result[match[1]] = unescapeString(match[2]);
   }
   return result;
 }
@@ -475,7 +484,7 @@ function readPropertyValue(
         continue;
       }
       if (text[j] === '"') {
-        return { value: text.slice(i + 1, j), end: j + 1 };
+        return { value: unescapeString(text.slice(i + 1, j)), end: j + 1 };
       }
       j++;
     }

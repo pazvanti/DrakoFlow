@@ -84,6 +84,6 @@ describe('ParagraphComponent', () => {
     expect(comps[0].type).toBe('Paragraph');
     const p = comps[0] as ParagraphComponent;
     expect(p.props.align).toBe('right');
-    expect(p.props.text).toBe('Hello\\nWorld');
+    expect(p.props.text).toBe('Hello\nWorld');
   });
 });

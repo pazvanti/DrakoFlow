@@ -16,6 +16,8 @@ import { ModuleComponent, ModuleProps } from '../components/ModuleComponent';
 import { PackageComponent, PackageProps } from '../components/PackageComponent';
 import { TextComponent, TextProps } from '../components/TextComponent';
 import { ParagraphComponent, ParagraphProps } from '../components/ParagraphComponent';
+import { SVGImageComponent } from '../components/SVGImageComponent';
+import { RasterImageComponent } from '../components/RasterImageComponent';
 import { collectReferencedIds, ParsedChildEntry, ParsedNode } from '../dsl/parser';
 import { isComponentType } from '../dsl/componentTypes';
 
@@ -185,6 +187,34 @@ function instantiateFromDefinition(
         align: node.properties.align as ParagraphProps['align']
       };
       component = new ParagraphComponent(metadata, props, themeOverride);
+      break;
+    }
+    case 'SVGImage': {
+      let content = node.properties.content as string | undefined;
+      if (!content && node.subBlocks?.['content']) {
+        content = node.subBlocks['content'].join('\n');
+      }
+      const props = {
+        content,
+        scale: node.properties.scale as number | undefined,
+        width: node.properties.width as number | undefined,
+        height: node.properties.height as number | undefined
+      };
+      component = new SVGImageComponent(metadata, props, themeOverride);
+      break;
+    }
+    case 'RasterImage': {
+      let content = node.properties.content as string | undefined;
+      if (!content && node.subBlocks?.['content']) {
+        content = node.subBlocks['content'].join('\n');
+      }
+      const props = {
+        content,
+        scale: node.properties.scale as number | undefined,
+        width: node.properties.width as number | undefined,
+        height: node.properties.height as number | undefined
+      };
+      component = new RasterImageComponent(metadata, props, themeOverride);
       break;
     }
     default:
