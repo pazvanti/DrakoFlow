@@ -2229,7 +2229,14 @@ function openDocumentationModal(componentType?: string): void {
       'storage': 'v-pills-storage-tab',
       'stack': 'v-pills-stack-tab',
       'file': 'v-pills-file-tab',
-      'card': 'v-pills-card-tab'
+      'card': 'v-pills-card-tab',
+      'usecase': 'v-pills-usecase-tab',
+      'boundary': 'v-pills-boundary-tab',
+      'control': 'v-pills-control-tab',
+      'entity': 'v-pills-entity-tab',
+      'queue': 'v-pills-queue-tab',
+      'collections': 'v-pills-collections-tab',
+      'agent': 'v-pills-agent-tab'
     };
     
     const key = componentType.toLowerCase();

@@ -238,6 +238,55 @@ MyContainer: VerticalContainer {
     description: "A clean modern card container with a left accent color strip.",
     tags: ["Layout", "Containers", "Deployment"],
     template: 'MyCard: Card {\n  label: "Active Task"\n  gap: 12\n  padding: 12\n}'
+  },
+  {
+    type: "Usecase",
+    displayName: "Use Case / Ellipse",
+    description: "A flat horizontal ellipse representing system use cases or user goals.",
+    tags: ["Shapes", "UML", "Sequence"],
+    template: 'MyUsecase: Usecase {\n  label: "Submit Order"\n}'
+  },
+  {
+    type: "Boundary",
+    displayName: "Robustness Boundary",
+    description: "A robustness boundary node interface connecting actors to system controls.",
+    tags: ["Shapes", "UML", "Sequence"],
+    template: 'MyBoundary: Boundary {\n  label: "Login UI"\n}'
+  },
+  {
+    type: "Control",
+    displayName: "Robustness Control",
+    description: "A robustness control loop node representing process logic or coordinators.",
+    tags: ["Shapes", "UML", "Sequence"],
+    template: 'MyControl: Control {\n  label: "Auth Controller"\n}'
+  },
+  {
+    type: "Entity",
+    displayName: "Robustness Entity",
+    description: "A robustness entity node representing stored data or database models.",
+    tags: ["Shapes", "UML", "Sequence"],
+    template: 'MyEntity: Entity {\n  label: "User Model"\n}'
+  },
+  {
+    type: "Queue",
+    displayName: "Queue / Pipe",
+    description: "A horizontal cylinder tube depicting message queues or streaming topics.",
+    tags: ["Shapes", "UML", "Sequence"],
+    template: 'MyQueue: Queue {\n  label: "Orders Queue"\n}'
+  },
+  {
+    type: "Collections",
+    displayName: "Collections / Group",
+    description: "Two overlapping offset rectangles representing multiple stacked participants.",
+    tags: ["Shapes", "UML", "Sequence"],
+    template: 'MyCollections: Collections {\n  label: "Subscribers"\n}'
+  },
+  {
+    type: "Agent",
+    displayName: "Agent Container",
+    description: "An active software agent container with a premium double-line border.",
+    tags: ["Layout", "Containers", "Sequence"],
+    template: 'MyAgent: Agent {\n  label: "Notifier Agent"\n  gap: 12\n  padding: 16\n}'
   }
 ];
 

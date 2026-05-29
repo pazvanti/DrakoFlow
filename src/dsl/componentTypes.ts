@@ -27,7 +27,14 @@ export const COMPONENT_TYPES = [
   'Storage',
   'Stack',
   'File',
-  'Card'
+  'Card',
+  'Usecase',
+  'Boundary',
+  'Control',
+  'Entity',
+  'Queue',
+  'Collections',
+  'Agent'
 ] as const;
 
 export type ComponentTypeName = (typeof COMPONENT_TYPES)[number];

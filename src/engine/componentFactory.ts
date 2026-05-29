@@ -27,6 +27,13 @@ import { StorageComponent } from '../components/StorageComponent';
 import { StackComponent } from '../components/StackComponent';
 import { FileComponent } from '../components/FileComponent';
 import { CardComponent } from '../components/CardComponent';
+import { UsecaseComponent, UsecaseProps } from '../components/UsecaseComponent';
+import { BoundaryComponent, BoundaryProps } from '../components/BoundaryComponent';
+import { ControlComponent, ControlProps } from '../components/ControlComponent';
+import { EntityComponent, EntityProps } from '../components/EntityComponent';
+import { QueueComponent, QueueProps } from '../components/QueueComponent';
+import { CollectionsComponent, CollectionsProps } from '../components/CollectionsComponent';
+import { AgentComponent, AgentProps } from '../components/AgentComponent';
 import { collectReferencedIds, ParsedChildEntry, ParsedNode } from '../dsl/parser';
 import { isComponentType } from '../dsl/componentTypes';
 
@@ -309,6 +316,59 @@ function instantiateFromDefinition(
         padding: node.properties.padding as number | undefined
       };
       const comp = new CardComponent(metadata, props, themeOverride);
+      comp.children = resolveChildEntries(node.childEntries, registry);
+      component = comp;
+      break;
+    }
+    case 'Usecase': {
+      const props: UsecaseProps = {
+        label: node.properties.label as string | undefined
+      };
+      component = new UsecaseComponent(metadata, props, themeOverride);
+      break;
+    }
+    case 'Boundary': {
+      const props: BoundaryProps = {
+        label: node.properties.label as string | undefined
+      };
+      component = new BoundaryComponent(metadata, props, themeOverride);
+      break;
+    }
+    case 'Control': {
+      const props: ControlProps = {
+        label: node.properties.label as string | undefined
+      };
+      component = new ControlComponent(metadata, props, themeOverride);
+      break;
+    }
+    case 'Entity': {
+      const props: EntityProps = {
+        label: node.properties.label as string | undefined
+      };
+      component = new EntityComponent(metadata, props, themeOverride);
+      break;
+    }
+    case 'Queue': {
+      const props: QueueProps = {
+        label: node.properties.label as string | undefined
+      };
+      component = new QueueComponent(metadata, props, themeOverride);
+      break;
+    }
+    case 'Collections': {
+      const props: CollectionsProps = {
+        label: node.properties.label as string | undefined
+      };
+      component = new CollectionsComponent(metadata, props, themeOverride);
+      break;
+    }
+    case 'Agent': {
+      const props: AgentProps = {
+        label: node.properties.label as string | undefined,
+        gap: node.properties.gap as number | undefined,
+        padding: node.properties.padding as number | undefined
+      };
+      const comp = new AgentComponent(metadata, props, themeOverride);
       comp.children = resolveChildEntries(node.childEntries, registry);
       component = comp;
       break;

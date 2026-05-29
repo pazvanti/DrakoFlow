@@ -414,6 +414,27 @@
                 <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-card-tab" data-bs-toggle="pill" data-bs-target="#v-pills-card" type="button" role="tab" aria-controls="v-pills-card" aria-selected="false">
                   <i class="bi bi-card-text me-2"></i> Card
                 </button>
+                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-usecase-tab" data-bs-toggle="pill" data-bs-target="#v-pills-usecase" type="button" role="tab" aria-controls="v-pills-usecase" aria-selected="false">
+                  <i class="bi bi-circle me-2"></i> Use Case
+                </button>
+                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-boundary-tab" data-bs-toggle="pill" data-bs-target="#v-pills-boundary" type="button" role="tab" aria-controls="v-pills-boundary" aria-selected="false">
+                  <i class="bi bi-door-open me-2"></i> Boundary
+                </button>
+                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-control-tab" data-bs-toggle="pill" data-bs-target="#v-pills-control" type="button" role="tab" aria-controls="v-pills-control" aria-selected="false">
+                  <i class="bi bi-arrow-repeat me-2"></i> Control
+                </button>
+                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-entity-tab" data-bs-toggle="pill" data-bs-target="#v-pills-entity" type="button" role="tab" aria-controls="v-pills-entity" aria-selected="false">
+                  <i class="bi bi-record-circle me-2"></i> Entity
+                </button>
+                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-queue-tab" data-bs-toggle="pill" data-bs-target="#v-pills-queue" type="button" role="tab" aria-controls="v-pills-queue" aria-selected="false">
+                  <i class="bi bi-distribute-horizontal me-2"></i> Queue
+                </button>
+                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-collections-tab" data-bs-toggle="pill" data-bs-target="#v-pills-collections" type="button" role="tab" aria-controls="v-pills-collections" aria-selected="false">
+                  <i class="bi bi-collection me-2"></i> Collections
+                </button>
+                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-agent-tab" data-bs-toggle="pill" data-bs-target="#v-pills-agent" type="button" role="tab" aria-controls="v-pills-agent" aria-selected="false">
+                  <i class="bi bi-person-gear me-2"></i> Agent
+                </button>
               </div>
             </div>
             
@@ -1625,6 +1646,131 @@ Server [1] -> [0..*] Database : "Fetch items" {
                 <pre class="bg-black p-3 rounded font-monospace text-success" style="font-size: 0.75rem;">TaskItem: Card {
   label: "Background Job"
   padding: 12
+}</pre>
+              </div>
+
+              <!-- Usecase Tab -->
+              <div class="tab-pane fade" id="v-pills-usecase" role="tabpanel" aria-labelledby="v-pills-usecase-tab">
+                <h4 class="mb-1">Use Case Component</h4>
+                <p class="text-muted small">A horizontal flat ellipse representing system use cases or user goals.</p>
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Properties</h6>
+                <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
+                  <thead><tr><th style="width:25%;">Property</th><th style="width:20%;">Type</th><th>Description</th></tr></thead>
+                  <tbody>
+                    <tr><td><code>label</code></td><td>String</td><td>The use case name displayed inside the ellipse.</td></tr>
+                  </tbody>
+                </table>
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Example Usage</h6>
+                <pre class="bg-black p-3 rounded font-monospace text-success" style="font-size: 0.75rem;">Checkout: Usecase {
+  label: "Checkout Item"
+}</pre>
+              </div>
+
+              <!-- Boundary Tab -->
+              <div class="tab-pane fade" id="v-pills-boundary" role="tabpanel" aria-labelledby="v-pills-boundary-tab">
+                <h4 class="mb-1">Robustness Boundary Component</h4>
+                <p class="text-muted small">A robustness diagram boundary node representing user interfaces, APIs, or system boundaries.</p>
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Properties</h6>
+                <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
+                  <thead><tr><th style="width:25%;">Property</th><th style="width:20%;">Type</th><th>Description</th></tr></thead>
+                  <tbody>
+                    <tr><td><code>label</code></td><td>String</td><td>The boundary name displayed centered below the icon.</td></tr>
+                  </tbody>
+                </table>
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Example Usage</h6>
+                <pre class="bg-black p-3 rounded font-monospace text-success" style="font-size: 0.75rem;">LoginUI: Boundary {
+  label: "Login Form"
+}</pre>
+              </div>
+
+              <!-- Control Tab -->
+              <div class="tab-pane fade" id="v-pills-control" role="tabpanel" aria-labelledby="v-pills-control-tab">
+                <h4 class="mb-1">Robustness Control Component</h4>
+                <p class="text-muted small">A robustness diagram control node representing business logic, loop controllers, or orchestrators.</p>
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Properties</h6>
+                <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
+                  <thead><tr><th style="width:25%;">Property</th><th style="width:20%;">Type</th><th>Description</th></tr></thead>
+                  <tbody>
+                    <tr><td><code>label</code></td><td>String</td><td>The control loop name displayed centered below the icon.</td></tr>
+                  </tbody>
+                </table>
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Example Usage</h6>
+                <pre class="bg-black p-3 rounded font-monospace text-success" style="font-size: 0.75rem;">AuthMgr: Control {
+  label: "Auth Manager"
+}</pre>
+              </div>
+
+              <!-- Entity Tab -->
+              <div class="tab-pane fade" id="v-pills-entity" role="tabpanel" aria-labelledby="v-pills-entity-tab">
+                <h4 class="mb-1">Robustness Entity Component</h4>
+                <p class="text-muted small">A robustness diagram entity node representing database records, persistent data structures, or server models.</p>
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Properties</h6>
+                <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
+                  <thead><tr><th style="width:25%;">Property</th><th style="width:20%;">Type</th><th>Description</th></tr></thead>
+                  <tbody>
+                    <tr><td><code>label</code></td><td>String</td><td>The entity name displayed centered below the icon.</td></tr>
+                  </tbody>
+                </table>
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Example Usage</h6>
+                <pre class="bg-black p-3 rounded font-monospace text-success" style="font-size: 0.75rem;">UserRecord: Entity {
+  label: "User Entity"
+}</pre>
+              </div>
+
+              <!-- Queue Tab -->
+              <div class="tab-pane fade" id="v-pills-queue" role="tabpanel" aria-labelledby="v-pills-queue-tab">
+                <h4 class="mb-1">Queue Component</h4>
+                <p class="text-muted small">A horizontal cylinder tube representing a message broker, FIFO queue, or streaming data pipeline.</p>
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Properties</h6>
+                <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
+                  <thead><tr><th style="width:25%;">Property</th><th style="width:20%;">Type</th><th>Description</th></tr></thead>
+                  <tbody>
+                    <tr><td><code>label</code></td><td>String</td><td>The name of the queue.</td></tr>
+                  </tbody>
+                </table>
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Example Usage</h6>
+                <pre class="bg-black p-3 rounded font-monospace text-success" style="font-size: 0.75rem;">MsgBus: Queue {
+  label: "Kafka Topic"
+}</pre>
+              </div>
+
+              <!-- Collections Tab -->
+              <div class="tab-pane fade" id="v-pills-collections" role="tabpanel" aria-labelledby="v-pills-collections-tab">
+                <h4 class="mb-1">Collections Component</h4>
+                <p class="text-muted small">Representing multiple stacked participants, drawn as two overlapping offset rectangles.</p>
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Properties</h6>
+                <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
+                  <thead><tr><th style="width:25%;">Property</th><th style="width:20%;">Type</th><th>Description</th></tr></thead>
+                  <tbody>
+                    <tr><td><code>label</code></td><td>String</td><td>The name of the collections.</td></tr>
+                  </tbody>
+                </table>
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Example Usage</h6>
+                <pre class="bg-black p-3 rounded font-monospace text-success" style="font-size: 0.75rem;">Subscribers: Collections {
+  label: "User List"
+}</pre>
+              </div>
+
+              <!-- Agent Tab -->
+              <div class="tab-pane fade" id="v-pills-agent" role="tabpanel" aria-labelledby="v-pills-agent-tab">
+                <h4 class="mb-1">Agent Container Component</h4>
+                <p class="text-muted small">An active software agent container styled with a premium double-line outline. Supports nesting child components inside.</p>
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Properties</h6>
+                <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
+                  <thead><tr><th style="width:25%;">Property</th><th style="width:20%;">Type</th><th>Description</th></tr></thead>
+                  <tbody>
+                    <tr><td><code>label</code></td><td>String</td><td>The name/title of the agent container.</td></tr>
+                    <tr><td><code>gap</code></td><td>Number</td><td>Vertical gap spacing in pixels between nested children.</td></tr>
+                    <tr><td><code>padding</code></td><td>Number</td><td>Internal padding space around nested components.</td></tr>
+                  </tbody>
+                </table>
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Example Usage</h6>
+                <pre class="bg-black p-3 rounded font-monospace text-success" style="font-size: 0.75rem;">WorkerAgent: Agent {
+  label: "Billing Agent"
+  
+  WorkerJob: Rectangle {
+    label: "Process Invoice"
+  }
 }</pre>
               </div>
             </div>
