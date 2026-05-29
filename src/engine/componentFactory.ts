@@ -34,6 +34,11 @@ import { EntityComponent, EntityProps } from '../components/EntityComponent';
 import { QueueComponent, QueueProps } from '../components/QueueComponent';
 import { CollectionsComponent, CollectionsProps } from '../components/CollectionsComponent';
 import { AgentComponent, AgentProps } from '../components/AgentComponent';
+import { EnumComponent, EnumProps } from '../components/EnumComponent';
+import { AbstractComponent, AbstractProps } from '../components/AbstractComponent';
+import { AnnotationComponent, AnnotationProps } from '../components/AnnotationComponent';
+import { StructComponent, StructProps } from '../components/StructComponent';
+import { ObjectComponent, ObjectProps } from '../components/ObjectComponent';
 import { collectReferencedIds, ParsedChildEntry, ParsedNode } from '../dsl/parser';
 import { isComponentType } from '../dsl/componentTypes';
 
@@ -371,6 +376,67 @@ function instantiateFromDefinition(
       const comp = new AgentComponent(metadata, props, themeOverride);
       comp.children = resolveChildEntries(node.childEntries, registry);
       component = comp;
+      break;
+    }
+    case 'Enum': {
+      const props: EnumProps = {
+        label: node.properties.label as string | undefined,
+        attributes: node.properties.attributes as string | undefined,
+        items: node.properties.items as string | undefined,
+        attributeLines: node.subBlocks?.['attributes'],
+        itemLines: node.subBlocks?.['items']
+      };
+      component = new EnumComponent(metadata, props, themeOverride);
+      break;
+    }
+    case 'Abstract': {
+      const props: AbstractProps = {
+        label: node.properties.label as string | undefined,
+        attributes: node.properties.attributes as string | undefined,
+        methods: node.properties.methods as string | undefined,
+        items: node.properties.items as string | undefined,
+        attributeLines: node.subBlocks?.['attributes'],
+        methodLines: node.subBlocks?.['methods'],
+        itemLines: node.subBlocks?.['items']
+      };
+      component = new AbstractComponent(metadata, props, themeOverride);
+      break;
+    }
+    case 'Annotation': {
+      const props: AnnotationProps = {
+        label: node.properties.label as string | undefined,
+        attributes: node.properties.attributes as string | undefined,
+        methods: node.properties.methods as string | undefined,
+        items: node.properties.items as string | undefined,
+        attributeLines: node.subBlocks?.['attributes'],
+        methodLines: node.subBlocks?.['methods'],
+        itemLines: node.subBlocks?.['items']
+      };
+      component = new AnnotationComponent(metadata, props, themeOverride);
+      break;
+    }
+    case 'Struct': {
+      const props: StructProps = {
+        label: node.properties.label as string | undefined,
+        attributes: node.properties.attributes as string | undefined,
+        methods: node.properties.methods as string | undefined,
+        items: node.properties.items as string | undefined,
+        attributeLines: node.subBlocks?.['attributes'],
+        methodLines: node.subBlocks?.['methods'],
+        itemLines: node.subBlocks?.['items']
+      };
+      component = new StructComponent(metadata, props, themeOverride);
+      break;
+    }
+    case 'Object': {
+      const props: ObjectProps = {
+        label: node.properties.label as string | undefined,
+        attributes: node.properties.attributes as string | undefined,
+        items: node.properties.items as string | undefined,
+        attributeLines: node.subBlocks?.['attributes'],
+        itemLines: node.subBlocks?.['items']
+      };
+      component = new ObjectComponent(metadata, props, themeOverride);
       break;
     }
     default:

@@ -287,6 +287,74 @@ MyContainer: VerticalContainer {
     description: "An active software agent container with a premium double-line border.",
     tags: ["Layout", "Containers", "Sequence"],
     template: 'MyAgent: Agent {\n  label: "Notifier Agent"\n  gap: 12\n  padding: 16\n}'
+  },
+  {
+    type: "Enum",
+    displayName: "Enumeration Class",
+    description: "A UML enumeration class showing «enumeration» stereotype and standard compartments.",
+    tags: ["Shapes", "UML"],
+    template: `MyEnum: Enum {
+  label: "UserStatus"
+  attributes: {
+    ACTIVE
+    INACTIVE
+    PENDING
+  }
+}`
+  },
+  {
+    type: "Abstract",
+    displayName: "Abstract Class",
+    description: "A UML abstract class with italicized bold title name, «abstract» stereotype, and standard class compartments.",
+    tags: ["Shapes", "UML"],
+    template: `MyAbstract: Abstract {
+  label: "BaseService"
+  attributes: {
+    +id: string
+  }
+  methods: {
+    +execute(): void
+    #log(): void
+  }
+}`
+  },
+  {
+    type: "Annotation",
+    displayName: "Annotation Metadata",
+    description: "A UML annotation container with «annotation» stereotype and attributes/methods blocks.",
+    tags: ["Shapes", "UML"],
+    template: `MyAnnotation: Annotation {
+  label: "Entity"
+  attributes: {
+    tableName: string
+  }
+}`
+  },
+  {
+    type: "Struct",
+    displayName: "Structure / Record",
+    description: "A UML structure or record container with «struct» stereotype and standard compartments.",
+    tags: ["Shapes", "UML"],
+    template: `MyStruct: Struct {
+  label: "Point"
+  attributes: {
+    +x: number
+    +y: number
+  }
+}`
+  },
+  {
+    type: "Object",
+    displayName: "Object Instance",
+    description: "A UML object instance with underlined header title name and active value assignments.",
+    tags: ["Shapes", "UML"],
+    template: `MyObject: Object {
+  label: "userConn : Connection"
+  attributes: {
+    timeout = 30
+    status = "connected"
+  }
+}`
   }
 ];
 

@@ -34,7 +34,12 @@ export const COMPONENT_TYPES = [
   'Entity',
   'Queue',
   'Collections',
-  'Agent'
+  'Agent',
+  'Enum',
+  'Abstract',
+  'Annotation',
+  'Struct',
+  'Object'
 ] as const;
 
 export type ComponentTypeName = (typeof COMPONENT_TYPES)[number];

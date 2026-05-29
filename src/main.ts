@@ -2236,7 +2236,12 @@ function openDocumentationModal(componentType?: string): void {
       'entity': 'v-pills-entity-tab',
       'queue': 'v-pills-queue-tab',
       'collections': 'v-pills-collections-tab',
-      'agent': 'v-pills-agent-tab'
+      'agent': 'v-pills-agent-tab',
+      'enum': 'v-pills-enum-tab',
+      'abstract': 'v-pills-abstract-tab',
+      'annotation': 'v-pills-annotation-tab',
+      'struct': 'v-pills-struct-tab',
+      'object': 'v-pills-object-tab'
     };
     
     const key = componentType.toLowerCase();

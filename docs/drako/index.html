@@ -17,7 +17,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <!-- Custom External Stylesheet -->
   
-  <script type="module" crossorigin src="./assets/index-a580bb2e.js"></script>
+  <script type="module" crossorigin src="./assets/index-e58f07c3.js"></script>
   <link rel="stylesheet" href="./assets/index-cd16680b.css">
 </head>
 
@@ -436,6 +436,21 @@
                 </button>
                 <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-agent-tab" data-bs-toggle="pill" data-bs-target="#v-pills-agent" type="button" role="tab" aria-controls="v-pills-agent" aria-selected="false">
                   <i class="bi bi-person-gear me-2"></i> Agent
+                </button>
+                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-enum-tab" data-bs-toggle="pill" data-bs-target="#v-pills-enum" type="button" role="tab" aria-controls="v-pills-enum" aria-selected="false">
+                  <i class="bi bi-hash me-2"></i> Enum
+                </button>
+                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-abstract-tab" data-bs-toggle="pill" data-bs-target="#v-pills-abstract" type="button" role="tab" aria-controls="v-pills-abstract" aria-selected="false">
+                  <i class="bi bi-slash-circle me-2"></i> Abstract Class
+                </button>
+                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-annotation-tab" data-bs-toggle="pill" data-bs-target="#v-pills-annotation" type="button" role="tab" aria-controls="v-pills-annotation" aria-selected="false">
+                  <i class="bi bi-bookmark-star me-2"></i> Annotation
+                </button>
+                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-struct-tab" data-bs-toggle="pill" data-bs-target="#v-pills-struct" type="button" role="tab" aria-controls="v-pills-struct" aria-selected="false">
+                  <i class="bi bi-braces-asterisk me-2"></i> Struct
+                </button>
+                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-object-tab" data-bs-toggle="pill" data-bs-target="#v-pills-object" type="button" role="tab" aria-controls="v-pills-object" aria-selected="false">
+                  <i class="bi bi-box-arrow-in-down-right me-2"></i> Object
                 </button>
               </div>
             </div>
@@ -1772,6 +1787,123 @@ Server [1] -> [0..*] Database : "Fetch items" {
   
   WorkerJob: Rectangle {
     label: "Process Invoice"
+  }
+}</pre>
+              </div>
+
+              <!-- Enum Tab -->
+              <div class="tab-pane fade" id="v-pills-enum" role="tabpanel" aria-labelledby="v-pills-enum-tab">
+                <h4 class="mb-1">Enum Component</h4>
+                <p class="text-muted small">Renders a UML enumeration class showing the <code>«enumeration»</code> stereotype above the enum name.</p>
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Properties</h6>
+                <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
+                  <thead><tr><th style="width:25%;">Property</th><th style="width:20%;">Type</th><th>Description</th></tr></thead>
+                  <tbody>
+                    <tr><td><code>label</code></td><td>String</td><td>The name of the enum.</td></tr>
+                    <tr><td><code>attributes</code></td><td>String</td><td>Semicolon-separated attributes/values row.</td></tr>
+                    <tr><td><code>items</code></td><td>String</td><td>Semicolon-separated item row rows (list view).</td></tr>
+                  </tbody>
+                </table>
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Example Usage</h6>
+                <pre class="bg-black p-3 rounded font-monospace text-success" style="font-size: 0.75rem;">Status: Enum {
+  label: "UserStatus"
+  items: {
+    ACTIVE
+    INACTIVE
+    SUSPENDED
+  }
+}</pre>
+              </div>
+
+              <!-- Abstract Tab -->
+              <div class="tab-pane fade" id="v-pills-abstract" role="tabpanel" aria-labelledby="v-pills-abstract-tab">
+                <h4 class="mb-1">Abstract Class Component</h4>
+                <p class="text-muted small">Renders a UML abstract class with italicized bold title name and a <code>«abstract»</code> stereotype row.</p>
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Properties</h6>
+                <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
+                  <thead><tr><th style="width:25%;">Property</th><th style="width:20%;">Type</th><th>Description</th></tr></thead>
+                  <tbody>
+                    <tr><td><code>label</code></td><td>String</td><td>The name of the abstract class.</td></tr>
+                    <tr><td><code>attributes</code></td><td>String</td><td>Semicolon-separated attribute definitions.</td></tr>
+                    <tr><td><code>methods</code></td><td>String</td><td>Semicolon-separated method definitions.</td></tr>
+                  </tbody>
+                </table>
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Example Usage</h6>
+                <pre class="bg-black p-3 rounded font-monospace text-success" style="font-size: 0.75rem;">BaseSvc: Abstract {
+  label: "BaseService"
+  attributes: {
+    #dbConnection: Connection
+  }
+  methods: {
+    +connect(): void
+    #execute(): ResultSet
+  }
+}</pre>
+              </div>
+
+              <!-- Annotation Tab -->
+              <div class="tab-pane fade" id="v-pills-annotation" role="tabpanel" aria-labelledby="v-pills-annotation-tab">
+                <h4 class="mb-1">Annotation Component</h4>
+                <p class="text-muted small">Renders a UML annotation class showing the <code>«annotation»</code> stereotype row.</p>
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Properties</h6>
+                <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
+                  <thead><tr><th style="width:25%;">Property</th><th style="width:20%;">Type</th><th>Description</th></tr></thead>
+                  <tbody>
+                    <tr><td><code>label</code></td><td>String</td><td>The name of the annotation.</td></tr>
+                    <tr><td><code>attributes</code></td><td>String</td><td>Semicolon-separated annotation elements/properties.</td></tr>
+                  </tbody>
+                </table>
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Example Usage</h6>
+                <pre class="bg-black p-3 rounded font-monospace text-success" style="font-size: 0.75rem;">EntityAnn: Annotation {
+  label: "Entity"
+  attributes: {
+    tableName: String
+  }
+}</pre>
+              </div>
+
+              <!-- Struct Tab -->
+              <div class="tab-pane fade" id="v-pills-struct" role="tabpanel" aria-labelledby="v-pills-struct-tab">
+                <h4 class="mb-1">Struct Component</h4>
+                <p class="text-muted small">Renders a UML structure showing the <code>«struct»</code> stereotype row above the structure name.</p>
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Properties</h6>
+                <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
+                  <thead><tr><th style="width:25%;">Property</th><th style="width:20%;">Type</th><th>Description</th></tr></thead>
+                  <tbody>
+                    <tr><td><code>label</code></td><td>String</td><td>The name of the struct.</td></tr>
+                    <tr><td><code>attributes</code></td><td>String</td><td>Semicolon-separated struct fields.</td></tr>
+                  </tbody>
+                </table>
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Example Usage</h6>
+                <pre class="bg-black p-3 rounded font-monospace text-success" style="font-size: 0.75rem;">UserDto: Struct {
+  label: "UserDTO"
+  attributes: {
+    id: UUID
+    username: String
+    email: String
+  }
+}</pre>
+              </div>
+
+              <!-- Object Tab -->
+              <div class="tab-pane fade" id="v-pills-object" role="tabpanel" aria-labelledby="v-pills-object-tab">
+                <h4 class="mb-1">Object Component</h4>
+                <p class="text-muted small">Renders a UML object instance with the header label underlined, typically representing instances in Object Diagrams.</p>
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Properties</h6>
+                <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
+                  <thead><tr><th style="width:25%;">Property</th><th style="width:20%;">Type</th><th>Description</th></tr></thead>
+                  <tbody>
+                    <tr><td><code>label</code></td><td>String</td><td>The object instance name (e.g. <code>myUser : User</code>).</td></tr>
+                    <tr><td><code>attributes</code></td><td>String</td><td>Semicolon-separated attribute value assignments.</td></tr>
+                  </tbody>
+                </table>
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Example Usage</h6>
+                <pre class="bg-black p-3 rounded font-monospace text-success" style="font-size: 0.75rem;">userInstance: Object {
+  label: "alice : User"
+  attributes: {
+    id = "usr_001"
+    name = "Alice"
+    role = "Admin"
   }
 }</pre>
               </div>
