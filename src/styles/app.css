@@ -21,6 +21,16 @@
   --diagram-dot-color: #dee2e6;
 }
 
+.diagram-theme-obsidian-dark {
+  --diagram-bg: #09090b;
+  --diagram-dot-color: #18181b;
+}
+
+.diagram-theme-serene-light {
+  --diagram-bg: #f8fafc;
+  --diagram-dot-color: #cbd5e1;
+}
+
 body {
   background-color: var(--app-bg-dark);
   color: var(--app-text-main);

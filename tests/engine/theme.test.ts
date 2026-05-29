@@ -145,6 +145,8 @@ describe('Theme Customizer tests', () => {
     expect(activeThemes['Nordic Ice'].primaryColor).toBe('#88c0d0');
     expect(activeThemes['drako-dark']).toBeDefined();
     expect(activeThemes['drako-light']).toBeDefined();
+    expect(activeThemes['obsidian-dark']).toBeDefined();
+    expect(activeThemes['serene-light']).toBeDefined();
   });
 
   it('should populate options in theme selects correctly', async () => {
@@ -171,12 +173,16 @@ describe('Theme Customizer tests', () => {
     const selectOptions = Array.from(themeSelect.options).map(opt => opt.value);
     expect(selectOptions).toContain('drako-dark');
     expect(selectOptions).toContain('drako-light');
+    expect(selectOptions).toContain('obsidian-dark');
+    expect(selectOptions).toContain('serene-light');
     expect(selectOptions).toContain('Solarized Custom');
 
     const loadOptions = Array.from(themeLoadSelect.options).map(opt => opt.value);
     expect(loadOptions).toContain('Solarized Custom');
     expect(loadOptions).not.toContain('drako-dark');
     expect(loadOptions).not.toContain('drako-light');
+    expect(loadOptions).not.toContain('obsidian-dark');
+    expect(loadOptions).not.toContain('serene-light');
   });
 
   it('should reset current theme back to default values when reset button is clicked', async () => {

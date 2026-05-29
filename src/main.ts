@@ -81,6 +81,22 @@ const THEMES: Record<string, ThemeVariables> = {
     textColor: "#1f2937",
     borderColor: "#9ca3af", // highly visible dark borders on light bg
     fontFamily: "Outfit, system-ui, -apple-system, sans-serif"
+  },
+  "obsidian-dark": {
+    primaryColor: "#a855f7", // Vibrant Purple
+    secondaryColor: "#e9d5ff", // Soft Purple/Pink
+    backgroundColor: "#09090b", // Deep Obsidian Black
+    textColor: "#f4f4f5", // Bright zinc/white text
+    borderColor: "#3f3f46", // Zinc-700 / nice dark border
+    fontFamily: "Outfit, system-ui, -apple-system, sans-serif"
+  },
+  "serene-light": {
+    primaryColor: "#0891b2", // Cyan-600
+    secondaryColor: "#475569", // Slate-600
+    backgroundColor: "#f8fafc", // Slate-50 background
+    textColor: "#0f172a", // Slate-900 text
+    borderColor: "#cbd5e1", // Slate-300 borders
+    fontFamily: "Outfit, system-ui, -apple-system, sans-serif"
   }
 };
 
@@ -275,7 +291,7 @@ function saveCustomThemes(themes: Record<string, ThemeVariables>): void {
 
 function refreshActiveThemes(): void {
   Object.keys(activeThemes).forEach(key => {
-    if (key !== 'drako-dark' && key !== 'drako-light') {
+    if (key !== 'drako-dark' && key !== 'drako-light' && key !== 'obsidian-dark' && key !== 'serene-light') {
       delete activeThemes[key];
     }
   });
@@ -1487,9 +1503,19 @@ function populateThemeSelects(): void {
   lightOpt.textContent = 'Drako Light';
   themeSelect.appendChild(lightOpt);
 
+  const obsidianOpt = document.createElement('option');
+  obsidianOpt.value = 'obsidian-dark';
+  obsidianOpt.textContent = 'Obsidian Dark';
+  themeSelect.appendChild(obsidianOpt);
+
+  const sereneOpt = document.createElement('option');
+  sereneOpt.value = 'serene-light';
+  sereneOpt.textContent = 'Serene Light';
+  themeSelect.appendChild(sereneOpt);
+
   // Add custom themes
   Object.keys(activeThemes).forEach(key => {
-    if (key !== 'drako-dark' && key !== 'drako-light') {
+    if (key !== 'drako-dark' && key !== 'drako-light' && key !== 'obsidian-dark' && key !== 'serene-light') {
       const opt = document.createElement('option');
       opt.value = key;
       opt.textContent = key;
@@ -1512,7 +1538,7 @@ function populateThemeSelects(): void {
   themeLoadSelect.appendChild(defaultLoadOpt);
 
   Object.keys(activeThemes).forEach(key => {
-    if (key !== 'drako-dark' && key !== 'drako-light') {
+    if (key !== 'drako-dark' && key !== 'drako-light' && key !== 'obsidian-dark' && key !== 'serene-light') {
       const opt = document.createElement('option');
       opt.value = key;
       opt.textContent = key;
@@ -1520,7 +1546,7 @@ function populateThemeSelects(): void {
     }
   });
 
-  if (activeThemes[loadVal] && loadVal !== 'drako-dark' && loadVal !== 'drako-light') {
+  if (activeThemes[loadVal] && loadVal !== 'drako-dark' && loadVal !== 'drako-light' && loadVal !== 'obsidian-dark' && loadVal !== 'serene-light') {
     themeLoadSelect.value = loadVal;
   } else {
     themeLoadSelect.value = '';
@@ -1571,7 +1597,7 @@ if (btnEditTheme) {
 
     // If the active theme is a custom theme, set the inputs appropriately
     const activeKey = themeSelect.value;
-    if (activeKey !== 'drako-dark' && activeKey !== 'drako-light') {
+    if (activeKey !== 'drako-dark' && activeKey !== 'drako-light' && activeKey !== 'obsidian-dark' && activeKey !== 'serene-light') {
       themeLoadSelect.value = activeKey;
       inputThemeName.value = activeKey;
     } else {
@@ -1623,7 +1649,7 @@ if (btnDeleteSavedTheme) {
       return;
     }
 
-    if (selectedKey === 'drako-dark' || selectedKey === 'drako-light') {
+    if (selectedKey === 'drako-dark' || selectedKey === 'drako-light' || selectedKey === 'obsidian-dark' || selectedKey === 'serene-light') {
       alert("Cannot delete built-in themes.");
       return;
     }
@@ -1679,7 +1705,7 @@ if (btnSaveCustomTheme) {
       return;
     }
 
-    if (themeName === 'drako-dark' || themeName === 'drako-light') {
+    if (themeName === 'drako-dark' || themeName === 'drako-light' || themeName === 'obsidian-dark' || themeName === 'serene-light') {
       alert("Cannot overwrite built-in themes. Please choose a different name.");
       return;
     }
