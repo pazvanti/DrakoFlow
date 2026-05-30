@@ -203,6 +203,29 @@
           <i class="bi bi-arrows-angle-expand"></i>
         </button>
         <div class="vr bg-secondary opacity-25 mx-1" style="width: 1px; align-self: stretch;"></div>
+        <div class="dropdown d-inline-block">
+          <button id="btn-toggle-snap" class="btn-control" data-bs-toggle="dropdown" aria-expanded="false" title="Snap to Grid Options">
+            <i class="bi bi-grid-3x3-gap"></i>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end p-3 border-secondary border-opacity-50" style="width: 220px; font-size: 0.8rem; background-color: rgba(24, 24, 27, 0.95); backdrop-filter: blur(10px);">
+            <li class="mb-2">
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="snap-grid-enable">
+                <label class="form-check-label text-white fw-semibold" for="snap-grid-enable">Snap to Grid</label>
+              </div>
+            </li>
+            <li>
+              <hr class="dropdown-divider border-secondary border-opacity-25">
+            </li>
+            <li class="mt-2">
+              <div class="d-flex justify-content-between mb-1">
+                <span class="text-muted">Grid Size:</span>
+                <span id="snap-grid-size-val" class="text-primary fw-bold">20px</span>
+              </div>
+              <input type="range" class="form-range" id="snap-grid-size" min="10" max="50" step="5" value="20">
+            </li>
+          </ul>
+        </div>
         <button id="btn-toggle-lock" class="btn-control" title="Unlock Diagram (Enable dragging)">
           <i class="bi bi-lock-fill text-warning"></i>
         </button>

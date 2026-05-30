@@ -43,6 +43,10 @@ beforeEach(() => {
     <button id="btn-zoom-reset"></button>
     <button id="btn-zoom-fit"></button>
     <button id="btn-toggle-lock"></button>
+    <button id="btn-toggle-snap"></button>
+    <input type="checkbox" id="snap-grid-enable" />
+    <input type="range" id="snap-grid-size" />
+    <div id="snap-grid-size-val"></div>
     <input type="radio" id="export-range-whole" name="export-range" checked />
     <input type="radio" id="export-range-current" name="export-range" />
     <select id="export-res-preset"></select>

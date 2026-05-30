@@ -305,7 +305,7 @@ body {
   background-color: var(--diagram-bg);
   background-image: 
     radial-gradient(var(--diagram-dot-color) 1.2px, transparent 1.2px);
-  background-size: 20px 20px;
+  background-size: var(--diagram-grid-size, 20px) var(--diagram-grid-size, 20px);
   cursor: grab;
   user-select: none;
 }

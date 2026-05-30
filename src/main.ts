@@ -108,6 +108,15 @@ const activeThemes: Record<string, ThemeVariables> = { ...THEMES };
 // Diagram tag filtering state
 let activeDiagramTags: string[] = [];
 
+// Snap to grid settings
+const SNAP_ENABLED_KEY = 'drako-snap-enabled';
+const SNAP_SIZE_KEY = 'drako-snap-size';
+let isSnapToGridEnabled = localStorage.getItem(SNAP_ENABLED_KEY) === 'true';
+let snapGridSize = parseInt(localStorage.getItem(SNAP_SIZE_KEY) || '20', 10);
+if (isNaN(snapGridSize) || snapGridSize < 10 || snapGridSize > 50) {
+  snapGridSize = 20;
+}
+
 // Active components and relationships in the current render pass (used for drag & drop)
 let currentComponents: BaseComponent[] = [];
 let currentDisplayRelationships: ParsedRelationship[] = [];
@@ -369,6 +378,10 @@ const btnZoomOut = document.getElementById('btn-zoom-out') as HTMLButtonElement;
 const btnZoomReset = document.getElementById('btn-zoom-reset') as HTMLButtonElement;
 const btnZoomFit = document.getElementById('btn-zoom-fit') as HTMLButtonElement;
 const btnToggleLock = document.getElementById('btn-toggle-lock') as HTMLButtonElement;
+const btnToggleSnap = document.getElementById('btn-toggle-snap') as HTMLButtonElement;
+const snapGridEnable = document.getElementById('snap-grid-enable') as HTMLInputElement;
+const snapGridSizeInput = document.getElementById('snap-grid-size') as HTMLInputElement;
+const snapGridSizeVal = document.getElementById('snap-grid-size-val') as HTMLElement;
 
 // Export Modal Elements
 const exportRangeWhole = document.getElementById('export-range-whole') as HTMLInputElement;
@@ -1343,8 +1356,13 @@ canvasContainer.addEventListener('mousemove', (e) => {
     const dxSvg = dx / zoomLevel;
     const dySvg = dy / zoomLevel;
     
-    const newX = dragStartComponentPos.x + dxSvg;
-    const newY = dragStartComponentPos.y + dySvg;
+    let newX = dragStartComponentPos.x + dxSvg;
+    let newY = dragStartComponentPos.y + dySvg;
+    
+    if (isSnapToGridEnabled) {
+      newX = Math.round(newX / snapGridSize) * snapGridSize;
+      newY = Math.round(newY / snapGridSize) * snapGridSize;
+    }
     
     // Update bounds in memory
     dragTarget.bounds.x = newX;
@@ -1465,6 +1483,60 @@ btnToggleLock.addEventListener('click', () => {
   isDiagramLocked = !isDiagramLocked;
   updateLockStateUI();
 });
+
+function updateSnapGridUI(): void {
+  if (snapGridEnable) {
+    snapGridEnable.checked = isSnapToGridEnabled;
+  }
+  if (snapGridSizeInput) {
+    snapGridSizeInput.value = snapGridSize.toString();
+  }
+  if (snapGridSizeVal) {
+    snapGridSizeVal.textContent = `${snapGridSize}px`;
+  }
+  if (btnToggleSnap) {
+    const icon = btnToggleSnap.querySelector('i');
+    if (icon) {
+      if (isSnapToGridEnabled) {
+        icon.className = 'bi bi-grid-3x3-gap-fill text-primary';
+        btnToggleSnap.title = 'Snap to Grid (Enabled)';
+      } else {
+        icon.className = 'bi bi-grid-3x3-gap text-muted';
+        btnToggleSnap.title = 'Snap to Grid (Disabled)';
+      }
+    }
+  }
+  if (canvasContainer) {
+    if (isSnapToGridEnabled) {
+      canvasContainer.style.setProperty('--diagram-grid-size', `${snapGridSize}px`);
+    } else {
+      canvasContainer.style.removeProperty('--diagram-grid-size');
+    }
+  }
+}
+
+// Initial update on page load
+updateSnapGridUI();
+
+// Event listeners for Snap to Grid
+if (snapGridEnable) {
+  snapGridEnable.addEventListener('change', () => {
+    isSnapToGridEnabled = snapGridEnable.checked;
+    localStorage.setItem(SNAP_ENABLED_KEY, isSnapToGridEnabled.toString());
+    updateSnapGridUI();
+  });
+}
+
+if (snapGridSizeInput) {
+  snapGridSizeInput.addEventListener('input', () => {
+    const val = parseInt(snapGridSizeInput.value, 10);
+    if (!isNaN(val) && val >= 10 && val <= 50) {
+      snapGridSize = val;
+      localStorage.setItem(SNAP_SIZE_KEY, snapGridSize.toString());
+      updateSnapGridUI();
+    }
+  });
+}
 
 themeSelect.addEventListener('change', () => {
   const selectedTheme = themeSelect.value;
@@ -2515,5 +2587,8 @@ export {
   filterNodeTree,
   addDescendants,
   activeDiagramTags,
-  renderDiagram
+  renderDiagram,
+  isSnapToGridEnabled,
+  snapGridSize,
+  updateSnapGridUI
 };
