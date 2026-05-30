@@ -45,6 +45,12 @@ beforeEach(() => {
     <button id="btn-zoom-reset"></button>
     <button id="btn-zoom-fit"></button>
     <button id="btn-toggle-lock"></button>
+    <button id="btn-toggle-minimap"><i></i></button>
+    <div id="minimap-container"></div>
+    <svg id="minimap-svg">
+      <g id="minimap-content-g"></g>
+      <rect id="minimap-viewport-rect"></rect>
+    </svg>
     <button id="btn-toggle-snap"></button>
     <input type="checkbox" id="snap-grid-enable" />
     <input type="range" id="snap-grid-size" />

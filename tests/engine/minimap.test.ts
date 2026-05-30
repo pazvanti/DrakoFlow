@@ -115,55 +115,39 @@ beforeEach(() => {
   localStorage.clear();
 });
 
-describe('Snap to Grid functionality tests', () => {
-  it('should initialize snap states correctly', async () => {
-    const { isSnapToGridEnabled, snapGridSize } = await import('../../src/main');
-    expect(isSnapToGridEnabled).toBe(false);
-    expect(snapGridSize).toBe(20);
+describe('Floating Minimap functionality tests', () => {
+  it('should initialize minimap states correctly', async () => {
+    const { isMinimapVisible } = await import('../../src/main');
+    expect(isMinimapVisible).toBe(true);
   });
 
-  it('should toggle snap state via DOM switch changes', async () => {
+  it('should toggle minimap visibility via DOM button click', async () => {
     const main = await import('../../src/main');
-    const snapGridEnable = document.getElementById('snap-grid-enable') as HTMLInputElement;
-    const btnToggleSnap = document.getElementById('btn-toggle-snap') as HTMLButtonElement;
+    const btnToggleMinimap = document.getElementById('btn-toggle-minimap') as HTMLButtonElement;
+    const minimapContainer = document.getElementById('minimap-container') as HTMLElement;
 
-    expect(main.isSnapToGridEnabled).toBe(false);
+    expect(main.isMinimapVisible).toBe(true);
+    expect(minimapContainer.classList.contains('collapsed')).toBe(false);
 
-    // Toggle switch to enabled
-    snapGridEnable.checked = true;
-    snapGridEnable.dispatchEvent(new Event('change'));
+    // Click toggle button to hide
+    btnToggleMinimap.click();
 
     // Check if state is updated
-    expect(main.isSnapToGridEnabled).toBe(true);
+    expect(main.isMinimapVisible).toBe(false);
+    expect(minimapContainer.classList.contains('collapsed')).toBe(true);
 
     // Verify localStorage persistence
-    expect(localStorage.getItem('drako-snap-enabled')).toBe('true');
+    expect(localStorage.getItem('drako-minimap-visible')).toBe('false');
 
-    // Verify UI button is updated (has Text Primary class)
-    const icon = btnToggleSnap.querySelector('i');
+    // Verify UI button is updated (has text-muted class)
+    const icon = btnToggleMinimap.querySelector('i');
     expect(icon).not.toBeNull();
+    expect(icon!.className).toContain('text-muted');
+
+    // Click toggle button to show again
+    btnToggleMinimap.click();
+    expect(main.isMinimapVisible).toBe(true);
+    expect(localStorage.getItem('drako-minimap-visible')).toBe('true');
     expect(icon!.className).toContain('text-primary');
-
-    // Toggle back
-    snapGridEnable.checked = false;
-    snapGridEnable.dispatchEvent(new Event('change'));
-    expect(main.isSnapToGridEnabled).toBe(false);
-    expect(localStorage.getItem('drako-snap-enabled')).toBe('false');
-  });
-
-  it('should update grid size via range input slider changes', async () => {
-    const main = await import('../../src/main');
-    const snapGridSizeInput = document.getElementById('snap-grid-size') as HTMLInputElement;
-    const snapGridSizeVal = document.getElementById('snap-grid-size-val') as HTMLElement;
-
-    expect(main.snapGridSize).toBe(20);
-
-    // Change grid size to 35px
-    snapGridSizeInput.value = '35';
-    snapGridSizeInput.dispatchEvent(new Event('input'));
-
-    expect(main.snapGridSize).toBe(35);
-    expect(localStorage.getItem('drako-snap-size')).toBe('35');
-    expect(snapGridSizeVal.textContent).toBe('35px');
   });
 });

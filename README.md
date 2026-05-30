@@ -18,6 +18,9 @@ DrakoFlow is a lightweight, offline-first, client-side text-to-diagram engine bu
 - **Subsystem & Nested Scopes**: Group system microservices and components using the UML `Package` folder blocks or `VerticalContainer` layout boundaries.
 - **Rich Themes & Style Overrides**: Swap between dark and light themes, or completely customize shape colors (background, border, text) inside a `themeOverride` block.
 - **Offline Exports**: Save your diagram selections or full viewports to standard, High-Res, or Ultra-HD (4K) PNG formats with custom paddings and transparency.
+- **Snap to Grid**: Toggle on/off snapping of component positions to a grid (customizable size) for precise layout alignment.
+- **Serverless Sharing**: Share your diagram by sharing the URL, which includes the compressed diagram data as a URL parameter.
+- **Minimap**: Toggle on/off the minimap to see the entire diagram at a glance.
 
 ---
 

@@ -17,8 +17,8 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <!-- Custom External Stylesheet -->
   
-  <script type="module" crossorigin src="./assets/index-375bd012.js"></script>
-  <link rel="stylesheet" href="./assets/index-f877d078.css">
+  <script type="module" crossorigin src="./assets/index-f6058928.js"></script>
+  <link rel="stylesheet" href="./assets/index-4aba83f4.css">
 </head>
 
 <body>
@@ -190,6 +190,14 @@
         </svg>
       </div>
 
+      <!-- Minimap Container -->
+      <div id="minimap-container" class="minimap-container">
+        <svg id="minimap-svg" class="minimap-svg" width="180" height="120">
+          <g id="minimap-content-g"></g>
+          <rect id="minimap-viewport-rect" class="minimap-viewport-rect" fill="rgba(96, 165, 250, 0.2)" stroke="#3b82f6" stroke-width="1.5"></rect>
+        </svg>
+      </div>
+
       <!-- SVG Navigation controls Overlay -->
       <div class="canvas-controls">
         <button id="btn-zoom-in" class="btn-control" title="Zoom In">
@@ -203,6 +211,9 @@
         </button>
         <button id="btn-zoom-fit" class="btn-control" title="Fit to Screen">
           <i class="bi bi-arrows-angle-expand"></i>
+        </button>
+        <button id="btn-toggle-minimap" class="btn-control" title="Toggle Minimap">
+          <i class="bi bi-map-fill text-primary"></i>
         </button>
         <div class="vr bg-secondary opacity-25 mx-1" style="width: 1px; align-self: stretch;"></div>
         <div class="dropdown d-inline-block">

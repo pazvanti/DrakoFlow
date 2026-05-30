@@ -121,6 +121,15 @@ if (isNaN(snapGridSize) || snapGridSize < 10 || snapGridSize > 50) {
 let currentComponents: BaseComponent[] = [];
 let currentDisplayRelationships: ParsedRelationship[] = [];
 
+// Minimap State
+const MINIMAP_VISIBLE_KEY = 'drako-minimap-visible';
+let isMinimapVisible = localStorage.getItem(MINIMAP_VISIBLE_KEY) !== 'false';
+const MINIMAP_WIDTH = 180;
+const MINIMAP_HEIGHT = 120;
+let currentMinimapScale = 1.0;
+let currentMinimapDx = 0;
+let currentMinimapDy = 0;
+
 // Range of editor text to highlight when hovering over a component in the SVG
 let activeHighlightRange: { start: number; end: number } | null = null;
 
@@ -382,7 +391,11 @@ const btnToggleSnap = document.getElementById('btn-toggle-snap') as HTMLButtonEl
 const snapGridEnable = document.getElementById('snap-grid-enable') as HTMLInputElement;
 const snapGridSizeInput = document.getElementById('snap-grid-size') as HTMLInputElement;
 const snapGridSizeVal = document.getElementById('snap-grid-size-val') as HTMLElement;
-
+const btnToggleMinimap = document.getElementById('btn-toggle-minimap') as HTMLButtonElement;
+const minimapContainer = document.getElementById('minimap-container') as HTMLElement;
+const minimapSvg = document.getElementById('minimap-svg') as unknown as SVGSVGElement;
+const minimapContentG = document.getElementById('minimap-content-g') as unknown as SVGGElement;
+const minimapViewportRect = document.getElementById('minimap-viewport-rect') as unknown as SVGRectElement;
 // Export Modal Elements
 const exportRangeWhole = document.getElementById('export-range-whole') as HTMLInputElement;
 const exportRangeCurrent = document.getElementById('export-range-current') as HTMLInputElement;
@@ -952,6 +965,7 @@ function syncEditorScroll(): void {
  */
 function applyTransformations(): void {
   viewportG.setAttribute('transform', `translate(${panOffset.x}, ${panOffset.y}) scale(${zoomLevel})`);
+  updateMinimapViewportRect();
 }
 
 /**
@@ -1163,6 +1177,9 @@ function renderDiagram(): void {
 
     statusText.innerHTML = '<i class="bi bi-check-circle-fill"></i> Parsed & Rendered Successfully';
     statusText.className = 'd-flex align-items-center gap-1.5 text-success';
+
+    // Update minimap
+    updateMinimapContent();
   } catch (error: any) {
     statusText.innerHTML = `<i class="bi bi-exclamation-triangle-fill"></i> Error: ${error.message}`;
     statusText.className = 'd-flex align-items-center gap-1.5 text-danger';
@@ -1535,6 +1552,168 @@ if (snapGridSizeInput) {
       localStorage.setItem(SNAP_SIZE_KEY, snapGridSize.toString());
       updateSnapGridUI();
     }
+  });
+}
+
+function updateMinimapContent(): void {
+  if (!minimapContainer || !minimapContentG || !viewportG || !canvasContainer) return;
+
+  // Clear old content
+  minimapContentG.innerHTML = '';
+
+  // Get raw diagram bounding box
+  // Temporarily reset transform to get accurate bounding box
+  const oldTransform = viewportG.getAttribute('transform');
+  viewportG.removeAttribute('transform');
+  const bbox = viewportG.getBBox();
+  if (oldTransform) {
+    viewportG.setAttribute('transform', oldTransform);
+  }
+
+  // If diagram is empty, do nothing and hide minimap
+  if (bbox.width === 0 || bbox.height === 0) {
+    minimapContainer.classList.add('collapsed');
+    return;
+  }
+  
+  if (isMinimapVisible) {
+    minimapContainer.classList.remove('collapsed');
+  } else {
+    minimapContainer.classList.add('collapsed');
+    return;
+  }
+
+  // Clone children of viewportG into minimapContentG
+  Array.from(viewportG.childNodes).forEach(child => {
+    if (child instanceof SVGElement) {
+      const clone = child.cloneNode(true) as SVGElement;
+      minimapContentG.appendChild(clone);
+    }
+  });
+
+  // Calculate fitting scale and translation
+  const padding = 6;
+  const availableW = MINIMAP_WIDTH - padding * 2;
+  const availableH = MINIMAP_HEIGHT - padding * 2;
+
+  const scaleX = availableW / bbox.width;
+  const scaleY = availableH / bbox.height;
+  currentMinimapScale = Math.min(scaleX, scaleY);
+
+  const diagramMinimapW = bbox.width * currentMinimapScale;
+  const diagramMinimapH = bbox.height * currentMinimapScale;
+
+  currentMinimapDx = padding + (availableW - diagramMinimapW) / 2 - bbox.x * currentMinimapScale;
+  currentMinimapDy = padding + (availableH - diagramMinimapH) / 2 - bbox.y * currentMinimapScale;
+
+  // Apply transform to the content group inside the minimap
+  minimapContentG.setAttribute('transform', `translate(${currentMinimapDx}, ${currentMinimapDy}) scale(${currentMinimapScale})`);
+
+  // Update viewport indicator
+  updateMinimapViewportRect();
+}
+
+function updateMinimapViewportRect(): void {
+  if (!isMinimapVisible || !minimapViewportRect || !canvasContainer || !viewportG) return;
+
+  // Get screen size
+  const containerWidth = canvasContainer.clientWidth || 800;
+  const containerHeight = canvasContainer.clientHeight || 600;
+
+  // Visible area in raw coordinates
+  const visibleLeft = (0 - panOffset.x) / zoomLevel;
+  const visibleTop = (0 - panOffset.y) / zoomLevel;
+  const visibleWidth = containerWidth / zoomLevel;
+  const visibleHeight = containerHeight / zoomLevel;
+
+  // Map visible area to minimap space
+  const rectX = currentMinimapDx + visibleLeft * currentMinimapScale;
+  const rectY = currentMinimapDy + visibleTop * currentMinimapScale;
+  const rectW = visibleWidth * currentMinimapScale;
+  const rectH = visibleHeight * currentMinimapScale;
+
+  // Set rect attributes
+  minimapViewportRect.setAttribute('x', rectX.toString());
+  minimapViewportRect.setAttribute('y', rectY.toString());
+  minimapViewportRect.setAttribute('width', Math.max(2, rectW).toString());
+  minimapViewportRect.setAttribute('height', Math.max(2, rectH).toString());
+}
+
+function updateMinimapToggleUI(): void {
+  if (minimapContainer) {
+    if (isMinimapVisible) {
+      minimapContainer.classList.remove('collapsed');
+      updateMinimapContent();
+    } else {
+      minimapContainer.classList.add('collapsed');
+    }
+  }
+  if (btnToggleMinimap) {
+    const icon = btnToggleMinimap.querySelector('i');
+    if (icon) {
+      if (isMinimapVisible) {
+        icon.className = 'bi bi-map-fill text-primary';
+        btnToggleMinimap.title = 'Hide Minimap';
+      } else {
+        icon.className = 'bi bi-map text-muted';
+        btnToggleMinimap.title = 'Show Minimap';
+      }
+    }
+  }
+}
+
+// Initial minimap setup
+updateMinimapToggleUI();
+
+// Event listeners for Minimap Drag to Pan
+let isPanningMinimap = false;
+
+function panToMinimapPoint(clientX: number, clientY: number) {
+  if (!minimapSvg || !canvasContainer) return;
+  const rect = minimapSvg.getBoundingClientRect();
+  const mx = clientX - rect.left;
+  const my = clientY - rect.top;
+
+  const containerWidth = canvasContainer.clientWidth || 800;
+  const containerHeight = canvasContainer.clientHeight || 600;
+
+  // Map mx, my back to raw coordinates
+  const rawX = (mx - currentMinimapDx) / currentMinimapScale;
+  const rawY = (my - currentMinimapDy) / currentMinimapScale;
+
+  // Center viewport at rawX, rawY
+  panOffset.x = containerWidth / 2 - rawX * zoomLevel;
+  panOffset.y = containerHeight / 2 - rawY * zoomLevel;
+
+  applyTransformations();
+}
+
+if (minimapSvg) {
+  minimapSvg.addEventListener('mousedown', (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    isPanningMinimap = true;
+    panToMinimapPoint(e.clientX, e.clientY);
+  });
+}
+
+window.addEventListener('mousemove', (e) => {
+  if (isPanningMinimap) {
+    panToMinimapPoint(e.clientX, e.clientY);
+  }
+});
+
+window.addEventListener('mouseup', () => {
+  if (isPanningMinimap) {
+    isPanningMinimap = false;
+  }
+});
+
+if (btnToggleMinimap) {
+  btnToggleMinimap.addEventListener('click', () => {
+    isMinimapVisible = !isMinimapVisible;
+    localStorage.setItem(MINIMAP_VISIBLE_KEY, isMinimapVisible.toString());
+    updateMinimapToggleUI();
   });
 }
 
@@ -2590,5 +2769,8 @@ export {
   renderDiagram,
   isSnapToGridEnabled,
   snapGridSize,
-  updateSnapGridUI
+  updateSnapGridUI,
+  isMinimapVisible,
+  updateMinimapContent,
+  updateMinimapViewportRect
 };
