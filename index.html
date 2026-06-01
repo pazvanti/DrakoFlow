@@ -360,6 +360,9 @@
                 <button class="nav-link active text-start py-2 px-3 mb-1" id="v-pills-relationship-tab" data-bs-toggle="pill" data-bs-target="#v-pills-relationship" type="button" role="tab" aria-controls="v-pills-relationship" aria-selected="true">
                   <i class="bi bi-arrow-right-short me-2"></i> Relationships
                 </button>
+                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-common-tab" data-bs-toggle="pill" data-bs-target="#v-pills-common" type="button" role="tab" aria-controls="v-pills-common" aria-selected="false">
+                  <i class="bi bi-gear me-2"></i> Common Attributes
+                </button>
                 <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-shortcuts-tab" data-bs-toggle="pill" data-bs-target="#v-pills-shortcuts" type="button" role="tab" aria-controls="v-pills-shortcuts" aria-selected="false">
                   <i class="bi bi-keyboard me-2"></i> Keyboard Shortcuts
                 </button>
@@ -1319,6 +1322,87 @@ InfraPackage: Package {
 }</pre>
               </div>
 
+              <!-- Common Attributes Tab -->
+              <div class="tab-pane fade" id="v-pills-common" role="tabpanel" aria-labelledby="v-pills-common-tab">
+                <h4 class="mb-1">Common Element Attributes</h4>
+                <p class="text-muted small">These general attributes and blocks are supported by all diagram elements inside DrakoFlow.</p>
+
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">General Properties</h6>
+                <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
+                  <thead>
+                    <tr>
+                      <th style="width: 25%;">Property</th>
+                      <th style="width: 20%;">Type</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><code>doc</code></td>
+                      <td>String</td>
+                      <td>Embedded Markdown documentation. Adds a document badge on the element that displays the rendered markdown in a reader modal when clicked.</td>
+                    </tr>
+                    <tr>
+                      <td><code>x</code></td>
+                      <td>Number</td>
+                      <td>Explicit horizontal position override (in pixels). Useful for manual grid arrangements.</td>
+                    </tr>
+                    <tr>
+                      <td><code>y</code></td>
+                      <td>Number</td>
+                      <td>Explicit vertical position override (in pixels). Useful for manual grid arrangements.</td>
+                    </tr>
+                    <tr>
+                      <td><code>lifeline</code></td>
+                      <td>Boolean</td>
+                      <td>If set to <code>true</code>, treats the element as a sequence diagram lifeline, drawing a vertical dashed line below it.</td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Theme Override block (<code>themeOverride</code>)</h6>
+                <p class="small text-muted">Customize an individual element's visual presentation using style properties inside a nested block:</p>
+                <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
+                  <thead>
+                    <tr>
+                      <th style="width: 25%;">Style Key</th>
+                      <th style="width: 20%;">Type</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><code>backgroundColor</code></td>
+                      <td>String</td>
+                      <td>Local fill color override (e.g. <code>"#ff0000"</code>, <code>"primaryColor"</code>).</td>
+                    </tr>
+                    <tr>
+                      <td><code>borderColor</code></td>
+                      <td>String</td>
+                      <td>Local border color override.</td>
+                    </tr>
+                    <tr>
+                      <td><code>textColor</code></td>
+                      <td>String</td>
+                      <td>Local text label color override.</td>
+                    </tr>
+                    <tr>
+                      <td><code>strokeWidth</code></td>
+                      <td>Number</td>
+                      <td>Local border line width override.</td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Directives & Tagging (<code>@tags</code>)</h6>
+                <p class="small text-muted">You can associate array-based tag qualifiers immediately before an element declaration to enable diagram-wide filtering:</p>
+                <pre class="bg-black p-3 rounded font-monospace text-success" style="font-size: 0.75rem;">@tags: ["database", "infrastructure"]
+myDatabase: Rectangle {
+  label: "User DB"
+  doc: "Stores application user accounts."
+}</pre>
+              </div>
+
               <!-- Relationships Tab -->
               <div class="tab-pane fade show active" id="v-pills-relationship" role="tabpanel" aria-labelledby="v-pills-relationship-tab">
 
@@ -2053,6 +2137,26 @@ Server [1] -> [0..*] Database : "Fetch items" {
           <button type="button" id="btn-reset-theme" class="btn btn-outline-warning btn-sm me-auto">Reset to Default</button>
           <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Close</button>
           <button type="button" id="btn-apply-theme" class="btn btn-success btn-sm">Apply Theme</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Element Documentation Modal -->
+  <div class="modal fade" id="element-documentation-modal" tabindex="-1" aria-labelledby="elementDocModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content bg-dark border-secondary border-opacity-50 text-white">
+        <div class="modal-header border-secondary border-opacity-25">
+          <h5 class="modal-title" id="element-documentation-title">
+            <i class="bi bi-file-earmark-text text-primary me-2"></i> Element Documentation
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body doc-modal-body" id="element-documentation-content">
+          <!-- Rendered Markdown goes here -->
+        </div>
+        <div class="modal-footer border-secondary border-opacity-25">
+          <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Close</button>
         </div>
       </div>
     </div>

@@ -31,6 +31,9 @@ export abstract class BaseComponent<TProps = any, TStyle = Partial<ThemeVariable
   public readonly type: string;
   public readonly tags: string[];
   
+  // Optional embedded markdown documentation
+  public doc?: string;
+  
   // Properties unique to the component type (e.g., rows, content)
   public props: TProps;
   

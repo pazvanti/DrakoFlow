@@ -8,6 +8,8 @@ import { layoutRootComponents } from './engine/layout';
 import { renderRelationships } from './engine/relationshipRenderer';
 import { highlightDSL } from './utils/highlighter';
 import { ParsedRelationship } from './engine/Relationship';
+import { MarkdownParser } from './utils/MarkdownParser';
+import { MarkdownRenderer } from './utils/MarkdownRenderer';
 import LZString from 'lz-string';
 
 const DEFAULT_DSL = `// Welcome to DrakoFlow!
@@ -1156,6 +1158,37 @@ function renderDiagram(): void {
         updateEditorMetrics();
         g.classList.remove('hovered');
       });
+
+      if (component.doc) {
+        const docBadgeG = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        docBadgeG.setAttribute("class", "element-doc-badge");
+        const badgeX = component.bounds.width - 24;
+        const badgeY = 6;
+        docBadgeG.setAttribute("transform", `translate(${badgeX}, ${badgeY})`);
+        docBadgeG.setAttribute("style", "cursor: pointer;");
+
+        const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        circle.setAttribute("cx", "9");
+        circle.setAttribute("cy", "9");
+        circle.setAttribute("r", "9");
+        circle.setAttribute("class", "doc-badge-bg");
+        docBadgeG.appendChild(circle);
+
+        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        path.setAttribute("d", "M6.5 4.5a1 1 0 0 1 1-1h3l2 2v6a1 1 0 0 1-1 1h-5a1 1 0 0 1-1-1v-7z M10.5 3.5v2h2 L10.5 3.5z");
+        path.setAttribute("class", "doc-badge-icon");
+        docBadgeG.appendChild(path);
+
+        docBadgeG.addEventListener('mousedown', (e) => {
+          e.stopPropagation();
+        });
+        docBadgeG.addEventListener('click', (e) => {
+          e.stopPropagation();
+          showDocumentationModal(component);
+        });
+
+        g.appendChild(docBadgeG);
+      }
 
       viewportG.appendChild(g);
     });
@@ -2461,6 +2494,32 @@ function setupDocSearch(): void {
   });
 }
 
+function showDocumentationModal(component: BaseComponent): void {
+  const modalEl = document.getElementById('element-documentation-modal');
+  if (!modalEl) return;
+
+  const titleEl = document.getElementById('element-documentation-title');
+  if (titleEl) {
+    titleEl.textContent = `Documentation: ${component.props.label || component.id} (${component.type})`;
+  }
+
+  const contentEl = document.getElementById('element-documentation-content');
+  if (contentEl) {
+    const rawMarkdown = component.doc || '';
+    const parser = new MarkdownParser();
+    const renderer = new MarkdownRenderer();
+    const ast = parser.parse(rawMarkdown);
+    const html = renderer.render(ast);
+    contentEl.innerHTML = html;
+  }
+
+  const bootstrap = (window as any).bootstrap;
+  if (bootstrap) {
+    const modalInstance = bootstrap.Modal.getOrCreateInstance(modalEl);
+    modalInstance.show();
+  }
+}
+
 function openDocumentationModal(componentType?: string): void {
   const bootstrap = (window as any).bootstrap;
   const modalEl = document.getElementById('help-modal') as HTMLElement;
@@ -2477,6 +2536,8 @@ function openDocumentationModal(componentType?: string): void {
   if (componentType) {
     // Map component type to tab ID
     const tabMap: Record<string, string> = {
+      'common': 'v-pills-common-tab',
+      'general': 'v-pills-common-tab',
       'rectangle': 'v-pills-rectangle-tab',
       'process': 'v-pills-process-tab',
       'ellipse': 'v-pills-ellipse-tab',

@@ -447,6 +447,10 @@ function instantiateFromDefinition(
 
   component.lifeline = node.properties.lifeline === true;
 
+  if (typeof node.properties.doc === 'string') {
+    component.doc = node.properties.doc;
+  }
+
   if (typeof node.properties.x === 'number') {
     component.manualX = node.properties.x;
   }
