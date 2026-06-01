@@ -10,6 +10,7 @@ import { highlightDSL } from './utils/highlighter';
 import { ParsedRelationship } from './engine/Relationship';
 import { MarkdownParser } from './utils/MarkdownParser';
 import { MarkdownRenderer } from './utils/MarkdownRenderer';
+import { PlantUmlTranslator } from './utils/PlantUmlTranslator';
 import LZString from 'lz-string';
 
 const DEFAULT_DSL = `// Welcome to DrakoFlow!
@@ -380,6 +381,7 @@ const btnResetTheme = document.getElementById('btn-reset-theme') as HTMLButtonEl
 
 // Control Buttons
 const btnLoad = document.getElementById('btn-load') as HTMLButtonElement;
+const btnImportPuml = document.getElementById('btn-import-puml') as HTMLButtonElement;
 const btnSave = document.getElementById('btn-save') as HTMLButtonElement;
 const btnExportPng = document.getElementById('btn-export-png') as HTMLButtonElement;
 const fileInput = document.getElementById('file-input') as HTMLInputElement;
@@ -2600,6 +2602,65 @@ function openDocumentationModal(componentType?: string): void {
 if (btnShowDocs) {
   btnShowDocs.addEventListener('click', () => {
     openDocumentationModal();
+  });
+}
+
+// Wire up PlantUML Import Modal and submit logic
+if (btnImportPuml) {
+  btnImportPuml.addEventListener('click', () => {
+    const modalEl = document.getElementById('import-puml-modal');
+    const textarea = document.getElementById('import-puml-textarea') as HTMLTextAreaElement;
+    const errorDiv = document.getElementById('import-puml-error');
+    if (textarea) textarea.value = '';
+    if (errorDiv) {
+      errorDiv.classList.add('d-none');
+      errorDiv.textContent = '';
+    }
+    
+    if (modalEl) {
+      const bootstrap = (window as any).bootstrap;
+      if (bootstrap) {
+        bootstrap.Modal.getOrCreateInstance(modalEl).show();
+      }
+    }
+  });
+}
+
+const btnSubmitImportPuml = document.getElementById('btn-submit-import-puml');
+if (btnSubmitImportPuml) {
+  btnSubmitImportPuml.addEventListener('click', () => {
+    const textarea = document.getElementById('import-puml-textarea') as HTMLTextAreaElement;
+    const errorDiv = document.getElementById('import-puml-error');
+    if (!textarea) return;
+
+    const pumlCode = textarea.value.trim();
+    if (!pumlCode) {
+      if (errorDiv) {
+        errorDiv.classList.remove('d-none');
+        errorDiv.textContent = 'Please enter PlantUML code to translate.';
+      }
+      return;
+    }
+
+    try {
+      const translator = new PlantUmlTranslator();
+      const translatedDsl = translator.translate(pumlCode);
+      
+      createNewTab(translatedDsl, 'imported_plantuml.drako');
+      
+      const modalEl = document.getElementById('import-puml-modal');
+      if (modalEl) {
+        const bootstrap = (window as any).bootstrap;
+        if (bootstrap) {
+          bootstrap.Modal.getOrCreateInstance(modalEl).hide();
+        }
+      }
+    } catch (err: any) {
+      if (errorDiv) {
+        errorDiv.classList.remove('d-none');
+        errorDiv.textContent = `Translation error: ${err.message}`;
+      }
+    }
   });
 }
 

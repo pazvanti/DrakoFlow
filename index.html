@@ -37,6 +37,10 @@
         title="Load DSL Script">
         <i class="bi bi-folder2-open"></i> Load
       </button>
+      <button id="btn-import-puml" class="btn btn-outline-success btn-sm d-flex align-items-center gap-1.5"
+        title="Import PlantUML Code">
+        <i class="bi bi-arrow-left-right"></i> Import PlantUML <span class="badge bg-success-subtle text-success-emphasis border border-success-subtle ms-1" style="font-size: 0.65rem; padding: 0.15em 0.4em;">Beta</span>
+      </button>
       <button id="btn-save" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1.5"
         title="Save DSL Script">
         <i class="bi bi-floppy"></i> Save
@@ -2137,6 +2141,33 @@ Server [1] -> [0..*] Database : "Fetch items" {
           <button type="button" id="btn-reset-theme" class="btn btn-outline-warning btn-sm me-auto">Reset to Default</button>
           <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Close</button>
           <button type="button" id="btn-apply-theme" class="btn btn-success btn-sm">Apply Theme</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Import PlantUML Modal -->
+  <div class="modal fade" id="import-puml-modal" tabindex="-1" aria-labelledby="importPumlModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content bg-dark border-secondary border-opacity-50 text-white">
+        <div class="modal-header border-secondary border-opacity-25">
+          <h5 class="modal-title" id="importPumlModalLabel">
+            <i class="bi bi-arrow-left-right text-success me-2"></i> Import PlantUML Diagram <span class="badge bg-success-subtle text-success-emphasis border border-success-subtle ms-1" style="font-size: 0.65rem; padding: 0.15em 0.4em;">Beta</span>
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p class="small text-muted">Paste your PlantUML diagram code below. We will translate classes, elements, packages, and associations into DrakoFlow DSL and load it in a new tab.</p>
+          <div class="mb-3">
+            <textarea id="import-puml-textarea" class="form-control bg-black text-white border-secondary border-opacity-50 font-monospace small" rows="12" placeholder="@startuml&#10;class User&#10;database DB&#10;User -> DB&#10;@enduml"></textarea>
+          </div>
+          <div id="import-puml-error" class="text-danger small mb-2 d-none">
+            <!-- Error message if any -->
+          </div>
+        </div>
+        <div class="modal-footer border-secondary border-opacity-25">
+          <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" id="btn-submit-import-puml" class="btn btn-success btn-sm">Translate & Import</button>
         </div>
       </div>
     </div>
