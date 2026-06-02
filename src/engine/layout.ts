@@ -192,12 +192,22 @@ export function layoutComponent(
   theme: ThemeVariables,
   x: number,
   y: number,
-  maxConnections: number = 0
+  maxConnections: number = 0,
+  algorithm: 'left-to-right' | 'top-to-bottom' = 'left-to-right'
 ): Dimension {
   const minDim = component.calculateMinDimensions(theme);
   const connectionSpacing = 32; // Spacing needed per connection to avoid overlapping labels/lines
-  const minHeightForPorts = (maxConnections + 1) * connectionSpacing;
-  const height = Math.max(minDim.height, minHeightForPorts);
+  
+  let width = minDim.width;
+  let height = minDim.height;
+
+  if (algorithm === 'top-to-bottom') {
+    const minWidthForPorts = (maxConnections + 1) * connectionSpacing;
+    width = Math.max(minDim.width, minWidthForPorts);
+  } else {
+    const minHeightForPorts = (maxConnections + 1) * connectionSpacing;
+    height = Math.max(minDim.height, minHeightForPorts);
+  }
 
   const finalX = component.manualX !== undefined ? component.manualX : x;
   const finalY = component.manualY !== undefined ? component.manualY : y;
@@ -206,20 +216,20 @@ export function layoutComponent(
     component.bounds = {
       x: finalX,
       y: finalY,
-      width: minDim.width,
+      width: width,
       height: height
     };
     component.layoutChildren(theme);
-    return { width: minDim.width, height: height };
+    return { width: width, height: height };
   }
 
   component.bounds = {
     x: finalX,
     y: finalY,
-    width: minDim.width,
+    width: width,
     height: height
   };
-  return { width: minDim.width, height: height };
+  return { width: width, height: height };
 }
 
 /**
@@ -276,9 +286,9 @@ function computeMinLayerGap(
 }
 
 /**
- * Layer components left-to-right by relationship dependency.
+ * Layer components left-to-right by relationship dependency (LeftToRightV1).
  */
-function layoutByLayers(
+function layoutLeftToRightV1(
   components: BaseComponent[],
   relationships: ParsedRelationship[],
   theme: ThemeVariables
@@ -551,24 +561,310 @@ function layoutByLayers(
 }
 
 /**
+ * Layer components top-to-bottom by relationship dependency (TopToBottomV1).
+ */
+function layoutTopToBottomV1(
+  components: BaseComponent[],
+  relationships: ParsedRelationship[],
+  theme: ThemeVariables
+): void {
+  const layers = assignLayers(
+    components,
+    relationships
+  );
+
+  const getRootId = (id: string): string => {
+    const parent = getRootParent(id, components);
+    return parent ? parent.id : id;
+  };
+
+  // Pre-process relationship sides based on layer comparison (excluding sequence flows)
+  const relPreferred = relationships
+    .map((rel, index) => {
+      const srcRootId = getRootId(rel.sourceId);
+      const tgtRootId = getRootId(rel.targetId);
+      const srcLayer = layers.get(srcRootId) ?? 0;
+      const tgtLayer = layers.get(tgtRootId) ?? 0;
+      const isTargetBelow = tgtLayer >= srcLayer;
+      return {
+        index,
+        sourceId: srcRootId,
+        targetId: tgtRootId,
+        sourceSide: (isTargetBelow ? 'bottom' : 'top') as 'left' | 'right' | 'top' | 'bottom',
+        targetSide: (isTargetBelow ? 'top' : 'bottom') as 'left' | 'right' | 'top' | 'bottom',
+        isSequence: isLifelineComponent(rel.sourceId, components) || isLifelineComponent(rel.targetId, components)
+      };
+    })
+    .filter(r => !r.isSequence);
+
+  const finalSourceSides = new Map<number, 'left' | 'right' | 'top' | 'bottom'>();
+  const finalTargetSides = new Map<number, 'left' | 'right' | 'top' | 'bottom'>();
+
+  relPreferred.forEach(({ index, sourceSide, targetSide }) => {
+    finalSourceSides.set(index, sourceSide);
+    finalTargetSides.set(index, targetSide);
+  });
+
+  const componentSideList = new Map<string, number[]>();
+  relPreferred.forEach(({ index, sourceId, targetId, sourceSide, targetSide }) => {
+    const srcKey = `${sourceId}-${sourceSide}`;
+    if (!componentSideList.has(srcKey)) componentSideList.set(srcKey, []);
+    componentSideList.get(srcKey)!.push(index);
+
+    const tgtKey = `${targetId}-${targetSide}`;
+    if (!componentSideList.has(tgtKey)) componentSideList.set(tgtKey, []);
+    componentSideList.get(tgtKey)!.push(index);
+  });
+
+  componentSideList.forEach((list, key) => {
+    if (list.length > 2) {
+      const first = list[0];
+      const last = list[list.length - 1];
+      const compId = key.substring(0, key.lastIndexOf('-'));
+      
+      const firstRel = relPreferred[first];
+      if (firstRel.sourceId === compId) {
+        finalSourceSides.set(first, 'left');
+      } else {
+        finalTargetSides.set(first, 'left');
+      }
+
+      const lastRel = relPreferred[last];
+      if (lastRel.sourceId === compId) {
+        finalSourceSides.set(last, 'right');
+      } else {
+        finalTargetSides.set(last, 'right');
+      }
+    }
+  });
+
+  const finalCounts = new Map<string, number>();
+  relPreferred.forEach(({ index, sourceId, targetId }) => {
+    const sSide = finalSourceSides.get(index)!;
+    const tSide = finalTargetSides.get(index)!;
+
+    const srcKey = `${sourceId}-${sSide}`;
+    finalCounts.set(srcKey, (finalCounts.get(srcKey) || 0) + 1);
+
+    const tgtKey = `${targetId}-${tSide}`;
+    finalCounts.set(tgtKey, (finalCounts.get(tgtKey) || 0) + 1);
+  });
+
+  const maxConnectionsMap = new Map<string, number>();
+  components.forEach(component => {
+    const top = finalCounts.get(`${component.id}-top`) || 0;
+    const bottom = finalCounts.get(`${component.id}-bottom`) || 0;
+    maxConnectionsMap.set(component.id, Math.max(top, bottom));
+  });
+
+  const byLayer = new Map<number, BaseComponent[]>();
+  components.forEach(component => {
+    const layer = layers.get(component.id) ?? 0;
+    if (!byLayer.has(layer)) byLayer.set(layer, []);
+    byLayer.get(layer)!.push(component);
+  });
+
+  const sortedLayers = Array.from(byLayer.keys()).sort((a, b) => a - b);
+  let y = ROOT_START_Y;
+  const laidOut: BaseComponent[] = [];
+
+  sortedLayers.forEach((layerNum, idx) => {
+    const layerComponents = byLayer.get(layerNum)!;
+
+    // Barycenter horizontal sorting heuristic
+    const getBarycenter = (comp: BaseComponent): number => {
+      let sumX = 0;
+      let count = 0;
+      
+      relationships.forEach(rel => {
+        const srcRoot = getRootParent(rel.sourceId, components);
+        const tgtRoot = getRootParent(rel.targetId, components);
+        
+        if (srcRoot === comp || tgtRoot === comp) {
+          const otherRoot = srcRoot === comp ? tgtRoot : srcRoot;
+          if (otherRoot && laidOut.includes(otherRoot)) {
+            const centerX = otherRoot.bounds.x + otherRoot.bounds.width / 2;
+            sumX += centerX;
+            count++;
+          }
+        }
+      });
+      
+      return count > 0 ? sumX / count : Infinity;
+    };
+
+    const compWithBary = layerComponents.map((comp, originalIndex) => ({
+      comp,
+      originalIndex,
+      bary: getBarycenter(comp)
+    }));
+
+    compWithBary.sort((a, b) => {
+      const aHasBary = a.bary !== Infinity;
+      const bHasBary = b.bary !== Infinity;
+      if (aHasBary && bHasBary) {
+        return a.bary - b.bary;
+      }
+      if (aHasBary && !bHasBary) return -1;
+      if (!aHasBary && bHasBary) return 1;
+      return a.originalIndex - b.originalIndex;
+    });
+
+    const sortedLayerComponents = compWithBary.map(x => x.comp);
+
+    let x = ROOT_START_X;
+    let maxHeight = 0;
+    let prevComponent: BaseComponent | null = null;
+
+    sortedLayerComponents.forEach(component => {
+      const maxConnections = maxConnectionsMap.get(component.id) || 0;
+      if (prevComponent) {
+        const hasRel = relationships.some(rel => {
+          const srcRoot = getRootParent(rel.sourceId, components);
+          const tgtRoot = getRootParent(rel.targetId, components);
+          return (
+            (srcRoot === component && tgtRoot === prevComponent) ||
+            (srcRoot === prevComponent && tgtRoot === component)
+          );
+        });
+        if (hasRel) {
+          x += 50;
+        }
+      }
+      let size = layoutComponent(component, theme, x, y, maxConnections, 'top-to-bottom');
+      
+      let hasOverlap = true;
+      let attempts = 0;
+      while (hasOverlap && attempts < 20) {
+        hasOverlap = false;
+        
+        // A: Check if this component intersects existing relationship lines
+        for (const rel of relationships) {
+          if (isLifelineComponent(rel.sourceId, components) || isLifelineComponent(rel.targetId, components)) {
+            continue;
+          }
+          const srcRoot = getRootParent(rel.sourceId, components);
+          const tgtRoot = getRootParent(rel.targetId, components);
+          
+          if (srcRoot === component || tgtRoot === component) {
+            continue;
+          }
+          
+          const srcIsLaidOut = srcRoot && laidOut.includes(srcRoot);
+          const tgtIsLaidOut = tgtRoot && laidOut.includes(tgtRoot);
+          
+          if (srcIsLaidOut && tgtIsLaidOut) {
+            const srcBounds = getGlobalBounds(rel.sourceId, components);
+            const tgtBounds = getGlobalBounds(rel.targetId, components);
+            if (srcBounds && tgtBounds) {
+              const p1 = { x: srcBounds.x + srcBounds.width / 2, y: srcBounds.y + srcBounds.height / 2 };
+              const p2 = { x: tgtBounds.x + tgtBounds.width / 2, y: tgtBounds.y + tgtBounds.height / 2 };
+              if (segmentIntersectsRect(p1, p2, component.bounds)) {
+                hasOverlap = true;
+                break;
+              }
+            }
+          }
+        }
+        
+        if (hasOverlap) {
+          x += 60; // Shift right
+          size = layoutComponent(component, theme, x, y, maxConnections, 'top-to-bottom');
+          attempts++;
+          continue;
+        }
+
+        // B: Check if lines from this component (or its children) to existing components intersect other existing components
+        for (const rel of relationships) {
+          if (isLifelineComponent(rel.sourceId, components) || isLifelineComponent(rel.targetId, components)) {
+            continue;
+          }
+          const srcRoot = getRootParent(rel.sourceId, components);
+          const tgtRoot = getRootParent(rel.targetId, components);
+          
+          if (srcRoot === component || tgtRoot === component) {
+            const otherRoot = srcRoot === component ? tgtRoot : srcRoot;
+            
+            if (otherRoot && laidOut.includes(otherRoot)) {
+              const srcBounds = getGlobalBounds(rel.sourceId, components);
+              const tgtBounds = getGlobalBounds(rel.targetId, components);
+              if (srcBounds && tgtBounds) {
+                const p1 = { x: srcBounds.x + srcBounds.width / 2, y: srcBounds.y + srcBounds.height / 2 };
+                const p2 = { x: tgtBounds.x + tgtBounds.width / 2, y: tgtBounds.y + tgtBounds.height / 2 };
+                
+                for (const c of laidOut) {
+                  if (c !== component && c !== otherRoot) {
+                    if (segmentIntersectsRect(p1, p2, c.bounds)) {
+                      hasOverlap = true;
+                      break;
+                    }
+                  }
+                }
+                if (hasOverlap) break;
+              }
+            }
+          }
+        }
+
+        if (hasOverlap) {
+          x += 60; // Shift right
+          size = layoutComponent(component, theme, x, y, maxConnections, 'top-to-bottom');
+          attempts++;
+        }
+      }
+
+      maxHeight = Math.max(maxHeight, size.height);
+      laidOut.push(component);
+      x += size.width + NODE_GAP;
+      prevComponent = component;
+    });
+
+    // Compute a dynamic gap toward the next layer that fits label/cardinality text.
+    const nextLayerNum = sortedLayers[idx + 1];
+    let gap = LAYER_GAP;
+    if (nextLayerNum !== undefined) {
+      const fromIds = new Set(layerComponents.map(c => c.id));
+      const toIds = new Set((byLayer.get(nextLayerNum) ?? []).map(c => c.id));
+      gap = computeMinLayerGap(fromIds, toIds, relationships);
+    }
+
+    y += maxHeight + gap;
+  });
+}
+
+/**
  * Position root components on the canvas.
  */
 export function layoutRootComponents(
   components: BaseComponent[],
   theme: ThemeVariables,
-  relationships: ParsedRelationship[] = []
+  relationships: ParsedRelationship[] = [],
+  algorithm: 'left-to-right' | 'top-to-bottom' = 'left-to-right'
 ): void {
   if (relationships.length > 0) {
-    layoutByLayers(components, relationships, theme);
+    if (algorithm === 'top-to-bottom') {
+      layoutTopToBottomV1(components, relationships, theme);
+    } else {
+      layoutLeftToRightV1(components, relationships, theme);
+    }
   } else {
-    let x = ROOT_START_X;
-    const y = ROOT_START_Y;
-    const COLUMN_GAP = 140;
-
-    components.forEach(component => {
-      const size = layoutComponent(component, theme, x, y);
-      x += size.width + COLUMN_GAP;
-    });
+    if (algorithm === 'top-to-bottom') {
+      let y = ROOT_START_Y;
+      const x = ROOT_START_X;
+      const ROW_GAP = 140;
+      components.forEach(component => {
+        const size = layoutComponent(component, theme, x, y, 0, algorithm);
+        y += size.height + ROW_GAP;
+      });
+    } else {
+      let x = ROOT_START_X;
+      const y = ROOT_START_Y;
+      const COLUMN_GAP = 140;
+      components.forEach(component => {
+        const size = layoutComponent(component, theme, x, y, 0, algorithm);
+        x += size.width + COLUMN_GAP;
+      });
+    }
   }
 }
 

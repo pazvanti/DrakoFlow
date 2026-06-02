@@ -601,31 +601,56 @@ export function exportToHTML(
         applyTransformations();
       });
 
-      document.getElementById('btn-zoom-fit').addEventListener('click', fitToScreen);
+      document.getElementById('btn-zoom-fit').addEventListener('click', function() {
+        fitRetries = 0;
+        fitToScreen();
+      });
 
+      let fitRetries = 0;
       function fitToScreen() {
         if (!viewportG) return;
         viewportG.setAttribute('transform', 'none');
         const bbox = viewportG.getBBox();
+        const containerW = canvasContainer.clientWidth;
+        const containerH = canvasContainer.clientHeight;
+        
+        if ((bbox.width === 0 || bbox.height === 0 || containerW === 0 || containerH === 0) && fitRetries < 30) {
+          fitRetries++;
+          requestAnimationFrame(fitToScreen);
+          return;
+        }
+
+        const w = containerW || 800;
+        const h = containerH || 600;
+
         if (bbox.width === 0 || bbox.height === 0) {
           zoomLevel = 1.0;
           panOffset = { x: 0, y: 0 };
           applyTransformations();
           return;
         }
+
         const padding = 60;
-        const containerW = canvasContainer.clientWidth || 800;
-        const containerH = canvasContainer.clientHeight || 600;
-        const scaleX = (containerW - padding) / bbox.width;
-        const scaleY = (containerH - padding) / bbox.height;
-        zoomLevel = Math.max(0.2, Math.min(scaleX, scaleY, 2.0));
-        panOffset.x = containerW / 2 - (bbox.x + bbox.width / 2) * zoomLevel;
-        panOffset.y = containerH / 2 - (bbox.y + bbox.height / 2) * zoomLevel;
+        const scaleX = (w - padding) / bbox.width;
+        const scaleY = (h - padding) / bbox.height;
+        zoomLevel = Math.max(0.2, Math.min(scaleX, scaleY, 1.0));
+        panOffset.x = w / 2 - (bbox.x + bbox.width / 2) * zoomLevel;
+        panOffset.y = h / 2 - (bbox.y + bbox.height / 2) * zoomLevel;
         applyTransformations();
+
+        if (typeof updateMinimapContent === 'function') {
+          updateMinimapContent();
+        }
       }
 
       window.addEventListener('load', function() {
-        setTimeout(fitToScreen, 100);
+        fitRetries = 0;
+        fitToScreen();
+      });
+
+      window.addEventListener('resize', function() {
+        fitRetries = 0;
+        fitToScreen();
       });
 
       // view code sidebar panel toggle
@@ -849,7 +874,14 @@ export function exportToHTML(
         if (!minimapContainer || !minimapContentG || !viewportG || !canvasContainer) return;
         minimapContentG.innerHTML = '';
         
+        // Temporarily reset transform to get accurate bounding box
+        const oldTransform = viewportG.getAttribute('transform');
+        viewportG.removeAttribute('transform');
         const bbox = viewportG.getBBox();
+        if (oldTransform) {
+          viewportG.setAttribute('transform', oldTransform);
+        }
+
         if (bbox.width === 0 || bbox.height === 0) {
           minimapContainer.classList.add('collapsed');
           return;

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { getBraceDepthAt, findSafeInsertIndex } from '../../src/utils/dslInsert';
+import { getBraceDepthAt, findSafeInsertIndex, clearDslManualPositions, setDslLayoutDirective } from '../../src/utils/dslInsert';
 
 const SAMPLE = `// comment
 MyRectangle: Rectangle {
@@ -43,5 +43,35 @@ describe('dslInsert', () => {
   it('returns end of file when braces are unbalanced', () => {
     const text = 'Broken: Rectangle { label: "x"';
     expect(findSafeInsertIndex(text, text.indexOf('label'))).toBe(text.length);
+  });
+
+  describe('clearDslManualPositions', () => {
+    it('removes x and y coordinates while preserving other properties', () => {
+      const code = `Client: Process {
+  label: "Client App"
+  x: 100
+  y: 200
+  rx: 6
+}`;
+      const result = clearDslManualPositions(code);
+      expect(result).toBe(`Client: Process {
+  label: "Client App"
+  rx: 6
+}`);
+    });
+  });
+
+  describe('setDslLayoutDirective', () => {
+    it('prepends directive if not present', () => {
+      const code = `A: Rectangle {}`;
+      const result = setDslLayoutDirective(code, 'top-to-bottom');
+      expect(result).toBe(`@layout: top-to-bottom\nA: Rectangle {}`);
+    });
+
+    it('updates directive if already present', () => {
+      const code = `@layout: left-to-right\nA: Rectangle {}`;
+      const result = setDslLayoutDirective(code, 'top-to-bottom');
+      expect(result).toBe(`@layout: top-to-bottom\nA: Rectangle {}`);
+    });
   });
 });

@@ -179,4 +179,38 @@ describe('layoutRootComponents', () => {
     expect(a.bounds.y).toBe(250);
     expect(b.bounds.y).toBe(80);
   });
+
+  it('arranges root components vertically when using top-to-bottom layout (no relationships)', () => {
+    const a = new RectangleComponent({ id: 'A', type: 'Rectangle', tags: [] }, {}, {});
+    const b = new RectangleComponent({ id: 'B', type: 'Rectangle', tags: [] }, {}, {});
+    const c = new RectangleComponent({ id: 'C', type: 'Rectangle', tags: [] }, {}, {});
+
+    layoutRootComponents([a, b, c], defaultTheme, [], 'top-to-bottom');
+
+    expect(a.bounds.x).toBe(80);
+    expect(a.bounds.y).toBe(80);
+
+    expect(b.bounds.x).toBe(80);
+    expect(b.bounds.y).toBe(80 + 60 + 140); // 280 (minHeight of Rectangle is 60, ROW_GAP is 140)
+
+    expect(c.bounds.x).toBe(80);
+    expect(c.bounds.y).toBe(280 + 60 + 140); // 480
+  });
+
+  it('arranges components vertically top-to-bottom with relationships', () => {
+    const a = new RectangleComponent({ id: 'A', type: 'Rectangle', tags: [] }, {}, {});
+    const b = new RectangleComponent({ id: 'B', type: 'Rectangle', tags: [] }, {}, {});
+
+    const relationships = [
+      { sourceId: 'A', targetId: 'B' }
+    ];
+
+    layoutRootComponents([a, b], defaultTheme, relationships, 'top-to-bottom');
+
+    expect(a.bounds.y).toBe(80);
+    expect(b.bounds.y).toBeGreaterThan(a.bounds.y + a.bounds.height);
+    // They should align vertically (same X)
+    expect(a.bounds.x).toBe(80);
+    expect(b.bounds.x).toBe(80);
+  });
 });

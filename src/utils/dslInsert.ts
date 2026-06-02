@@ -194,3 +194,18 @@ export function updateDslComponentPosition(code: string, compId: string, x: numb
   // Combine back
   return code.slice(0, bodyStart + 1) + newBodyText + code.slice(closeBraceIndex);
 }
+
+export function clearDslManualPositions(code: string): string {
+  return code.replace(/^[ \t]*\b(x|y)\s*:\s*-?\d+(?:\.\d+)?\b\r?\n?/gm, '');
+}
+
+export function setDslLayoutDirective(code: string, layout: 'left-to-right' | 'top-to-bottom'): string {
+  const layoutPattern = /^@layout\s*:\s*(?:"([^"]+)"|([a-zA-Z0-9_-]+))\r?\n?/m;
+  const newValue = `@layout: ${layout}\n`;
+  
+  if (layoutPattern.test(code)) {
+    return code.replace(layoutPattern, newValue);
+  } else {
+    return newValue + code;
+  }
+}

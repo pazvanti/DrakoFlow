@@ -17,7 +17,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <!-- Custom External Stylesheet -->
   
-  <script type="module" crossorigin src="./assets/index-a3095345.js"></script>
+  <script type="module" crossorigin src="./assets/index-3704e4a0.js"></script>
   <link rel="stylesheet" href="./assets/index-38f122a4.css">
 </head>
 
@@ -199,6 +199,13 @@
             <option value="drako-light">Drako Light</option>
             <option value="obsidian-dark">Obsidian Dark</option>
             <option value="serene-light">Serene Light</option>
+          </select>
+          <select id="layout-select"
+            class="form-select form-select-sm bg-dark border-secondary border-opacity-50 text-white"
+            style="font-size: 0.75rem; width: 120px; cursor: pointer;"
+            title="Select Layout Direction">
+            <option value="left-to-right">Left to Right</option>
+            <option value="top-to-bottom">Top to Bottom</option>
           </select>
           <button id="btn-edit-theme" class="btn btn-outline-secondary btn-sm d-flex align-items-center justify-content-center" title="Customize Theme" style="font-size: 0.75rem; width: 32px; height: 28px;">
             <i class="bi bi-sliders"></i>
@@ -1479,6 +1486,23 @@ myDatabase: Rectangle {
   label: "User DB"
   doc: "Stores application user accounts."
 }</pre>
+
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Layout Flow Directives (<code>@layout</code>)</h6>
+                <p class="small text-muted">You can specify the layout flow direction algorithm for your diagram using the global <code>@layout</code> directive at the top of the file:</p>
+                <pre class="bg-black p-3 rounded font-monospace text-success" style="font-size: 0.75rem;">@layout: top-to-bottom
+
+client: Process {
+  label: "Client App"
+}
+server: Process {
+  label: "Server App"
+}
+client -> server : "API Request"</pre>
+                <p class="small text-muted">Supported layout types:</p>
+                <ul class="small text-muted" style="padding-left: 1.25rem;">
+                  <li><code>left-to-right</code> (Default) - Elements are arranged horizontally from left to right.</li>
+                  <li><code>top-to-bottom</code> - Elements are arranged vertically from top to bottom.</li>
+                </ul>
               </div>
 
               <!-- Relationships Tab -->

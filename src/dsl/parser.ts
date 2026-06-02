@@ -31,6 +31,7 @@ export interface ParsedNode {
 export interface DslDocument {
   components: ParsedNode[];
   relationships: ParsedRelationship[];
+  layout?: string;
 }
 
 /**
@@ -40,6 +41,7 @@ export function parseDslDocument(code: string): DslDocument {
   const stripped = stripComments(code);
   const components: ParsedNode[] = [];
   const relationships: ParsedRelationship[] = [];
+  let layout: string | undefined;
   let i = 0;
   // Tags from the most recent @tags directive, to be applied to the next component.
   let pendingTags: string[] | undefined;
@@ -47,6 +49,14 @@ export function parseDslDocument(code: string): DslDocument {
   while (i < stripped.length) {
     i = skipWhitespace(stripped, i);
     if (i >= stripped.length) break;
+
+    // Try to parse layout directive
+    const layoutDirective = tryParseLayoutDirective(stripped, i);
+    if (layoutDirective) {
+      layout = layoutDirective.value;
+      i = layoutDirective.end;
+      continue;
+    }
 
     // Try to parse a top-level @directive line (e.g. @tags: ["a", "b"]).
     const directive = tryParseDirective(stripped, i);
@@ -79,7 +89,7 @@ export function parseDslDocument(code: string): DslDocument {
     i = closeBrace + 1;
   }
 
-  return { components, relationships };
+  return { components, relationships, layout };
 }
 
 /**
@@ -454,6 +464,20 @@ function tryParseDirective(
   }
 
   return { name, values, end: start + m[0].length };
+}
+
+function tryParseLayoutDirective(
+  text: string,
+  start: number
+): { value: string; end: number } | null {
+  if (text[start] !== '@') return null;
+
+  const slice = text.slice(start);
+  const m = slice.match(/^@layout\s*:\s*(?:"([^"]+)"|([a-zA-Z0-9_-]+))/);
+  if (!m) return null;
+
+  const value = m[1] || m[2];
+  return { value, end: start + m[0].length };
 }
 
 function readComponentDeclaration(

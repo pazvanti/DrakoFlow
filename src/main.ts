@@ -1,7 +1,7 @@
 import { BaseComponent, ThemeVariables } from './components/BaseComponent';
 import { downloadDSLFile, exportToPNG, ExportOptions } from './utils/FileHandlers';
 import { exportToHTML } from './utils/HTMLPlayerExporter';
-import { findSafeInsertIndex, updateDslComponentPosition } from './utils/dslInsert';
+import { findSafeInsertIndex, updateDslComponentPosition, clearDslManualPositions, setDslLayoutDirective } from './utils/dslInsert';
 import { CatalogService } from './catalog/ComponentCatalog';
 import { parseDslDocument, ParsedNode, ParsedChildEntry } from './dsl/parser';
 import { createComponentsFromDsl } from './engine/componentFactory';
@@ -348,6 +348,7 @@ const diagramSvg = document.getElementById('diagram-svg') as unknown as SVGSVGEl
 const viewportG = document.getElementById('viewport-g') as unknown as SVGGElement;
 const canvasContainer = document.getElementById('canvas-container') as HTMLElement;
 const themeSelect = document.getElementById('theme-select') as HTMLSelectElement;
+const layoutSelect = document.getElementById('layout-select') as HTMLSelectElement;
 
 const diagramTagFilterBar = document.getElementById('diagram-tag-filter-bar') as HTMLElement;
 const diagramTagFilters = document.getElementById('diagram-tag-filters') as HTMLElement;
@@ -1042,6 +1043,11 @@ function renderDiagram(): void {
       throw new Error('No components found in DSL');
     }
 
+    const parsedLayout = dslDocument.layout === 'top-to-bottom' ? 'top-to-bottom' : 'left-to-right';
+    if (layoutSelect) {
+      layoutSelect.value = parsedLayout;
+    }
+
     // 1. Tag Filtering Bar Management
     const allTags = collectAllTags(dslDocument.components);
 
@@ -1142,7 +1148,7 @@ function renderDiagram(): void {
     }
 
     const components = createComponentsFromDsl(displayComponents);
-    layoutRootComponents(components, currentTheme, displayRelationships);
+    layoutRootComponents(components, currentTheme, displayRelationships, parsedLayout);
 
     viewportG.innerHTML = '';
 
@@ -1785,6 +1791,59 @@ themeSelect.addEventListener('change', () => {
 
   renderDiagram();
 });
+
+function hasManualPositions(components: ParsedNode[]): boolean {
+  const check = (nodes: ParsedNode[]): boolean => {
+    for (const node of nodes) {
+      if (node.properties && (node.properties.x !== undefined || node.properties.y !== undefined)) {
+        return true;
+      }
+      const children = node.childEntries
+        .filter((entry): entry is { kind: 'inline'; node: ParsedNode } => entry.kind === 'inline')
+        .map(entry => entry.node);
+      if (check(children)) return true;
+    }
+    return false;
+  };
+  return check(components);
+}
+
+if (layoutSelect) {
+  layoutSelect.addEventListener('change', () => {
+    const selectedLayout = layoutSelect.value as 'left-to-right' | 'top-to-bottom';
+    let code = editor.value;
+    try {
+      const doc = parseDslDocument(code);
+      if (hasManualPositions(doc.components)) {
+        const proceed = confirm("Changing the layout algorithm will override your manual element positions. Do you want to proceed?");
+        if (!proceed) {
+          // Revert selection
+          const parsedLayout = doc.layout === 'top-to-bottom' ? 'top-to-bottom' : 'left-to-right';
+          layoutSelect.value = parsedLayout;
+          return;
+        }
+        // User accepted, clear manual positions from DSL
+        code = clearDslManualPositions(code);
+      }
+    } catch (err) {
+      console.error("Failed to parse DSL for checking manual positions:", err);
+    }
+
+    // Set the @layout directive
+    code = setDslLayoutDirective(code, selectedLayout);
+
+    // Update the editor text while trying to keep cursor/scroll position
+    const scrollPos = editor.scrollTop;
+    const cursor = editor.selectionStart;
+    editor.value = code;
+    editor.scrollTop = scrollPos;
+    try {
+      editor.setSelectionRange(cursor, cursor);
+    } catch (e) {}
+
+    renderDiagram();
+  });
+}
 
 function populateThemeSelects(): void {
   if (!themeSelect || !themeLoadSelect) return;
