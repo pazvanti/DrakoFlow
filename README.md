@@ -12,12 +12,14 @@ DrakoFlow is a lightweight, offline-first, client-side text-to-diagram engine bu
 ## ✨ Features
 
 - **Declarative DSL Parser**: Turn simple structured text blocks into diagrams instantly.
+- **PlantUML Translator (Beta)**: Paste and import existing PlantUML code directly, auto-translating it into DrakoFlow's native declarative DSL syntax.
 - **Drag-and-Drop Overrides**: Position elements manually by dragging them on the canvas. Coordinate overrides (`x` and `y` properties) round and serialize back to the DSL text in the editor.
 - **Diagram Safety Lock**: Prevent accidental modifications by locking the canvas; when locked, component dragging is disabled.
 - **Bidirectional Gutter Highlights**: Hovering over components in the SVG canvas highlights their corresponding lines in the code editor, and vice versa, for fast cross-referencing.
 - **Subsystem & Nested Scopes**: Group system microservices and components using the UML `Package` folder blocks or `VerticalContainer` layout boundaries.
 - **Rich Themes & Style Overrides**: Swap between dark and light themes, or completely customize shape colors (background, border, text) inside a `themeOverride` block.
-- **Offline Exports**: Save your diagram selections or full viewports to standard, High-Res, or Ultra-HD (4K) PNG formats with custom paddings and transparency.
+- **Offline Exports**: Save your diagram to standard High-Res PNG, Copy SVG to Clipboard, or package it into a self-contained Interactive HTML Player.
+- **Standalone Interactive HTML Player Export**: Export your diagram as a self-contained, single-file `.html` widget. The exported file features smooth panning/zooming, a navigation minimap, tag-filtering (dimming unselected elements), and a read-only, copyable DSL code viewer.
 - **Snap to Grid**: Toggle on/off snapping of component positions to a grid (customizable size) for precise layout alignment.
 - **Serverless Sharing**: Share your diagram by sharing the URL, which includes the compressed diagram data as a URL parameter.
 - **Minimap**: Toggle on/off the minimap to see the entire diagram at a glance.

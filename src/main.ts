@@ -1,5 +1,6 @@
 import { BaseComponent, ThemeVariables } from './components/BaseComponent';
 import { downloadDSLFile, exportToPNG, ExportOptions } from './utils/FileHandlers';
+import { exportToHTML } from './utils/HTMLPlayerExporter';
 import { findSafeInsertIndex, updateDslComponentPosition } from './utils/dslInsert';
 import { CatalogService } from './catalog/ComponentCatalog';
 import { parseDslDocument, ParsedNode, ParsedChildEntry } from './dsl/parser';
@@ -411,6 +412,13 @@ const exportPaddingVal = document.getElementById('export-padding-val') as HTMLEl
 const exportPaddingGroup = document.getElementById('export-padding-group') as HTMLElement;
 const exportBgTheme = document.getElementById('export-bg-theme') as HTMLInputElement;
 const btnDoExport = document.getElementById('btn-do-export') as HTMLButtonElement;
+
+// Export HTML Modal Elements
+const btnExportHtml = document.getElementById('btn-export-html') as HTMLButtonElement;
+const exportHtmlThemeSelect = document.getElementById('export-html-theme-select') as HTMLSelectElement;
+const exportHtmlIncludeDocs = document.getElementById('export-html-include-docs') as HTMLInputElement;
+const exportHtmlIncludeMinimap = document.getElementById('export-html-include-minimap') as HTMLInputElement;
+const btnDoExportHtml = document.getElementById('btn-do-export-html') as HTMLButtonElement;
 
 // Sidebar & Catalog UI Elements
 const btnToggleLibrary = document.getElementById('btn-toggle-library') as HTMLButtonElement;
@@ -1142,6 +1150,13 @@ function renderDiagram(): void {
       const g = component.render(currentTheme);
       g.classList.add('diagram-component');
       g.style.cursor = 'grab';
+      g.setAttribute('data-id', component.id);
+      if (component.tags && component.tags.length > 0) {
+        g.setAttribute('data-tags', component.tags.join(','));
+      }
+      if (component.doc) {
+        g.setAttribute('data-doc', component.doc);
+      }
 
       // Highlight declaration in the editor on mouseenter
       g.addEventListener('mouseenter', () => {
@@ -2449,6 +2464,132 @@ btnDoExport.addEventListener('click', async () => {
     statusText.className = "d-flex align-items-center gap-1.5 text-danger";
   }
 });
+
+// Export to HTML Player Download
+if (btnExportHtml) {
+  btnExportHtml.addEventListener('click', () => {
+    // Populate themes dropdown
+    if (exportHtmlThemeSelect) {
+      exportHtmlThemeSelect.innerHTML = '';
+      Object.keys(activeThemes).forEach(themeKey => {
+        const option = document.createElement('option');
+        option.value = themeKey;
+        option.textContent = themeKey.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+        if (themeKey === themeSelect.value) {
+          option.selected = true;
+        }
+        exportHtmlThemeSelect.appendChild(option);
+      });
+    }
+
+    const bootstrap = (window as any).bootstrap;
+    const modalEl = document.getElementById('export-html-modal') as HTMLElement;
+    if (bootstrap && modalEl) {
+      const modalInstance = bootstrap.Modal.getOrCreateInstance(modalEl);
+      modalInstance.show();
+    }
+  });
+}
+
+if (btnDoExportHtml) {
+  btnDoExportHtml.addEventListener('click', () => {
+    const bootstrap = (window as any).bootstrap;
+    const modalEl = document.getElementById('export-html-modal') as HTMLElement;
+    if (bootstrap && modalEl) {
+      const modalInstance = bootstrap.Modal.getOrCreateInstance(modalEl);
+      modalInstance.hide();
+    }
+
+    try {
+      statusText.innerHTML = '<i class="bi bi-hourglass-split"></i> Generating HTML...';
+      statusText.className = "d-flex align-items-center gap-1.5 text-warning";
+
+      const selectedThemeKey = exportHtmlThemeSelect ? exportHtmlThemeSelect.value : 'drako-dark';
+      const includeDocs = exportHtmlIncludeDocs ? exportHtmlIncludeDocs.checked : true;
+      const includeMinimap = exportHtmlIncludeMinimap ? exportHtmlIncludeMinimap.checked : true;
+
+      // Temporarily switch active theme & clear active diagram tag filters to compile the COMPLETE SVG
+      const originalTheme = currentTheme;
+      const originalTags = activeDiagramTags;
+
+      activeDiagramTags = [];
+      currentTheme = activeThemes[selectedThemeKey];
+      renderDiagram();
+
+      // Clone SVG to avoid modifying the visible diagram attributes
+      const svgClone = diagramSvg.cloneNode(true) as SVGSVGElement;
+      
+      // For standalone export, reset transform of the viewport group inside clone
+      const viewportGClone = svgClone.querySelector('#viewport-g') as SVGElement;
+      if (viewportGClone) {
+        viewportGClone.removeAttribute('transform');
+      }
+
+      // Measure diagram bounds for proper viewBox setting
+      viewportG.setAttribute('transform', 'none');
+      const bbox = viewportG.getBBox();
+      
+      // Restore the viewportG transform in the active DOM
+      applyTransformations();
+
+      const padding = 40;
+      const minX = bbox.x - padding;
+      const minY = bbox.y - padding;
+      const exportWidth = bbox.width + 2 * padding;
+      const exportHeight = bbox.height + 2 * padding;
+
+      svgClone.setAttribute('viewBox', `${minX} ${minY} ${exportWidth} ${exportHeight}`);
+      // Let width and height be responsive
+      svgClone.removeAttribute('width');
+      svgClone.removeAttribute('height');
+
+      // If documentation is not included, strip doc badges
+      if (!includeDocs) {
+        svgClone.querySelectorAll('.element-doc-badge').forEach(badge => badge.remove());
+      }
+
+      const svgString = new XMLSerializer().serializeToString(svgClone);
+
+      // Call exportToHTML utility
+      const htmlContent = exportToHTML(svgString, currentTheme, editor.value, {
+        includeDocs,
+        includeMinimap,
+        components: currentComponents,
+        relationships: currentDisplayRelationships,
+        themeName: selectedThemeKey
+      });
+
+      // Restore the original user theme and tags in active app
+      currentTheme = originalTheme;
+      activeDiagramTags = originalTags;
+      renderDiagram();
+
+      // Trigger download
+      const blob = new Blob([htmlContent], { type: "text/html;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      
+      // Name the file based on the current file name (replacing extension with .html)
+      let filename = currentFileName || "diagram.drako";
+      if (filename.endsWith('.drako')) {
+        filename = filename.slice(0, -6) + '.html';
+      } else {
+        filename = filename + '.html';
+      }
+
+      link.download = filename;
+      link.click();
+      URL.revokeObjectURL(url);
+
+      statusText.innerHTML = '<i class="bi bi-check-circle-fill"></i> Exported HTML successfully';
+      statusText.className = "d-flex align-items-center gap-1.5 text-success";
+    } catch (err: any) {
+      statusText.innerHTML = `<i class="bi bi-exclamation-triangle-fill"></i> Export Failed: ${err.message}`;
+      statusText.className = "d-flex align-items-center gap-1.5 text-danger";
+    }
+  });
+}
 /**
  * Highlight code examples inside the documentation modal.
  */

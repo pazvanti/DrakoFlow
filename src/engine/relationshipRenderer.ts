@@ -107,7 +107,7 @@ function renderPlainText(
   theme: ThemeVariables,
   fontSize: number,
   baseline: 'alphabetic' | 'central' = 'central'
-): void {
+): SVGTextElement {
   const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
   label.setAttribute('x', position.x.toString());
   label.setAttribute('y', position.y.toString());
@@ -118,6 +118,7 @@ function renderPlainText(
   label.setAttribute('dominant-baseline', baseline);
   label.textContent = text;
   group.appendChild(label);
+  return label;
 }
 
 function renderCardinalityLabel(
@@ -125,8 +126,8 @@ function renderCardinalityLabel(
   text: string,
   draw: { x: number; y: number; baseline: 'alphabetic' | 'central' },
   theme: ThemeVariables
-): void {
-  renderPlainText(
+): SVGTextElement {
+  return renderPlainText(
     group,
     `[${text}]`,
     { x: draw.x, y: draw.y },
@@ -259,6 +260,7 @@ export function renderRelationships(
       lifeline.setAttribute('stroke', theme.borderColor);
       lifeline.setAttribute('stroke-width', '1.5');
       lifeline.setAttribute('stroke-dasharray', '4,4');
+      lifeline.setAttribute('data-lifeline-for', comp.id);
       pathsLayer.appendChild(lifeline);
     }
   });
@@ -280,6 +282,12 @@ export function renderRelationships(
 
     const rawColor = rel.style?.color || 'borderColor';
     const color = (rawColor in theme) ? theme[rawColor] : rawColor;
+
+    const tagEl = <T extends SVGElement>(el: T): T => {
+      el.setAttribute('data-source-id', rel.sourceId);
+      el.setAttribute('data-target-id', rel.targetId);
+      return el;
+    };
 
     if (rel.sourceId === rel.targetId) {
       // Self relationship loop
@@ -321,6 +329,7 @@ export function renderRelationships(
       path.setAttribute('fill', 'none');
       path.setAttribute('stroke', color);
       path.setAttribute('stroke-width', '2');
+      tagEl(path);
 
       if (!rel.simple) {
         const markerId = `drako-arrowhead-${index}`;
@@ -339,10 +348,6 @@ export function renderRelationships(
         ensureCircleMarkerDef(svgRoot, circleId, color);
         path.setAttribute('marker-end', rel.simple ? `url(#${circleId})` : path.getAttribute('marker-end') || `url(#${circleId})`);
         if (!rel.simple) {
-          // Place circle before the arrowhead — use marker-start on a reversed path trick;
-          // instead we just note both circle and arrowhead on the end:
-          // For simplicity, set a combined marker: arrowhead takes marker-end, circle is
-          // drawn inline near the endpoint. We simply add a separate circle overlay element.
           const circleOverlay = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
           const lastPt = points[points.length - 1];
           circleOverlay.setAttribute('cx', lastPt.x.toString());
@@ -351,6 +356,7 @@ export function renderRelationships(
           circleOverlay.setAttribute('fill', 'none');
           circleOverlay.setAttribute('stroke', color);
           circleOverlay.setAttribute('stroke-width', '1.5');
+          tagEl(circleOverlay);
           pathsLayer.appendChild(circleOverlay);
         }
       }
@@ -360,14 +366,14 @@ export function renderRelationships(
       pathsLayer.appendChild(path);
 
       if (rel.label) {
-        renderPlainText(labelsLayer, rel.label, labelPos, theme, RELATIONSHIP_LABEL_FONT_SIZE, 'central');
+        tagEl(renderPlainText(labelsLayer, rel.label, labelPos, theme, RELATIONSHIP_LABEL_FONT_SIZE, 'central'));
       }
 
       if (rel.sourceCardinality) {
-        renderCardinalityLabel(labelsLayer, rel.sourceCardinality, { x: sourceCardPos.x, y: sourceCardPos.y, baseline: 'alphabetic' }, theme);
+        tagEl(renderCardinalityLabel(labelsLayer, rel.sourceCardinality, { x: sourceCardPos.x, y: sourceCardPos.y, baseline: 'alphabetic' }, theme));
       }
       if (rel.targetCardinality) {
-        renderCardinalityLabel(labelsLayer, rel.targetCardinality, { x: targetCardPos.x, y: targetCardPos.y, baseline: 'alphabetic' }, theme);
+        tagEl(renderCardinalityLabel(labelsLayer, rel.targetCardinality, { x: targetCardPos.x, y: targetCardPos.y, baseline: 'alphabetic' }, theme));
       }
     } else {
       // Different components
@@ -421,7 +427,6 @@ export function renderRelationships(
           sourceCardPos = { x: start.x + 15 * offsetDir, y: y - 8 };
           targetCardPos = { x: end.x - 12, y: end.y + 15 };
         } else {
-          // Fallback: both are shapes but eitherIsLifeline is true
           const sourceBottomY = source.globalBounds.y + source.globalBounds.height;
           const targetBottomY = target.globalBounds.y + target.globalBounds.height;
           const sourceOffset = offsetMap.get(`${index}|source`) || 0;
@@ -481,15 +486,13 @@ export function renderRelationships(
           uy = dy / len;
           nx = -uy;
           ny = ux;
-          // Ensure the normal vector consistently points to the "upper" half-plane
-          // (or "left" if strictly vertical) so text is always on the same side.
           if (ny > 0 || (ny === 0 && nx > 0)) {
             nx = -nx;
             ny = -ny;
           }
         }
 
-        const textOffset = 10; // offset distance perpendicular to the line
+        const textOffset = 10;
         const midX = (start.x + end.x) / 2;
         const midY = (start.y + end.y) / 2;
 
@@ -509,6 +512,7 @@ export function renderRelationships(
       path.setAttribute('fill', 'none');
       path.setAttribute('stroke', color);
       path.setAttribute('stroke-width', '2');
+      tagEl(path);
 
       if (!rel.simple) {
         const markerId = `drako-arrowhead-${index}`;
@@ -523,7 +527,6 @@ export function renderRelationships(
       if (rel.sourceCircle) {
         const circleId = `drako-circle-src-${index}`;
         ensureCircleMarkerDef(svgRoot, circleId, color);
-        // Draw inline circle at the start point
         const circleElem = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
         circleElem.setAttribute('cx', start.x.toString());
         circleElem.setAttribute('cy', start.y.toString());
@@ -531,6 +534,7 @@ export function renderRelationships(
         circleElem.setAttribute('fill', 'none');
         circleElem.setAttribute('stroke', color);
         circleElem.setAttribute('stroke-width', '1.5');
+        tagEl(circleElem);
         pathsLayer.appendChild(circleElem);
       }
 
@@ -543,6 +547,7 @@ export function renderRelationships(
         circleElem.setAttribute('fill', 'none');
         circleElem.setAttribute('stroke', color);
         circleElem.setAttribute('stroke-width', '1.5');
+        tagEl(circleElem);
         pathsLayer.appendChild(circleElem);
       }
 
@@ -551,14 +556,14 @@ export function renderRelationships(
       pathsLayer.appendChild(path);
 
       if (rel.label) {
-        renderPlainText(labelsLayer, rel.label, labelPos, theme, RELATIONSHIP_LABEL_FONT_SIZE, 'alphabetic');
+        tagEl(renderPlainText(labelsLayer, rel.label, labelPos, theme, RELATIONSHIP_LABEL_FONT_SIZE, 'alphabetic'));
       }
 
       if (rel.sourceCardinality) {
-        renderCardinalityLabel(labelsLayer, rel.sourceCardinality, { x: sourceCardPos.x, y: sourceCardPos.y, baseline: 'alphabetic' }, theme);
+        tagEl(renderCardinalityLabel(labelsLayer, rel.sourceCardinality, { x: sourceCardPos.x, y: sourceCardPos.y, baseline: 'alphabetic' }, theme));
       }
       if (rel.targetCardinality) {
-        renderCardinalityLabel(labelsLayer, rel.targetCardinality, { x: targetCardPos.x, y: targetCardPos.y, baseline: 'alphabetic' }, theme);
+        tagEl(renderCardinalityLabel(labelsLayer, rel.targetCardinality, { x: targetCardPos.x, y: targetCardPos.y, baseline: 'alphabetic' }, theme));
       }
     }
   });

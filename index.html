@@ -32,34 +32,62 @@
     </div>
 
     <div class="d-flex align-items-center gap-2">
-      <!-- File Operations -->
-      <button id="btn-load" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1.5"
-        title="Load DSL Script">
-        <i class="bi bi-folder2-open"></i> Load
-      </button>
-      <button id="btn-import-puml" class="btn btn-outline-success btn-sm d-flex align-items-center gap-1.5"
-        title="Import PlantUML Code">
-        <i class="bi bi-arrow-left-right"></i> Import PlantUML <span class="badge bg-success-subtle text-success-emphasis border border-success-subtle ms-1" style="font-size: 0.65rem; padding: 0.15em 0.4em;">Beta</span>
-      </button>
-      <button id="btn-save" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1.5"
-        title="Save DSL Script">
-        <i class="bi bi-floppy"></i> Save
-      </button>
-      <div class="vr mx-2 bg-secondary opacity-25"></div>
+      <!-- File Operations Dropdown -->
+      <div class="dropdown">
+        <button class="btn btn-outline-secondary btn-sm dropdown-toggle d-flex align-items-center gap-1.5" type="button" id="btn-file-menu" data-bs-toggle="dropdown" aria-expanded="false" title="File Operations">
+          <i class="bi bi-file-earmark"></i> File
+        </button>
+        <ul class="dropdown-menu dropdown-menu-dark border-secondary border-opacity-50" aria-labelledby="btn-file-menu" style="background-color: rgba(24, 24, 27, 0.95); backdrop-filter: blur(10px);">
+          <li>
+            <button id="btn-load" class="dropdown-item d-flex align-items-center gap-2" type="button" title="Load DSL Script">
+              <i class="bi bi-folder2-open text-secondary"></i> Load DSL Script
+            </button>
+          </li>
+          <li>
+            <button id="btn-save" class="dropdown-item d-flex align-items-center gap-2" type="button" title="Save DSL Script">
+              <i class="bi bi-floppy text-secondary"></i> Save DSL Script
+            </button>
+          </li>
+          <li><hr class="dropdown-divider border-secondary border-opacity-25"></li>
+          <li>
+            <button id="btn-import-puml" class="dropdown-item d-flex align-items-center gap-2" type="button" title="Import PlantUML Code">
+              <i class="bi bi-arrow-left-right text-success"></i> Import PlantUML <span class="badge bg-success-subtle text-success-emphasis border border-success-subtle ms-1" style="font-size: 0.65rem; padding: 0.15em 0.4em;">Beta</span>
+            </button>
+          </li>
+        </ul>
+      </div>
 
-      <!-- Export & Render -->
-      <button id="btn-export-png" class="btn btn-outline-primary btn-sm d-flex align-items-center gap-1.5"
-        title="Export as High-Res PNG">
-        <i class="bi bi-file-earmark-image"></i> Export PNG
-      </button>
-      <button id="btn-copy-svg" class="btn btn-outline-warning btn-sm d-flex align-items-center gap-1.5"
-        title="Copy Diagram as SVG">
-        <i class="bi bi-filetype-svg"></i> Copy SVG
-      </button>
-      <button id="btn-share" class="btn btn-outline-info btn-sm d-flex align-items-center gap-1.5"
-        title="Share Diagram as URL">
-        <i class="bi bi-share"></i> Share
-      </button>
+      <div class="vr bg-secondary opacity-25 mx-1" style="width: 1px; align-self: stretch;"></div>
+
+      <!-- Export & Share Dropdown -->
+      <div class="dropdown">
+        <button class="btn btn-primary btn-sm dropdown-toggle d-flex align-items-center gap-1.5" type="button" id="btn-export-menu" data-bs-toggle="dropdown" aria-expanded="false" title="Export and Share Options">
+          <i class="bi bi-box-arrow-up"></i> Export & Share
+        </button>
+        <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end border-secondary border-opacity-50" aria-labelledby="btn-export-menu" style="background-color: rgba(24, 24, 27, 0.95); backdrop-filter: blur(10px);">
+          <li>
+            <button id="btn-export-png" class="dropdown-item d-flex align-items-center gap-2" type="button" title="Export as High-Res PNG">
+              <i class="bi bi-file-earmark-image text-primary"></i> Export PNG
+            </button>
+          </li>
+          <li>
+            <button id="btn-export-html" class="dropdown-item d-flex align-items-center gap-2" type="button" title="Export as Standalone Interactive HTML">
+              <i class="bi bi-file-earmark-code text-info"></i> Export HTML (Player)
+            </button>
+          </li>
+          <li><hr class="dropdown-divider border-secondary border-opacity-25"></li>
+          <li>
+            <button id="btn-copy-svg" class="dropdown-item d-flex align-items-center gap-2" type="button" title="Copy Diagram as SVG">
+              <i class="bi bi-filetype-svg text-warning"></i> Copy SVG
+            </button>
+          </li>
+          <li>
+            <button id="btn-share" class="dropdown-item d-flex align-items-center gap-2" type="button" title="Share Diagram as URL">
+              <i class="bi bi-share text-info"></i> Share URL
+            </button>
+          </li>
+        </ul>
+      </div>
     </div>
   </header>
 
@@ -332,6 +360,50 @@
         <div class="modal-footer border-secondary border-opacity-25">
           <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
           <button type="button" id="btn-do-export" class="btn btn-primary">Export</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Export HTML Options Modal -->
+  <div class="modal fade" id="export-html-modal" tabindex="-1" aria-labelledby="exportHtmlModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content bg-dark border-secondary border-opacity-50 text-white">
+        <div class="modal-header border-secondary border-opacity-25">
+          <h5 class="modal-title" id="exportHtmlModalLabel"><i class="bi bi-file-earmark-code-fill text-info"></i> Export Interactive HTML</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="export-html-form" onsubmit="event.preventDefault();">
+            <!-- Theme Selection -->
+            <div class="mb-3">
+              <label for="export-html-theme-select" class="form-label text-muted small text-uppercase fw-bold">Select Theme</label>
+              <select id="export-html-theme-select" class="form-select bg-dark border-secondary border-opacity-50 text-white" style="cursor: pointer;">
+                <!-- Will be populated dynamically via JavaScript -->
+              </select>
+            </div>
+
+            <!-- Features toggles -->
+            <div class="mb-3">
+              <label class="form-label text-muted small text-uppercase fw-bold">Export Options</label>
+              <div class="form-check form-switch mb-2">
+                <input class="form-check-input" type="checkbox" id="export-html-include-docs" checked style="cursor: pointer;">
+                <label class="form-check-label" for="export-html-include-docs" style="cursor: pointer;">
+                  Include Interactive Documentation Tooltips
+                </label>
+              </div>
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="export-html-include-minimap" checked style="cursor: pointer;">
+                <label class="form-check-label" for="export-html-include-minimap" style="cursor: pointer;">
+                  Include Interactive Navigation Minimap
+                </label>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer border-secondary border-opacity-25">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" id="btn-do-export-html" class="btn btn-info text-dark fw-bold">Export</button>
         </div>
       </div>
     </div>
