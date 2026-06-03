@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description"
+    content="Looking for a PlantUML alternative or Mermaid.js alternative? Compare DrakoFlow, a modern client-side text-to-diagram tool with drag-and-drop fine-tuning, responsive standalone exports, and offline privacy.">
+  <meta name="keywords" content="PlantUML alternative, Mermaid.js alternative, text to diagram alternative, markdown diagram alternative, drag and drop diagram editor, serverless diagrams, offline flowchart editor">
+  <meta name="author" content="pazvanti">
+  <meta name="robots" content="index, follow">
+  <title>DrakoFlow vs PlantUML & Mermaid.js | Modern Text-to-Diagram Alternative</title>
+
+  <link rel="canonical" href="https://pazvanti.github.io/DrakoFlow/compare.html" />
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://pazvanti.github.io/DrakoFlow/compare.html">
+  <meta property="og:title" content="DrakoFlow vs PlantUML & Mermaid.js | Modern Text-to-Diagram Alternative">
+  <meta property="og:description"
+    content="Looking for a PlantUML alternative or Mermaid.js alternative? Compare DrakoFlow, a modern client-side text-to-diagram tool with drag-and-drop fine-tuning, responsive standalone exports, and offline privacy.">
+
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary">
+  <meta property="twitter:url" content="https://pazvanti.github.io/DrakoFlow/compare.html">
+  <meta property="twitter:title" content="DrakoFlow vs PlantUML & Mermaid.js | Modern Text-to-Diagram Alternative">
+  <meta property="twitter:description"
+    content="Looking for a PlantUML alternative or Mermaid.js alternative? Compare DrakoFlow, a modern client-side text-to-diagram tool with drag-and-drop fine-tuning, responsive standalone exports, and offline privacy.">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Outfit:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+  <!-- Premium Dark Styling -->
+  <style>
+    :root {
+      --bg-dark: #09090b;
+      --bg-panel: #141416;
+      --bg-card: #18181b;
+      --bg-card-hover: #222226;
+      --border-color: #27272a;
+      --text-main: #f4f4f5;
+      --text-muted: #a1a1aa;
+      --accent-blue: #3b82f6;
+      --accent-purple: #8b5cf6;
+      --accent-green: #10b981;
+      --accent-red: #ef4444;
+      --accent-gradient: linear-gradient(135deg, #60a5fa 0%, #3b82f6 50%, #8b5cf6 100%);
+      --glow-glow: rgba(59, 130, 246, 0.15);
+      --font-outfit: 'Outfit', sans-serif;
+      --font-fira: 'Fira Code', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: var(--font-outfit);
+      line-height: 1.6;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Ambient glow orbs */
+    .glow-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(150px);
+      opacity: 0.12;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    @keyframes drift {
+      0% { transform: translate(0, 0) scale(1); }
+      50% { transform: translate(50px, -40px) scale(1.05); }
+      100% { transform: translate(0, 0) scale(1); }
+    }
+
+    .orb-1 {
+      width: 600px;
+      height: 600px;
+      background: var(--accent-blue);
+      top: -200px;
+      left: -150px;
+      animation: drift 20s ease-in-out infinite;
+    }
+
+    .orb-2 {
+      width: 500px;
+      height: 500px;
+      background: var(--accent-purple);
+      bottom: 20%;
+      right: -100px;
+      animation: drift 24s ease-in-out infinite alternate;
+    }
+
+    a {
+      color: var(--accent-blue);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    a:hover {
+      color: #60a5fa;
+    }
+
+    /* Navigation Header */
+    header.site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background-color: rgba(9, 9, 11, 0.8);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .nav-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      background: var(--accent-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      transition: opacity 0.2s;
+    }
+
+    .logo:hover {
+      opacity: 0.9;
+      text-decoration: none;
+    }
+
+    .logo i {
+      background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+    }
+
+    .nav-links a {
+      color: var(--text-muted);
+      font-weight: 500;
+      font-size: 0.95rem;
+    }
+
+    .nav-links a:hover {
+      color: var(--text-main);
+    }
+
+    .nav-links a.active {
+      color: #60a5fa;
+      border-bottom: 2px solid #3b82f6;
+      padding-bottom: 0.2rem;
+    }
+
+    .btn-launch {
+      background: var(--accent-gradient);
+      color: #ffffff;
+      padding: 0.5rem 1.25rem;
+      border-radius: 9999px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+
+    .btn-launch:hover {
+      color: #ffffff;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
+    }
+
+    /* Hero Section */
+    section.hero {
+      position: relative;
+      z-index: 10;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 5rem 2rem 3rem 2rem;
+      text-align: center;
+    }
+
+    .badge-comp {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(139, 92, 246, 0.1);
+      border: 1px solid rgba(139, 92, 246, 0.2);
+      color: #a78bfa;
+      padding: 0.35rem 0.85rem;
+      border-radius: 9999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero h1 {
+      font-size: 3.5rem;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 1.15;
+      margin-bottom: 1.5rem;
+      max-width: 900px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .gradient-text {
+      background: var(--accent-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero p.lead {
+      color: var(--text-muted);
+      font-size: 1.25rem;
+      max-width: 750px;
+      margin: 0 auto 2.5rem auto;
+      font-weight: 400;
+    }
+
+    /* Feature Cards Section */
+    section.compare-container {
+      max-width: 1200px;
+      margin: 0 auto 5rem auto;
+      padding: 0 2rem;
+      position: relative;
+      z-index: 10;
+    }
+
+    .section-title {
+      text-align: center;
+      margin-bottom: 3rem;
+      font-size: 2.25rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+    }
+
+    .comparison-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 2.5rem;
+      margin-bottom: 5rem;
+    }
+
+    .compare-card {
+      background-color: var(--bg-panel);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 2.5rem;
+      transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+    }
+
+    .compare-card:hover {
+      border-color: #3f3f46;
+      transform: translateY(-4px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    }
+
+    .compare-card.primary-alt {
+      border-color: rgba(59, 130, 246, 0.4);
+      background: linear-gradient(180deg, rgba(20, 20, 22, 0.8) 0%, rgba(13, 13, 15, 0.95) 100%);
+      box-shadow: 0 10px 30px rgba(59, 130, 246, 0.05);
+    }
+
+    .compare-card.primary-alt:hover {
+      border-color: var(--accent-blue);
+      box-shadow: 0 12px 35px rgba(59, 130, 246, 0.15);
+    }
+
+    .compare-card h3 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .compare-card.primary-alt h3 {
+      color: #60a5fa;
+    }
+
+    .compare-card ul {
+      list-style-type: none;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .compare-card li {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      font-size: 0.95rem;
+      color: var(--text-muted);
+    }
+
+    .compare-card.primary-alt li {
+      color: var(--text-main);
+    }
+
+    .compare-card li i {
+      font-size: 1.1rem;
+      margin-top: 0.15rem;
+    }
+
+    .compare-card li i.bi-check-circle-fill {
+      color: var(--accent-green);
+    }
+
+    .compare-card li i.bi-x-circle-fill {
+      color: var(--accent-red);
+    }
+
+    .compare-card li i.bi-arrow-right-circle-fill {
+      color: var(--accent-blue);
+    }
+
+    .compare-card p.card-desc {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-bottom: 1.5rem;
+    }
+
+    /* Comparison Table Section */
+    .table-wrapper {
+      background-color: var(--bg-panel);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 5rem;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+    }
+
+    table.compare-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    table.compare-table th, table.compare-table td {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    table.compare-table th {
+      background-color: rgba(24, 24, 27, 0.7);
+      color: var(--text-main);
+      font-weight: 700;
+      font-size: 0.95rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    table.compare-table tr:hover td {
+      background-color: rgba(255, 255, 255, 0.02);
+    }
+
+    table.compare-table td.feature-title {
+      font-weight: 600;
+      color: var(--text-main);
+      font-size: 0.95rem;
+      width: 35%;
+    }
+
+    table.compare-table td.cell-drako {
+      background-color: rgba(59, 130, 246, 0.03);
+      color: #60a5fa;
+      font-weight: 600;
+    }
+
+    table.compare-table tr:hover td.cell-drako {
+      background-color: rgba(59, 130, 246, 0.06);
+    }
+
+    .badge-yes {
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      color: #34d399;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .badge-no {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+      color: #f87171;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .badge-limited {
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid rgba(245, 158, 11, 0.2);
+      color: #fbbf24;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    /* Side-by-Side Syntax Comparison */
+    .syntax-compare {
+      margin-bottom: 5rem;
+    }
+
+    .syntax-compare-header {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .syntax-btn {
+      background-color: rgba(39, 39, 42, 0.6);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      padding: 0.5rem 1.25rem;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .syntax-btn:hover {
+      color: var(--text-main);
+      border-color: #52525b;
+    }
+
+    .syntax-btn.active {
+      background-color: rgba(59, 130, 246, 0.15);
+      border-color: var(--accent-blue);
+      color: #60a5fa;
+    }
+
+    .syntax-split-view {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+    }
+
+    .syntax-block {
+      background-color: var(--bg-panel);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .syntax-block-header {
+      background-color: rgba(20, 20, 22, 0.8);
+      border-bottom: 1px solid var(--border-color);
+      padding: 0.75rem 1.5rem;
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .syntax-block-header span.lang-badge {
+      font-family: var(--font-fira);
+      font-size: 0.75rem;
+      color: var(--accent-blue);
+      background-color: rgba(59, 130, 246, 0.1);
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+      text-transform: none;
+    }
+
+    .syntax-code {
+      flex: 1;
+      background-color: #0c0c0e;
+      padding: 1.5rem;
+      font-family: var(--font-fira);
+      font-size: 0.85rem;
+      line-height: 1.5;
+      overflow-x: auto;
+      color: #e4e4e7;
+    }
+
+    .syntax-code pre {
+      margin: 0;
+    }
+
+    /* Tab Panels */
+    .syntax-panel {
+      display: none;
+    }
+
+    .syntax-panel.active {
+      display: block;
+    }
+
+    /* Highlighting classes */
+    .hl-comment { color: #6b7280; font-style: italic; }
+    .hl-string { color: #10b981; }
+    .hl-keyword { color: #c084fc; font-weight: 600; }
+    .hl-id { color: #fbbf24; }
+    .hl-property { color: #60a5fa; }
+    .hl-number { color: #f97316; }
+    .hl-operator { color: #22d3ee; }
+
+    /* FAQ Section */
+    section.faq-section {
+      max-width: 900px;
+      margin: 0 auto 5rem auto;
+      padding: 0 2rem;
+      position: relative;
+      z-index: 10;
+    }
+
+    .faq-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .faq-item {
+      background-color: var(--bg-panel);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 1.75rem;
+    }
+
+    .faq-item h3 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+      color: var(--text-main);
+    }
+
+    .faq-item p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    /* Bottom CTA Section */
+    section.cta-banner {
+      background: radial-gradient(circle at center, rgba(59, 130, 246, 0.15) 0%, rgba(9, 9, 11, 0) 70%), var(--bg-panel);
+      border-top: 1px solid var(--border-color);
+      border-bottom: 1px solid var(--border-color);
+      text-align: center;
+      padding: 5rem 2rem;
+      position: relative;
+      z-index: 10;
+    }
+
+    .cta-banner h2 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 1rem;
+    }
+
+    .cta-banner p {
+      color: var(--text-muted);
+      font-size: 1.15rem;
+      max-width: 500px;
+      margin: 0 auto 2.5rem auto;
+    }
+
+    .btn-hero-primary {
+      background: var(--accent-gradient);
+      color: white;
+      padding: 0.85rem 2rem;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 1.05rem;
+      box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .btn-hero-primary i {
+      transition: transform 0.2s;
+    }
+
+    .btn-hero-primary:hover i {
+      transform: translateX(4px);
+    }
+
+    .btn-hero-primary:hover {
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border-color);
+      background-color: #060608;
+      padding: 3rem 2rem;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      position: relative;
+      z-index: 10;
+    }
+
+    .footer-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .footer-brand {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 2rem;
+    }
+
+    .footer-links a {
+      color: var(--text-muted);
+    }
+
+    .footer-links a:hover {
+      color: var(--text-main);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 900px) {
+      .hero h1 {
+        font-size: 2.5rem;
+      }
+
+      .syntax-split-view {
+        grid-template-columns: 1fr;
+      }
+
+      table.compare-table {
+        font-size: 0.85rem;
+      }
+
+      table.compare-table th, table.compare-table td {
+        padding: 1rem 0.75rem;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .nav-links {
+        display: none;
+      }
+
+      .footer-container {
+        flex-direction: column;
+        gap: 1.5rem;
+        text-align: center;
+      }
+
+      .footer-links {
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Ambient Glow Background Orbs -->
+  <div class="glow-orb orb-1"></div>
+  <div class="glow-orb orb-2"></div>
+
+  <!-- Navigation bar -->
+  <header class="site-header">
+    <div class="nav-container">
+      <a href="https://pazvanti.github.io/DrakoFlow/" class="logo">
+        <i class="bi bi-diagram-3-fill"></i> DrakoFlow
+      </a>
+      <div class="nav-links">
+        <a href="./index.html#features">Features</a>
+        <a href="./index.html#demo">Live Demo</a>
+        <a href="./index.html#syntax">Syntax Guide</a>
+        <a href="./compare.html" class="active">PlantUML Alternative</a>
+        <a href="https://github.com/pazvanti/DrakoFlow" target="_blank" rel="noopener"><i class="bi bi-github"></i>
+          GitHub</a>
+      </div>
+      <div>
+        <a href="./drako/index.html" class="btn-launch">Launch App</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="badge-comp">
+      <i class="bi bi-shuffle"></i> Comparing Modern Diagram Tools
+    </div>
+    <h1>The Ultimate <span class="gradient-text">PlantUML & Mermaid.js</span> Alternative</h1>
+    <p class="lead">Discover a faster, privacy-focused, and interactive approach to text-to-diagramming. Compile lightweight DSL definitions client-side and fine-tune your layouts with interactive drag-and-drop mechanics.</p>
+  </section>
+
+  <!-- Compare Container Section -->
+  <section class="compare-container">
+
+    <!-- Overview Comparison Grid -->
+    <div class="comparison-grid">
+      <!-- PlantUML Card -->
+      <div class="compare-card">
+        <h3><i class="bi bi-x-square text-danger"></i> The PlantUML Pain Points</h3>
+        <p class="card-desc">While highly powerful, PlantUML comes with legacy limitations that complicate modern developer workflows:</p>
+        <ul>
+          <li><i class="bi bi-x-circle-fill"></i> <span>Requires a Java runtime, local Graphviz installation, or external web service rendering.</span></li>
+          <li><i class="bi bi-x-circle-fill"></i> <span>Exported SVGs and images are completely static, offering no panning, zooming, or tag filtering.</span></li>
+          <li><i class="bi bi-x-circle-fill"></i> <span>Automatic layout is rigid; you cannot manually position components to clean up overlapping connectors.</span></li>
+          <li><i class="bi bi-x-circle-fill"></i> <span>No built-in interactive player or code-viewer widget for embedding.</span></li>
+        </ul>
+      </div>
+
+      <!-- DrakoFlow Card -->
+      <div class="compare-card primary-alt">
+        <h3><i class="bi bi-star-fill text-warning"></i> The DrakoFlow Advantage</h3>
+        <p class="card-desc">DrakoFlow bridges the gap between text-to-diagram automation and coordinate-level layout control:</p>
+        <ul>
+          <li><i class="bi bi-check-circle-fill"></i> <span><strong>100% Client-Side</strong>: No local software, JVM, or server-side rendering required. Works fully offline in your browser.</span></li>
+          <li><i class="bi bi-check-circle-fill"></i> <span><strong>Bidirectional Drag & Drop</strong>: Drag components on a grid to override coordinates, automatically updating the DSL code in real time.</span></li>
+          <li><i class="bi bi-check-circle-fill"></i> <span><strong>Interactive HTML Player Export</strong>: Package diagrams into single-file widgets with panning, zooming, minimap navigation, and filter tags.</span></li>
+          <li><i class="bi bi-check-circle-fill"></i> <span><strong>Absolute Privacy</strong>: Diagrams are processed entirely in memory, sharing states only via compressed client-side URL parameters.</span></li>
+        </ul>
+      </div>
+
+      <!-- Mermaid.js Card -->
+      <div class="compare-card">
+        <h3><i class="bi bi-x-square text-danger"></i> The Mermaid.js Trade-offs</h3>
+        <p class="card-desc">Mermaid.js is popular for Markdown documentations, but lacks essential design features:</p>
+        <ul>
+          <li><i class="bi bi-x-circle-fill"></i> <span>Connections and layout alignments break easily in nested subsystems or vertical boundaries.</span></li>
+          <li><i class="bi bi-x-circle-fill"></i> <span>Graph directions are global (TB/LR); you cannot route individual connections to clean up layout clutter.</span></li>
+          <li><i class="bi bi-x-circle-fill"></i> <span>No direct code-to-canvas layout synchronization or interactive drag positioning.</span></li>
+          <li><i class="bi bi-x-circle-fill"></i> <span>Exporting standalone interactive widgets for external embeds is not supported natively.</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Feature Table Matrix -->
+    <h2 class="section-title">Feature Comparison Matrix</h2>
+    <div class="table-wrapper">
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th style="color: #60a5fa;">DrakoFlow</th>
+            <th>PlantUML</th>
+            <th>Mermaid.js</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="feature-title">Real-time Client-Side Rendering</td>
+            <td class="cell-drako"><span class="badge-yes"><i class="bi bi-check-lg"></i> Yes</span></td>
+            <td><span class="badge-no"><i class="bi bi-x-lg"></i> No</span> <span style="font-size: 0.8rem; color: var(--text-muted);">(requires JVM/Server)</span></td>
+            <td><span class="badge-yes"><i class="bi bi-check-lg"></i> Yes</span></td>
+          </tr>
+          <tr>
+            <td class="feature-title">Drag-and-Drop Positioning Overrides</td>
+            <td class="cell-drako"><span class="badge-yes"><i class="bi bi-check-lg"></i> Yes</span> <span style="font-size: 0.8rem; color: #a1a1aa;">(reconstructs DSL)</span></td>
+            <td><span class="badge-no"><i class="bi bi-x-lg"></i> No</span></td>
+            <td><span class="badge-no"><i class="bi bi-x-lg"></i> No</span></td>
+          </tr>
+          <tr>
+            <td class="feature-title">Interactive HTML Export Player</td>
+            <td class="cell-drako"><span class="badge-yes"><i class="bi bi-check-lg"></i> Yes</span> <span style="font-size: 0.8rem; color: #a1a1aa;">(Self-contained file)</span></td>
+            <td><span class="badge-no"><i class="bi bi-x-lg"></i> No</span></td>
+            <td><span class="badge-no"><i class="bi bi-x-lg"></i> No</span></td>
+          </tr>
+          <tr>
+            <td class="feature-title">Built-in Interactive Navigation Minimap</td>
+            <td class="cell-drako"><span class="badge-yes"><i class="bi bi-check-lg"></i> Yes</span></td>
+            <td><span class="badge-no"><i class="bi bi-x-lg"></i> No</span></td>
+            <td><span class="badge-no"><i class="bi bi-x-lg"></i> No</span></td>
+          </tr>
+          <tr>
+            <td class="feature-title">Tag-based Component Filtering</td>
+            <td class="cell-drako"><span class="badge-yes"><i class="bi bi-check-lg"></i> Yes</span></td>
+            <td><span class="badge-no"><i class="bi bi-x-lg"></i> No</span></td>
+            <td><span class="badge-no"><i class="bi bi-x-lg"></i> No</span></td>
+          </tr>
+          <tr>
+            <td class="feature-title">Privacy (No Server Round-trips)</td>
+            <td class="cell-drako"><span class="badge-yes"><i class="bi bi-check-lg"></i> Yes</span> <span style="font-size: 0.8rem; color: #a1a1aa;">(100% private)</span></td>
+            <td><span class="badge-limited"><i class="bi bi-exclamation-triangle-fill"></i> Limited</span> <span style="font-size: 0.8rem; color: var(--text-muted);">(often uses public server)</span></td>
+            <td><span class="badge-yes"><i class="bi bi-check-lg"></i> Yes</span></td>
+          </tr>
+          <tr>
+            <td class="feature-title">PlantUML Migration Utility</td>
+            <td class="cell-drako"><span class="badge-yes"><i class="bi bi-check-lg"></i> Yes</span> <span style="font-size: 0.8rem; color: #a1a1aa;">(Built-in Importer)</span></td>
+            <td>N/A</td>
+            <td><span class="badge-no"><i class="bi bi-x-lg"></i> No</span></td>
+          </tr>
+          <tr>
+            <td class="feature-title">Theme Overrides Per Component</td>
+            <td class="cell-drako"><span class="badge-yes"><i class="bi bi-check-lg"></i> Yes</span></td>
+            <td><span class="badge-limited"><i class="bi bi-exclamation-triangle-fill"></i> Limited</span> <span style="font-size: 0.8rem; color: var(--text-muted);">(complex inline skinparam)</span></td>
+            <td><span class="badge-limited"><i class="bi bi-exclamation-triangle-fill"></i> Limited</span> <span style="font-size: 0.8rem; color: var(--text-muted);">(manual CSS setup)</span></td>
+          </tr>
+          <tr>
+            <td class="feature-title">Sharing via URL</td>
+            <td class="cell-drako"><span class="badge-yes"><i class="bi bi-check-lg"></i> Yes</span> <span style="font-size: 0.8rem; color: #a1a1aa;">(Serverless compressed state)</span></td>
+            <td><span class="badge-yes"><i class="bi bi-check-lg"></i> Yes</span> <span style="font-size: 0.8rem; color: var(--text-muted);">(requires server decoding)</span></td>
+            <td><span class="badge-yes"><i class="bi bi-check-lg"></i> Yes</span> <span style="font-size: 0.8rem; color: var(--text-muted);">(compressed hash link)</span></td>
+          </tr>
+          <tr>
+            <td class="feature-title">SVG Vector Export</td>
+            <td class="cell-drako"><span class="badge-yes"><i class="bi bi-check-lg"></i> Yes</span> <span style="font-size: 0.8rem; color: #a1a1aa;">(Direct SVG copy)</span></td>
+            <td><span class="badge-yes"><i class="bi bi-check-lg"></i> Yes</span> <span style="font-size: 0.8rem; color: var(--text-muted);">(via local CLI or server)</span></td>
+            <td><span class="badge-yes"><i class="bi bi-check-lg"></i> Yes</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Side-by-Side Syntax Comparison -->
+    <h2 class="section-title">Syntax Comparison</h2>
+    <div class="syntax-compare">
+      <div class="syntax-compare-header">
+        <button class="syntax-btn active" onclick="switchSyntaxTab('flow')">Simple Web Architecture</button>
+        <button class="syntax-btn" onclick="switchSyntaxTab('sequence')">Sequence Interactions</button>
+      </div>
+
+      <!-- Web Architecture Tab Panel -->
+      <div class="syntax-panel active" id="syntax-flow">
+        <div class="syntax-split-view">
+          <!-- DrakoFlow Code -->
+          <div class="syntax-block">
+            <div class="syntax-block-header">
+              DrakoFlow Syntax
+              <span class="lang-badge">drakoflow</span>
+            </div>
+            <div class="syntax-code">
+              <pre><code><span class="hl-id">Client</span>: <span class="hl-keyword">Process</span> {
+  <span class="hl-property">label</span>: <span class="hl-string">"React App"</span>
+  <span class="hl-property">x</span>: <span class="hl-number">60</span>, <span class="hl-property">y</span>: <span class="hl-number">80</span>
+}
+
+<span class="hl-id">API</span>: <span class="hl-keyword">Cube</span> {
+  <span class="hl-property">label</span>: <span class="hl-string">"Express Backend"</span>
+  <span class="hl-property">x</span>: <span class="hl-number">300</span>, <span class="hl-property">y</span>: <span class="hl-number">80</span>
+  <span class="hl-property">themeOverride</span>: {
+    <span class="hl-property">backgroundColor</span>: <span class="hl-string">"#8b5cf6"</span>
+  }
+}
+
+<span class="hl-id">Client</span> <span class="hl-operator">-&gt;</span> <span class="hl-id">API</span>: <span class="hl-string">"GET /api/v1"</span> {
+  <span class="hl-property">color</span>: <span class="hl-string">"primaryColor"</span>
+}</code></pre>
+            </div>
+          </div>
+
+          <!-- PlantUML Code -->
+          <div class="syntax-block">
+            <div class="syntax-block-header">
+              PlantUML Syntax
+              <span class="lang-badge">plantuml</span>
+            </div>
+            <div class="syntax-code">
+              <pre><code><span class="hl-comment">@startuml</span>
+<span class="hl-keyword">node</span> <span class="hl-string">"React App"</span> <span class="hl-keyword">as</span> Client
+<span class="hl-keyword">node</span> <span class="hl-string">"Express Backend"</span> <span class="hl-keyword">as</span> API <span class="hl-operator">#8b5cf6</span>
+
+<span class="hl-comment">' Layout position cannot be easily configured. </span>
+<span class="hl-comment">' Left-to-right flow requires:</span>
+<span class="hl-keyword">left to right direction</span>
+
+Client <span class="hl-operator">-&gt;</span> API : <span class="hl-string">"GET /api/v1"</span>
+<span class="hl-comment">@enduml</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sequence Interactions Tab Panel -->
+      <div class="syntax-panel" id="syntax-sequence">
+        <div class="syntax-split-view">
+          <!-- DrakoFlow Code -->
+          <div class="syntax-block">
+            <div class="syntax-block-header">
+              DrakoFlow Sequence
+              <span class="lang-badge">drakoflow</span>
+            </div>
+            <div class="syntax-code">
+              <pre><code><span class="hl-id">Client</span>: <span class="hl-keyword">Actor</span> {
+  <span class="hl-property">label</span>: <span class="hl-string">"Browser"</span>
+  <span class="hl-property">lifeline</span>: <span class="hl-keyword">true</span>
+}
+
+<span class="hl-id">Auth</span>: <span class="hl-keyword">Process</span> {
+  <span class="hl-property">label</span>: <span class="hl-string">"Auth API"</span>
+  <span class="hl-property">lifeline</span>: <span class="hl-keyword">true</span>
+}
+
+<span class="hl-id">Client</span> <span class="hl-operator">-&gt;</span> <span class="hl-id">Auth</span>: <span class="hl-string">"Login Request"</span>
+<span class="hl-id">Auth</span> <span class="hl-operator">-&gt;</span> <span class="hl-id">Client</span>: <span class="hl-string">"JWT Token"</span> {
+  <span class="hl-property">lineStyle</span>: <span class="hl-string">"dashed"</span>
+}</code></pre>
+            </div>
+          </div>
+
+          <!-- Mermaid.js Code -->
+          <div class="syntax-block">
+            <div class="syntax-block-header">
+              Mermaid.js Sequence
+              <span class="lang-badge">mermaid</span>
+            </div>
+            <div class="syntax-code">
+              <pre><code><span class="hl-keyword">sequenceDiagram</span>
+  <span class="hl-keyword">actor</span> Client <span class="hl-keyword">as</span> Browser
+  <span class="hl-keyword">participant</span> Auth <span class="hl-keyword">as</span> Auth API
+
+  Client<span class="hl-operator">-&gt;&gt;</span>Auth: Login Request
+  Auth<span class="hl-operator">--&gt;&gt;</span>Client: JWT Token</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- FAQ Section -->
+  <h2 class="section-title">Frequently Asked Questions</h2>
+  <section class="faq-section">
+    <div class="faq-grid">
+      <div class="faq-item">
+        <h3>Is DrakoFlow really fully serverless?</h3>
+        <p>Yes. DrakoFlow compiles diagram DSL code, computes component coordinates, routes orthogonal lines, and exports files entirely client-side inside your browser. No data is sent to external servers, protecting your system architectures from leak risks.</p>
+      </div>
+      <div class="faq-item">
+        <h3>How does the drag-and-drop layout integration work?</h3>
+        <p>Traditional tools like PlantUML or Mermaid rebuild the entire canvas automatically, often shifting shapes randomly when code changes. DrakoFlow computes a starting layout. If you drag any component to rearrange it, the tool automatically appends or updates coordinates (e.g. <code>x: 100, y: 150</code>) directly inside the DSL script editor. Your adjustments are saved persistently as code properties.</p>
+      </div>
+      <div class="faq-item">
+        <h3>Can I migrate my existing PlantUML diagrams?</h3>
+        <p>Absolutely. DrakoFlow features a built-in **PlantUML Importer (Beta)**. You can paste standard PlantUML sequence, activity, or class diagrams, and the translator will instantly parse them into native, editable DrakoFlow DSL blocks.</p>
+      </div>
+      <div class="faq-item">
+        <h3>Why is it a great alternative to Mermaid.js?</h3>
+        <p>Mermaid.js is perfect for static markdown pages but hard to manage for complex diagrams. In Mermaid, arrows cross randomly and overlap on large systems. DrakoFlow provides absolute local arrow routing overrides, nested structural UML packages, snap-to-grid, and interactive standalone HTML player exports equipped with tag-based filters.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Bottom CTA -->
+  <section class="cta-banner">
+    <h2>Ditch Rigid Diagramming Tools</h2>
+    <p>Get the automation of code-based diagramming combined with the layout flexibility of drag-and-drop design. No installations required.</p>
+    <a href="./drako/index.html" class="btn-hero-primary">
+      Open Interactive Editor <i class="bi bi-arrow-right"></i>
+    </a>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-container">
+      <div class="footer-brand">
+        <a href="https://pazvanti.github.io/DrakoFlow/" class="logo" style="font-size: 1.25rem;">
+          <i class="bi bi-diagram-3-fill"></i> DrakoFlow
+        </a>
+        <p style="font-size: 0.8rem; margin-top: 0.25rem;">Browser-based client-side diagram mapping.</p>
+      </div>
+      <div class="footer-links">
+        <a href="./index.html#features">Features</a>
+        <a href="./index.html#demo">Live Demo</a>
+        <a href="./index.html#syntax">Syntax</a>
+        <a href="./compare.html">Drako vs PlantUML</a>
+        <a href="https://github.com/pazvanti/DrakoFlow" target="_blank" rel="noopener">GitHub</a>
+      </div>
+    </div>
+    <div style="text-align: center; margin-top: 2rem; font-size: 0.8rem; opacity: 0.6;">
+      &copy; 2026 DrakoFlow. Released under GNU General Public License v3.
+    </div>
+  </footer>
+
+  <!-- Script for Syntax tabs -->
+  <script>
+    function switchSyntaxTab(tabId) {
+      // Toggle button states
+      const buttons = document.querySelectorAll('.syntax-btn');
+      buttons.forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+
+      // Toggle panels
+      const panels = document.querySelectorAll('.syntax-panel');
+      panels.forEach(panel => {
+        panel.classList.remove('active');
+        if (panel.id === `syntax-${tabId}`) {
+          panel.classList.add('active');
+        }
+      });
+    }
+  </script>
+</body>
+
+</html>
