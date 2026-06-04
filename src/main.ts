@@ -2342,6 +2342,73 @@ fileInput.addEventListener('change', () => {
   fileInput.value = '';
 });
 
+// Drag and drop file import
+const dropZoneOverlay = document.getElementById('drop-zone-overlay');
+let dragCounter = 0;
+
+window.addEventListener('dragenter', (e) => {
+  if (e.dataTransfer && e.dataTransfer.types.includes('Files')) {
+    e.preventDefault();
+    dragCounter++;
+    if (dropZoneOverlay) {
+      dropZoneOverlay.classList.remove('d-none');
+    }
+  }
+});
+
+window.addEventListener('dragover', (e) => {
+  if (e.dataTransfer && e.dataTransfer.types.includes('Files')) {
+    e.preventDefault();
+  }
+});
+
+window.addEventListener('dragleave', (e) => {
+  if (e.dataTransfer && e.dataTransfer.types.includes('Files')) {
+    e.preventDefault();
+    dragCounter--;
+    if (dragCounter === 0) {
+      if (dropZoneOverlay) {
+        dropZoneOverlay.classList.add('d-none');
+      }
+    }
+  }
+});
+
+window.addEventListener('drop', (e) => {
+  if (e.dataTransfer && e.dataTransfer.types.includes('Files')) {
+    e.preventDefault();
+    dragCounter = 0;
+    if (dropZoneOverlay) {
+      dropZoneOverlay.classList.add('d-none');
+    }
+
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        const text = evt.target?.result;
+        if (typeof text === 'string') {
+          const wasDefaultUntouched = tabs.length === 1 && tabs[0].id === 'default' && !tabs[0].isDirty && tabs[0].content === DEFAULT_DSL;
+          
+          createNewTab(text, file.name);
+
+          if (wasDefaultUntouched) {
+            tabs = tabs.filter(t => t.id !== 'default');
+            renderTabs();
+          }
+
+          isDiagramLocked = true;
+          updateLockStateUI();
+          updateEditorMetrics();
+          renderDiagram();
+          fitToScreen();
+        }
+      };
+      reader.readAsText(file);
+    }
+  }
+});
+
 // Wire up share button click to compress and open modal
 if (btnShare) {
   btnShare.addEventListener('click', () => {

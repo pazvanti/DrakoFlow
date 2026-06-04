@@ -1129,3 +1129,47 @@ body {
 [data-bs-theme="light"] .doc-modal-body hr {
   border-top: 1px solid rgba(0, 0, 0, 0.1);
 }
+
+/* Drag and Drop Overlay */
+.drop-zone-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(9, 9, 11, 0.9);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  transition: opacity 0.2s ease-in-out;
+  opacity: 0;
+}
+
+.drop-zone-overlay:not(.d-none) {
+  opacity: 1;
+}
+
+.drop-zone-content {
+  text-align: center;
+  border: 3px dashed var(--app-accent-color);
+  border-radius: 1rem;
+  padding: 3rem;
+  background: var(--app-bg-panel);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  animation: pulse-border 1.5s infinite;
+}
+
+@keyframes pulse-border {
+  0% {
+    border-color: var(--app-accent-color);
+  }
+  50% {
+    border-color: var(--app-text-muted);
+  }
+  100% {
+    border-color: var(--app-accent-color);
+  }
+}
+
