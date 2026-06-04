@@ -2,41 +2,39 @@
 
 **Live Site:** [https://pazvanti.github.io/DrakoFlow/](https://pazvanti.github.io/DrakoFlow/)
 
-DrakoFlow is a lightweight, offline-first, client-side text-to-diagram engine built in TypeScript. It transforms a clean, human-readable declarative DSL into beautiful, interactive, and themeable architecture diagrams directly in your browser with zero server-side dependencies.
+DrakoFlow is a lightweight, offline-first, client-side text-to-diagram engine written in TypeScript. It converts a clean, human-readable declarative DSL into interactive, themeable architecture diagrams that run entirely in the browser with no server-side dependencies.
 
 > [!IMPORTANT]
-> **Privacy-First & Secure**: Everything is processed entirely client-side. There are no server-side interactions, no data is sent to a back-end server, and your diagrams never leave your computer.
+> **Privacy-First & Secure**: Everything is processed locally in the browser. No diagram data is sent to a back-end server.
 
 ---
 
-## ✨ Features
+## ✨ Highlights
 
-- **Declarative DSL Parser**: Turn simple structured text blocks into diagrams instantly.
-- **PlantUML Translator (Beta)**: Paste and import existing PlantUML code directly, auto-translating it into DrakoFlow's native declarative DSL syntax.
-- **Drag-and-Drop Overrides**: Position elements manually by dragging them on the canvas. Coordinate overrides (`x` and `y` properties) round and serialize back to the DSL text in the editor.
-- **Diagram Safety Lock**: Prevent accidental modifications by locking the canvas; when locked, component dragging is disabled.
-- **Bidirectional Gutter Highlights**: Hovering over components in the SVG canvas highlights their corresponding lines in the code editor, and vice versa, for fast cross-referencing.
-- **Subsystem & Nested Scopes**: Group system microservices and components using the UML `Package` folder blocks or `VerticalContainer` layout boundaries.
-- **Rich Themes & Style Overrides**: Swap between dark and light themes, or completely customize shape colors (background, border, text) inside a `themeOverride` block.
-- **Offline Exports**: Save your diagram to standard High-Res PNG, Copy SVG to Clipboard, or package it into a self-contained Interactive HTML Player.
-- **Standalone Interactive HTML Player Export**: Export your diagram as a self-contained, single-file `.html` widget. The exported file features smooth panning/zooming, a navigation minimap, tag-filtering (dimming unselected elements), and a read-only, copyable DSL code viewer.
-- **Snap to Grid**: Toggle on/off snapping of component positions to a grid (customizable size) for precise layout alignment.
-- **Serverless Sharing**: Share your diagram by sharing the URL, which includes the compressed diagram data as a URL parameter.
-- **Minimap**: Toggle on/off the minimap to see the entire diagram at a glance.
+- **Declarative DSL parser.** Turn structured text blocks into diagrams instantly.
+- **PlantUML translator (Beta).** Import PlantUML and auto-translate it to DrakoFlow's DSL.
+- **Drag-and-drop overrides.** Move elements on the canvas; coordinate overrides (`x` and `y`) are rounded and serialized back into the DSL editor.
+- **Canvas lock.** Prevent accidental edits by locking the canvas (disables dragging when enabled).
+- **Editor ↔ Canvas highlighting.** Hover in the SVG canvas to highlight the corresponding DSL lines, and vice versa.
+- **Nested scopes & packages.** Group related components using `Package` blocks or `VerticalContainer` layouts.
+- **Themes & style overrides.** Switch themes or customize shape colors via a `themeOverride` block.
+- **Offline export options.** Export high-resolution PNG, copy SVG to the clipboard, or export a self-contained interactive HTML player.
+- **Snap-to-grid & minimap.** Toggle grid snapping and use the minimap for quick navigation.
+- **Serverless sharing.** Share diagrams via a URL that contains compressed diagram data.
 
 ---
 
-## 🚀 Getting Started
+## 🚀 Getting started
 
-You can open the editor tool and play with the engine directly in your browser:
+Open the editor in your browser and try the engine immediately:
 
-👉 **[Launch Interactive Editor (Live Site)](https://pazvanti.github.io/DrakoFlow/)** (or local file: [docs/drako/index.html](./docs/drako/index.html))
+👉 **[Launch Interactive Editor (Live Site)](https://pazvanti.github.io/DrakoFlow/)** or open the local file [docs/drako/index.html](./docs/drako/index.html).
 
 ---
 
-## 📝 DSL Syntax Guide
+## 📝 DSL Syntax (example)
 
-DrakoFlow uses a clean, intuitive syntax. Below is a comprehensive example demonstrating decorators, shapes, custom styling overrides, UML packages, and directed edge connections:
+Below is an example showing tags, nested packages, styling overrides, and connections:
 
 ```scss
 // 1. Declare metadata tags to filter your views
@@ -84,48 +82,45 @@ Gateway o-> PaymentService: "Process transaction"
 AuthService <-> UserDB: "Read/Write credentials"
 ```
 
-### Component Types Available
-- `Rectangle`: Standard box supporting corner roundings `rx` and `ry`.
-- `Cube`: 3D isometric block shape for services.
-- `Cylinder`: Cylindrical barrel shape representing databases or caches.
-- `Ellipse`: Circular or oval nodes.
-- `Package`: Folder-style UML boundaries for grouping nested shapes.
-- `Actor`: UML stick figure representing external roles or users.
-- `Diamond`: Decision gateway box for branching flowcharts.
-- `Hexagon`: Domain-driven boundary mapping.
-- `Process`: Process step boxes with vertical segmented bars.
-- `SVGImage`: Renders raw vector graphic code via the `content` property, supporting resizing via a `scale` multiplier.
-- `RasterImage`: Renders raster graphics (PNG, JPEG, GIF) via base64 encoded text in the `content` property, supporting auto-resolving sizes and resizing via the `scale` parameter.
+### Component types
+
+- `Rectangle` : standard box with corner rounding (`rx`, `ry`).
+- `Cube` : isometric 3D block for services.
+- `Cylinder` : barrel shape for databases or caches.
+- `Ellipse` : circular or oval nodes.
+- `Package` : folder-style UML boundary for grouping.
+- `Actor` : UML actor (stick figure) for external roles.
+- `Diamond` : decision gateway for flowcharts.
+- `Hexagon` : domain boundary or special shape.
+- `Process` : process step box with segmented bars.
+- `SVGImage` : embed vector content via `content`, scalable with `scale`.
+- `RasterImage` : embed base64 raster images (`PNG`, `JPEG`, `GIF`) via `content`.
 
 ---
 
-## 🛠️ Local Development
-
-To run or build the project on your machine, follow these instructions:
+## 🛠️ Local development
 
 ### Prerequisites
-Make sure you have Node.js (version 16+) installed.
+Node.js v16 or later.
 
-### 1. Install Dependencies
+### Install
 ```bash
 npm install
 ```
 
-### 2. Run Dev Server
-Launch Vite's local development server to test edits in real time:
+### Run dev server
 ```bash
 npm run dev
 ```
 
-### 3. Build & Package for GitHub Pages
-We automate compiling Vite assets with relative anchors and copying the bundled folder to our documentation directories:
+### Build for GitHub Pages
 ```bash
 npm run build:pages
 ```
-*This command runs a production build (`dist/`) and executes [scripts/build-gh-pages.js](./scripts/build-gh-pages.js) to populate `docs/drako/`.*
 
-### 4. Running the Test Suite
-DrakoFlow has a comprehensive test suite covering parser logic, drag-and-drop coordinate math, and element themes:
+This runs a production build into `dist/` and executes [scripts/build-gh-pages.js](./scripts/build-gh-pages.js) to populate `docs/drako/`.
+
+### Tests
 ```bash
 npm run test
 ```
@@ -134,4 +129,4 @@ npm run test
 
 ## 📄 License
 
-DrakoFlow is open-source software released under the **GNU General Public License v3 (GPL-3.0)**. See the [LICENSE](./LICENSE) file for details.
+DrakoFlow is released under the **GNU General Public License v3 (GPL-3.0)**. See the [LICENSE](./LICENSE) file for details.
