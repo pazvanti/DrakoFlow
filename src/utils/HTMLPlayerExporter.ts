@@ -118,6 +118,9 @@ export function exportToHTML(
       --app-text-muted: ${isThemeDark ? '#a1a1aa' : '#52525b'};
       --app-accent-color: #0d6efd;
       --app-accent-glow: rgba(13, 110, 253, 0.25);
+      --element-shadow: ${isThemeDark 
+        ? 'drop-shadow(0 10px 20px rgba(0, 0, 0, 0.75)) drop-shadow(0 2px 6px rgba(255, 255, 255, 0.1))' 
+        : 'drop-shadow(0 6px 12px rgba(0, 0, 0, 0.15)) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.08))'};
     }
     
     body {
@@ -333,6 +336,12 @@ export function exportToHTML(
     }
     .diagram-component:hover {
       filter: drop-shadow(0 0 8px rgba(96, 165, 250, 0.4));
+    }
+    .diagram-component.has-shadow {
+      filter: var(--element-shadow);
+    }
+    .diagram-component.has-shadow:hover {
+      filter: var(--element-shadow) drop-shadow(0 0 8px rgba(96, 165, 250, 0.4));
     }
     
     .element-doc-badge {

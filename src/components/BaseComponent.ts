@@ -36,6 +36,12 @@ export abstract class BaseComponent<TProps = any, TStyle = Partial<ThemeVariable
   
   // Optional embedded URL link
   public url?: string;
+
+  // Optional border line width override
+  public lineWidth?: number;
+
+  // Optional drop shadow toggle
+  public shadow?: boolean;
   
   // Properties unique to the component type (e.g., rows, content)
   public props: TProps;

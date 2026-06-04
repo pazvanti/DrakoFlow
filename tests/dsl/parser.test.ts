@@ -188,5 +188,47 @@ MyNode: Process {
     expect(components).toHaveLength(1);
     expect(components[0].url).toBe('https://example.com');
   });
+
+  it('parses a component with lineWidth and shadow properties', () => {
+    const code = `MyNode: Process {
+  label: "StyledNode"
+  lineWidth: 4
+  shadow: true
+}`;
+    const nodes = parseDsl(code);
+    expect(nodes).toHaveLength(1);
+    expect(nodes[0].properties.lineWidth).toBe(4);
+    expect(nodes[0].properties.shadow).toBe(true);
+
+    const components = createComponentsFromDsl(nodes);
+    expect(components).toHaveLength(1);
+    expect(components[0].lineWidth).toBe(4);
+    expect(components[0].shadow).toBe(true);
+  });
+
+  it('parses arrays and maps Table component correctly', () => {
+    const code = `MyTable: Table {
+  header: { "H 1", "H 2" }
+  rows: {
+    { "R1C1", "R1C2" }
+    { "R2C1", "R2C2" }
+  }
+  headerAtTop: true
+  headerAtBottom: false
+}`;
+    const nodes = parseDsl(code);
+    expect(nodes).toHaveLength(1);
+    expect(nodes[0].properties.header).toEqual(['H 1', 'H 2']);
+    expect(nodes[0].properties.rows).toEqual([
+      ['R1C1', 'R1C2'],
+      ['R2C1', 'R2C2']
+    ]);
+    expect(nodes[0].properties.headerAtTop).toBe(true);
+    expect(nodes[0].properties.headerAtBottom).toBe(false);
+
+    const components = createComponentsFromDsl(nodes);
+    expect(components).toHaveLength(1);
+    expect(components[0].type).toBe('Table');
+  });
 });
 

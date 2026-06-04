@@ -15,7 +15,7 @@ export type ParsedChildEntry =
 export interface ParsedNode {
   id: string;
   type: string;
-  properties: Record<string, string | number | boolean>;
+  properties: Record<string, string | number | boolean | any[]>;
   themeOverride: Record<string, string>;
   /** Inline nested components and references, in source order. */
   childEntries: ParsedChildEntry[];
@@ -494,11 +494,55 @@ function readComponentDeclaration(
   };
 }
 
+function readArrayValue(
+  text: string,
+  start: number
+): { value: any[]; end: number } | null {
+  const i = skipWhitespace(text, start);
+  if (text[i] !== '{') return null;
+
+  let curr = i + 1;
+  const elements: any[] = [];
+
+  while (curr < text.length) {
+    curr = skipWhitespace(text, curr);
+    if (curr >= text.length) break;
+
+    if (text[curr] === '}') {
+      return { value: elements, end: curr + 1 };
+    }
+
+    if (text[curr] === '{') {
+      const nested = readArrayValue(text, curr);
+      if (nested === null) return null;
+      elements.push(nested.value);
+      curr = nested.end;
+    } else {
+      const val = readPropertyValue(text, curr);
+      if (val === null) {
+        return null;
+      }
+      elements.push(val.value);
+      curr = val.end;
+    }
+
+    curr = skipWhitespace(text, curr);
+    if (text[curr] === ',') {
+      curr++;
+    }
+  }
+  return null;
+}
+
 function readPropertyValue(
   text: string,
   start: number
-): { value: string | number | boolean; end: number } | null {
+): { value: any; end: number } | null {
   const i = skipWhitespace(text, start);
+
+  if (text[i] === '{') {
+    return readArrayValue(text, i);
+  }
 
   if (text[i] === '"') {
     let j = i + 1;

@@ -53,7 +53,7 @@ export class ObjectComponent extends BaseComponent<ObjectProps> {
     const textColor  = this.resolveColor(this.themeOverride.textColor, theme, theme.textColor);
     const border     = this.resolveColor(this.themeOverride.borderColor, theme, theme.borderColor);
     const font       = theme.fontFamily;
-    const strokeWidth = this.themeOverride.strokeWidth || '1.5';
+    const strokeWidth = this.lineWidth !== undefined ? this.lineWidth.toString() : '1.5';
 
     const { width, height } = this.bounds;
 

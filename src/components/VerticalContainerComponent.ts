@@ -77,7 +77,7 @@ export class VerticalContainerComponent extends BaseComponent<VerticalContainerP
     const text = this.resolveColor(this.themeOverride.textColor, theme, theme.textColor);
     const border = this.resolveColor(this.themeOverride.borderColor, theme, theme.borderColor);
     const font = theme.fontFamily;
-    const strokeWidth = this.themeOverride.strokeWidth || '1';
+    const strokeWidth = this.lineWidth !== undefined ? this.lineWidth.toString() : '1';
 
     const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
     g.setAttribute('id', this.id);

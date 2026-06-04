@@ -23,7 +23,7 @@ export class HexagonComponent extends BaseComponent<HexagonProps> {
     const text = this.resolveColor(this.themeOverride.textColor, theme, theme.textColor);
     const border = this.resolveColor(this.themeOverride.borderColor, theme, theme.borderColor);
     const font = theme.fontFamily;
-    const strokeWidth = this.themeOverride.strokeWidth || '2';
+    const strokeWidth = this.lineWidth !== undefined ? this.lineWidth.toString() : '2';
 
     const W = this.bounds.width;
     const H = this.bounds.height;

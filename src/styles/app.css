@@ -8,27 +8,32 @@
   --app-accent-glow: rgba(13, 110, 253, 0.25);
   --app-text-main: #f4f4f5;
   --app-text-muted: #a1a1aa;
+  --element-shadow: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.75)) drop-shadow(0 2px 6px rgba(255, 255, 255, 0.1));
 }
 
 /* Scoped Diagram Themes */
 .diagram-theme-drako-dark {
   --diagram-bg: #18181b;
   --diagram-dot-color: #27272a;
+  --element-shadow: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.75)) drop-shadow(0 2px 6px rgba(255, 255, 255, 0.1));
 }
 
 .diagram-theme-drako-light {
   --diagram-bg: #ffffff;
   --diagram-dot-color: #dee2e6;
+  --element-shadow: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.15)) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.08));
 }
 
 .diagram-theme-obsidian-dark {
   --diagram-bg: #09090b;
   --diagram-dot-color: #18181b;
+  --element-shadow: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.85)) drop-shadow(0 2px 6px rgba(255, 255, 255, 0.1));
 }
 
 .diagram-theme-serene-light {
   --diagram-bg: #f8fafc;
   --diagram-dot-color: #cbd5e1;
+  --element-shadow: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.15)) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.08));
 }
 
 body {
@@ -797,6 +802,15 @@ body {
 .diagram-component:hover,
 .diagram-component.hovered {
   filter: drop-shadow(0 0 10px var(--diagram-hover-glow, rgba(96, 165, 250, 0.5)));
+}
+
+.diagram-component.has-shadow {
+  filter: var(--element-shadow);
+}
+
+.diagram-component.has-shadow:hover,
+.diagram-component.has-shadow.hovered {
+  filter: var(--element-shadow) drop-shadow(0 0 10px var(--diagram-hover-glow, rgba(96, 165, 250, 0.5)));
 }
 
 /* Canvas Lock cursor overrides */

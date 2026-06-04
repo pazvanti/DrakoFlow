@@ -39,7 +39,8 @@ export const COMPONENT_TYPES = [
   'Abstract',
   'Annotation',
   'Struct',
-  'Object'
+  'Object',
+  'Table'
 ] as const;
 
 export type ComponentTypeName = (typeof COMPONENT_TYPES)[number];

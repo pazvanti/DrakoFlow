@@ -35,7 +35,7 @@ export class LifelineComponent extends BaseComponent<LifelineProps> {
     const text = this.resolveColor(this.themeOverride.textColor, theme, theme.textColor);
     const border = this.resolveColor(this.themeOverride.borderColor, theme, theme.borderColor);
     const font = theme.fontFamily;
-    const strokeWidth = this.themeOverride.strokeWidth || '2';
+    const strokeWidth = this.lineWidth !== undefined ? this.lineWidth.toString() : '2';
     
     const rx = this.props.rx !== undefined ? this.props.rx : (this.themeOverride.rx !== undefined ? Number(this.themeOverride.rx) : 0);
     const ry = this.props.ry !== undefined ? this.props.ry : (this.themeOverride.ry !== undefined ? Number(this.themeOverride.ry) : 0);

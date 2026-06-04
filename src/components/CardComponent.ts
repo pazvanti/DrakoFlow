@@ -38,7 +38,7 @@ export class CardComponent extends VerticalContainerComponent {
     const border = this.resolveColor(this.themeOverride.borderColor, theme, theme.borderColor);
     const primary = this.resolveColor(this.themeOverride.primaryColor, theme, theme.primaryColor);
     const font = theme.fontFamily;
-    const strokeWidth = this.themeOverride.strokeWidth || '1.5';
+    const strokeWidth = this.lineWidth !== undefined ? this.lineWidth.toString() : '1.5';
 
     const W = this.bounds.width;
     const H = this.bounds.height;

@@ -39,6 +39,7 @@ import { AbstractComponent, AbstractProps } from '../components/AbstractComponen
 import { AnnotationComponent, AnnotationProps } from '../components/AnnotationComponent';
 import { StructComponent, StructProps } from '../components/StructComponent';
 import { ObjectComponent, ObjectProps } from '../components/ObjectComponent';
+import { TableComponent, TableProps } from '../components/TableComponent';
 import { collectReferencedIds, ParsedChildEntry, ParsedNode } from '../dsl/parser';
 import { isComponentType } from '../dsl/componentTypes';
 
@@ -439,6 +440,16 @@ function instantiateFromDefinition(
       component = new ObjectComponent(metadata, props, themeOverride);
       break;
     }
+    case 'Table': {
+      const props: TableProps = {
+        header: Array.isArray(node.properties.header) ? node.properties.header as string[] : undefined,
+        rows: Array.isArray(node.properties.rows) ? node.properties.rows as string[][] : undefined,
+        headerAtTop: node.properties.headerAtTop !== false,
+        headerAtBottom: node.properties.headerAtBottom === true
+      };
+      component = new TableComponent(metadata, props, themeOverride);
+      break;
+    }
     default:
       throw new Error(`Unknown component type: ${node.type}`);
   }
@@ -453,6 +464,14 @@ function instantiateFromDefinition(
 
   if (typeof node.properties.url === 'string') {
     component.url = node.properties.url;
+  }
+
+  if (typeof node.properties.lineWidth === 'number') {
+    component.lineWidth = node.properties.lineWidth;
+  }
+
+  if (typeof node.properties.shadow === 'boolean') {
+    component.shadow = node.properties.shadow;
   }
 
   if (typeof node.properties.x === 'number') {

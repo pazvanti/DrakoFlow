@@ -355,6 +355,21 @@ MyContainer: VerticalContainer {
     status = "connected"
   }
 }`
+  },
+  {
+    type: "Table",
+    displayName: "Table Component",
+    description: "A grid container representing tabular data, defined with headers, row lists, and alignment overrides.",
+    tags: ["Shapes", "General"],
+    template: `MyTable: Table {
+  header: { "Header 1", "Header 2", "Header 3" }
+  rows: {
+    { "row 1, cell 1", "row 1, cell 2", "row 1, cell 3" }
+    { "row 2, cell 1", "row 2, cell 2", "row 2, cell 3" }
+  }
+  headerAtTop: true
+  headerAtBottom: false
+}`
   }
 ];
 

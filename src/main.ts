@@ -1166,6 +1166,9 @@ function renderDiagram(): void {
       if (component.url) {
         g.setAttribute('data-url', component.url);
       }
+      if (component.shadow) {
+        g.classList.add('has-shadow');
+      }
 
       // Highlight declaration in the editor on mouseenter
       g.addEventListener('mouseenter', () => {
