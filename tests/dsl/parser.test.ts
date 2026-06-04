@@ -174,4 +174,19 @@ MyNode: Process {
     expect(nodes[0].properties.label).toBe('Hello "World"');
     expect(nodes[0].properties.content).toBe('<svg width="10"></svg>');
   });
+
+  it('parses a component with url property', () => {
+    const code = `MyNode: Process {
+  label: "LinkNode"
+  url: "https://example.com"
+}`;
+    const nodes = parseDsl(code);
+    expect(nodes).toHaveLength(1);
+    expect(nodes[0].properties.url).toBe('https://example.com');
+
+    const components = createComponentsFromDsl(nodes);
+    expect(components).toHaveLength(1);
+    expect(components[0].url).toBe('https://example.com');
+  });
 });
+

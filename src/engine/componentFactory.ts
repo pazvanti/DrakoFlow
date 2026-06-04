@@ -451,6 +451,10 @@ function instantiateFromDefinition(
     component.doc = node.properties.doc;
   }
 
+  if (typeof node.properties.url === 'string') {
+    component.url = node.properties.url;
+  }
+
   if (typeof node.properties.x === 'number') {
     component.manualX = node.properties.x;
   }

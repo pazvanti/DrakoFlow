@@ -1163,6 +1163,9 @@ function renderDiagram(): void {
       if (component.doc) {
         g.setAttribute('data-doc', component.doc);
       }
+      if (component.url) {
+        g.setAttribute('data-url', component.url);
+      }
 
       // Highlight declaration in the editor on mouseenter
       g.addEventListener('mouseenter', () => {
@@ -1182,13 +1185,19 @@ function renderDiagram(): void {
         g.classList.remove('hovered');
       });
 
+      let badgeOffset = 24;
+
       if (component.doc) {
         const docBadgeG = document.createElementNS("http://www.w3.org/2000/svg", "g");
         docBadgeG.setAttribute("class", "element-doc-badge");
-        const badgeX = component.bounds.width - 24;
+        const badgeX = component.bounds.width - badgeOffset;
         const badgeY = 6;
         docBadgeG.setAttribute("transform", `translate(${badgeX}, ${badgeY})`);
         docBadgeG.setAttribute("style", "cursor: pointer;");
+
+        const title = document.createElementNS("http://www.w3.org/2000/svg", "title");
+        title.textContent = "View Documentation";
+        docBadgeG.appendChild(title);
 
         const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
         circle.setAttribute("cx", "9");
@@ -1211,6 +1220,47 @@ function renderDiagram(): void {
         });
 
         g.appendChild(docBadgeG);
+        badgeOffset += 20;
+      }
+
+      if (component.url) {
+        const urlBadgeG = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        urlBadgeG.setAttribute("class", "element-url-badge");
+        const badgeX = component.bounds.width - badgeOffset;
+        const badgeY = 6;
+        urlBadgeG.setAttribute("transform", `translate(${badgeX}, ${badgeY})`);
+        urlBadgeG.setAttribute("style", "cursor: pointer;");
+
+        const title = document.createElementNS("http://www.w3.org/2000/svg", "title");
+        title.textContent = `Open Link: ${component.url}`;
+        urlBadgeG.appendChild(title);
+
+        const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        circle.setAttribute("cx", "9");
+        circle.setAttribute("cy", "9");
+        circle.setAttribute("r", "9");
+        circle.setAttribute("class", "url-badge-bg");
+        urlBadgeG.appendChild(circle);
+
+        const iconG = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        iconG.setAttribute("class", "url-badge-icon");
+        
+        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        path.setAttribute("d", "M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71 M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71");
+        path.setAttribute("transform", "scale(0.75)");
+        
+        iconG.appendChild(path);
+        urlBadgeG.appendChild(iconG);
+
+        urlBadgeG.addEventListener('mousedown', (e) => {
+          e.stopPropagation();
+        });
+        urlBadgeG.addEventListener('click', (e) => {
+          e.stopPropagation();
+          window.open(component.url, '_blank');
+        });
+
+        g.appendChild(urlBadgeG);
       }
 
       viewportG.appendChild(g);

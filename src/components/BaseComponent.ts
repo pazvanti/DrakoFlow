@@ -34,6 +34,9 @@ export abstract class BaseComponent<TProps = any, TStyle = Partial<ThemeVariable
   // Optional embedded markdown documentation
   public doc?: string;
   
+  // Optional embedded URL link
+  public url?: string;
+  
   // Properties unique to the component type (e.g., rows, content)
   public props: TProps;
   

@@ -365,6 +365,36 @@ export function exportToHTML(
       transform: scale(1.1);
     }
     
+    .element-url-badge {
+      opacity: 0.7;
+      transition: opacity 0.2s ease;
+    }
+    .element-url-badge:hover {
+      opacity: 1;
+    }
+    .element-url-badge .url-badge-bg {
+      fill: #8b5cf6;
+      stroke: #ffffff;
+      stroke-width: 1.2px;
+      transition: fill 0.2s ease, r 0.2s ease;
+    }
+    .element-url-badge:hover .url-badge-bg {
+      fill: #7c3aed;
+      r: 10px;
+    }
+    .element-url-badge .url-badge-icon {
+      fill: none;
+      stroke: #ffffff;
+      stroke-width: 1.6px;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      transition: transform 0.2s ease;
+      transform-origin: 9px 9px;
+    }
+    .element-url-badge:hover .url-badge-icon {
+      transform: scale(1.1);
+    }
+    
     /* Doc Modal custom styles */
     .doc-modal-body {
       padding: 1.75rem;
@@ -688,6 +718,24 @@ export function exportToHTML(
         });
       }
       ` : ''}
+
+      // URL Link Badges Click Handling
+      document.querySelectorAll('.element-url-badge').forEach(function(badge) {
+        const parentG = badge.closest('.diagram-component');
+        if (parentG) {
+          const url = parentG.getAttribute('data-url');
+          if (url) {
+            badge.addEventListener('click', function(e) {
+              e.stopPropagation();
+              e.preventDefault();
+              window.open(url, '_blank');
+            });
+            badge.addEventListener('mousedown', function(e) {
+              e.stopPropagation();
+            });
+          }
+        }
+      });
 
       // Tag Filtering
       let activeTags = [];
