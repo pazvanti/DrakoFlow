@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { parseDsl, collectReferencedIds } from '../../src/dsl/parser';
+import { parseDsl, collectReferencedIds, parseDslDocument } from '../../src/dsl/parser';
 import { createComponentsFromDsl } from '../../src/engine/componentFactory';
 import { VerticalContainerComponent } from '../../src/components/VerticalContainerComponent';
 import { RectangleComponent } from '../../src/components/RectangleComponent';
@@ -229,6 +229,86 @@ MyNode: Process {
     const components = createComponentsFromDsl(nodes);
     expect(components).toHaveLength(1);
     expect(components[0].type).toBe('Table');
+  });
+
+  it('parses relationship arrows with rhombus heads -<> and <>-', () => {
+    const code = `
+A: Rectangle {}
+B: Rectangle {}
+A -<> B
+B <>- A
+A <>-<> B
+A <>-> B
+A <-<> B
+A <>-o B
+`;
+    const doc = parseDslDocument(code);
+    expect(doc.relationships).toHaveLength(6);
+    
+    // 1. A -<> B
+    expect(doc.relationships[0].sourceId).toBe('A');
+    expect(doc.relationships[0].targetId).toBe('B');
+    expect(doc.relationships[0].sourceRhombus).toBe(false);
+    expect(doc.relationships[0].targetRhombus).toBe(true);
+    expect(doc.relationships[0].simple).toBe(true);
+
+    // 2. B <>- A
+    expect(doc.relationships[1].sourceId).toBe('B');
+    expect(doc.relationships[1].targetId).toBe('A');
+    expect(doc.relationships[1].sourceRhombus).toBe(true);
+    expect(doc.relationships[1].targetRhombus).toBe(false);
+    expect(doc.relationships[1].simple).toBe(true);
+
+    // 3. A <>-<> B
+    expect(doc.relationships[2].sourceId).toBe('A');
+    expect(doc.relationships[2].targetId).toBe('B');
+    expect(doc.relationships[2].sourceRhombus).toBe(true);
+    expect(doc.relationships[2].targetRhombus).toBe(true);
+    expect(doc.relationships[2].simple).toBe(true);
+
+    // 4. A <>-> B
+    expect(doc.relationships[3].sourceId).toBe('A');
+    expect(doc.relationships[3].targetId).toBe('B');
+    expect(doc.relationships[3].sourceRhombus).toBe(true);
+    expect(doc.relationships[3].targetRhombus).toBe(false);
+    expect(doc.relationships[3].simple).toBe(false); // since it has a target arrow head '>'
+
+    // 5. A <-<> B (reverse arrow '<' and rhombus '<>')
+    expect(doc.relationships[4].sourceId).toBe('B'); // B is source because reverse is true
+    expect(doc.relationships[4].targetId).toBe('A'); // A is target because reverse is true
+    expect(doc.relationships[4].sourceRhombus).toBe(true); // rhombus at B (rightPart)
+    expect(doc.relationships[4].targetRhombus).toBe(false); // arrow at A (leftPart)
+    expect(doc.relationships[4].simple).toBe(false);
+
+    // 6. A <>-o B (rhombus '<>' and circle 'o')
+    expect(doc.relationships[5].sourceId).toBe('A');
+    expect(doc.relationships[5].targetId).toBe('B');
+    expect(doc.relationships[5].sourceRhombus).toBe(true);
+    expect(doc.relationships[5].targetCircle).toBe(true);
+    expect(doc.relationships[5].simple).toBe(true);
+  });
+
+  it('parses relationship style block with thickness and routeType', () => {
+    const code = `
+A: Rectangle {}
+B: Rectangle {}
+A -> B {
+  thickness: 4
+  routeType: curved
+}
+B -> A {
+  thickness: "5"
+  routeType: "orthogonal"
+}
+`;
+    const doc = parseDslDocument(code);
+    expect(doc.relationships).toHaveLength(2);
+
+    expect(doc.relationships[0].style?.thickness).toBe(4);
+    expect(doc.relationships[0].style?.routeType).toBe('curved');
+
+    expect(doc.relationships[1].style?.thickness).toBe(5);
+    expect(doc.relationships[1].style?.routeType).toBe('orthogonal');
   });
 });
 

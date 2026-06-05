@@ -22,13 +22,13 @@ const tokenRegex = new RegExp(
     // Keywords/Types (all registered component types)
     '(?<keyword>\\b(Rectangle|Process|Ellipse|VerticalContainer|Cylinder|Cube|Diamond|Hexagon|Actor|Parallelogram|Class|Interface|UMLComponent|Module|Package|Text|Paragraph|SVGImage|RasterImage|Table)\\b)',
     // Properties (all known DSL property names)
-    '(?<property>\\b(label|rx|ry|lifeline|url|lineWidth|shadow|themeOverride|lineStyle|color|gap|padding|tabWidthRatio|radius|backgroundColor|borderColor|textColor|headerBackgroundColor|attributes|methods|items|align|text|content|scale|width|height|header|rows|headerAtTop|headerAtBottom)\\b)',
+    '(?<property>\\b(label|rx|ry|lifeline|url|lineWidth|shadow|themeOverride|lineStyle|color|thickness|routeType|gap|padding|tabWidthRatio|radius|backgroundColor|borderColor|textColor|headerBackgroundColor|attributes|methods|items|align|text|content|scale|width|height|header|rows|headerAtTop|headerAtBottom)\\b)',
     // Accessor modifiers at the start of a line (after optional leading whitespace)
     // These are +, -, #, ~ when they appear as the first non-space token on a line
     // inside a class sub-block. We match them as a line-leading token.
     '(?<accessor>(?:^|(?<=\\n))[^\\S\\n]*[+\\-#~](?=[^>\\s]))',
-    // Operators: circle-arrow variants must come before plain arrow/dash forms
-    '(?<operator>o->o|o<->o|o->|->o|o<->|<->o|o<-|<->|->|<-|[-:{}\\[\\]\\.])',
+    // Operators: generic connector combinations followed by fallback chars
+    '(?<operator>(?<![a-zA-Z0-9_])[<>o]+-[<>o]*(?![a-zA-Z0-9_])|(?<![a-zA-Z0-9_])[<>o]*-[<>o]+(?![a-zA-Z0-9_])|[-:{}\\[\\]\\.])',
     // Identifiers/IDs (word followed by optional spaces then ':')
     '(?<id>\\b[a-zA-Z_][a-zA-Z0-9_]*\\s*(?=:))',
     // Plain text/whitespace

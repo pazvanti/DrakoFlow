@@ -1,6 +1,8 @@
 export interface RelationshipStyle {
   lineStyle?: 'solid' | 'dashed' | 'dotted';
   color?: string;
+  thickness?: number;
+  routeType?: 'orthogonal' | 'curved' | 'straight';
 }
 
 export type RelationshipArrow = 'forward' | 'reverse' | 'bidirectional';
@@ -23,6 +25,10 @@ export interface Relationship {
   sourceCircle?: boolean;
   /** True when 'o' appears at the target end: ->o */
   targetCircle?: boolean;
+  /** True when rhombus appears at the source end: <>- */
+  sourceRhombus?: boolean;
+  /** True when rhombus appears at the target end: -<> */
+  targetRhombus?: boolean;
 }
 
 /**
@@ -43,4 +49,8 @@ export interface ParsedRelationship {
   sourceCircle?: boolean;
   /** True when 'o' appears at the target end: ->o */
   targetCircle?: boolean;
+  /** True when rhombus appears at the source end: <>- */
+  sourceRhombus?: boolean;
+  /** True when rhombus appears at the target end: -<> */
+  targetRhombus?: boolean;
 }

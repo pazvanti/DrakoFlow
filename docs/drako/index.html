@@ -65,7 +65,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <!-- Custom External Stylesheet -->
   
-  <script type="module" crossorigin src="./assets/index-a09ed979.js"></script>
+  <script type="module" crossorigin src="./assets/index-1f0d75f0.js"></script>
   <link rel="stylesheet" href="./assets/index-858317cd.css">
 </head>
 
@@ -1607,6 +1607,10 @@ client -> server : "API Request"</pre>
                       <td><code>A o-&gt; B</code> / <code>A o-&gt;o B</code></td>
                       <td>Directed arrow with circle(s) at the source, target (e.g., <code>-&gt;o</code>), or both ends.</td>
                     </tr>
+                    <tr>
+                      <td><code>A -&lt;&gt; B</code> / <code>A &lt;&gt;- B</code> / <code>A &lt;&gt;-&lt;&gt; B</code> / <code>A &lt;&gt;-o B</code> / <code>A &lt;&gt;-&gt; B</code> / <code>A &lt;-&lt;&gt; B</code></td>
+                      <td>Connection line ending in a Rhombus (composition/aggregation) combined with any circles, arrows, or other rhombuses at the target or source end.</td>
+                    </tr>
                   </tbody>
                 </table>
 
@@ -1633,6 +1637,16 @@ client -> server : "API Request"</pre>
                       <td><code>lineStyle</code></td>
                       <td>String</td>
                       <td>Line pattern: <code>"solid"</code>, <code>"dashed"</code>, or <code>"dotted"</code> (defaults to <code>"solid"</code>).</td>
+                    </tr>
+                    <tr>
+                      <td><code>thickness</code></td>
+                      <td>Integer</td>
+                      <td>Thickess of the connection line in pixels (defaults to <code>2</code>).</td>
+                    </tr>
+                    <tr>
+                      <td><code>routeType</code></td>
+                      <td>String</td>
+                      <td>Connection routing style: <code>"straight"</code>, <code>"orthogonal"</code>, or <code>"curved"</code> (defaults to <code>"straight"</code>).</td>
                     </tr>
                   </tbody>
                 </table>

@@ -111,82 +111,71 @@ type ArrowMatch = {
   leftCircle?: boolean;
   /** 'o' modifier appeared at the right side of the arrow */
   rightCircle?: boolean;
+  /** '<>' modifier appeared at the left side of the arrow */
+  leftRhombus?: boolean;
+  /** '<>' modifier appeared at the right side of the arrow */
+  rightRhombus?: boolean;
   length: number;
 };
 
-/** Match arrow operators. Supported forms (longest match wins):
- *  Bidirectional:  <->  o<->  <->o  o<->o
- *  Reverse:        <-   o<-
- *  Forward:        ->   ->o   o->   o->o
- *  Simple:         -
- */
 function matchRelationshipArrow(slice: string): ArrowMatch | null {
-  // Each pattern captures: (leftId) (leftCard?) (leftCircle?) arrow (rightCircle?) (rightCard?) (rightId)
-  // We build explicit patterns for all relevant o/non-o combos.
-  type PatternDef = {
-    bidirectional: boolean;
-    reverse: boolean;
-    simple?: boolean;
-    leftCircle?: boolean;
-    rightCircle?: boolean;
-    regex: RegExp;
-  };
+  // Capture: leftId [leftCard] CONNECTOR [rightCard] rightId
+  // The CONNECTOR contains `<`, `>`, `o`, `-` and whitespace, having exactly one `-`
+  const regex = /^(\w+)\s*(?:\[([^\]]*)\])?\s*([<>o\s]*-[<>o\s]*)\s*(?:\[([^\]]*)\])?\s*(\w+)/;
+  const match = slice.match(regex);
+  if (!match) return null;
 
-  const patterns: PatternDef[] = [
-    // ── Bidirectional o<->o ──
-    { bidirectional: true,  reverse: false, leftCircle: true,  rightCircle: true,
-      regex: /^(\w+)\s*(?:\[([^\]]*)\])?\s*o\s*<->\s*o\s*(?:\[([^\]]*)\])?\s*(\w+)/ },
-    // ── Bidirectional o<-> ──
-    { bidirectional: true,  reverse: false, leftCircle: true,  rightCircle: false,
-      regex: /^(\w+)\s*(?:\[([^\]]*)\])?\s*o\s*<->\s*(?:\[([^\]]*)\])?\s*(\w+)/ },
-    // ── Bidirectional <->o ──
-    { bidirectional: true,  reverse: false, leftCircle: false, rightCircle: true,
-      regex: /^(\w+)\s*(?:\[([^\]]*)\])?\s*<->\s*o\s*(?:\[([^\]]*)\])?\s*(\w+)/ },
-    // ── Bidirectional <-> ──
-    { bidirectional: true,  reverse: false,
-      regex: /^(\w+)\s*(?:\[([^\]]*)\])?\s*<->\s*(?:\[([^\]]*)\])?\s*(\w+)/ },
-    // ── Reverse o<- ──
-    { bidirectional: false, reverse: true,  leftCircle: true,
-      regex: /^(\w+)\s*(?:\[([^\]]*)\])?\s*o\s*<-\s*(?:\[([^\]]*)\])?\s*(\w+)/ },
-    // ── Reverse <- ──
-    { bidirectional: false, reverse: true,
-      regex: /^(\w+)\s*(?:\[([^\]]*)\])?\s*<-\s*(?:\[([^\]]*)\])?\s*(\w+)/ },
-    // ── Forward o->o ──
-    { bidirectional: false, reverse: false, leftCircle: true,  rightCircle: true,
-      regex: /^(\w+)\s*(?:\[([^\]]*)\])?\s*o\s*->\s*o\s*(?:\[([^\]]*)\])?\s*(\w+)/ },
-    // ── Forward o-> ──
-    { bidirectional: false, reverse: false, leftCircle: true,  rightCircle: false,
-      regex: /^(\w+)\s*(?:\[([^\]]*)\])?\s*o\s*->\s*(?:\[([^\]]*)\])?\s*(\w+)/ },
-    // ── Forward ->o ──
-    { bidirectional: false, reverse: false, leftCircle: false, rightCircle: true,
-      regex: /^(\w+)\s*(?:\[([^\]]*)\])?\s*->\s*o\s*(?:\[([^\]]*)\])?\s*(\w+)/ },
-    // ── Forward -> ──
-    { bidirectional: false, reverse: false,
-      regex: /^(\w+)\s*(?:\[([^\]]*)\])?\s*->\s*(?:\[([^\]]*)\])?\s*(\w+)/ },
-    // ── Simple - ──
-    { bidirectional: false, reverse: false, simple: true,
-      regex: /^(\w+)\s*(?:\[([^\]]*)\])?\s*-\s*(?:\[([^\]]*)\])?\s*(\w+)/ }
-  ];
+  const leftId = match[1];
+  const leftCard = match[2] || undefined;
+  const connectorStr = match[3];
+  const rightCard = match[4] || undefined;
+  const rightId = match[5];
+  const length = match[0].length;
 
-  for (const pattern of patterns) {
-    const match = slice.match(pattern.regex);
-    if (!match) continue;
+  const cleanConnector = connectorStr.replace(/\s+/g, '');
+  const parts = cleanConnector.split('-');
+  if (parts.length !== 2) return null;
 
-    return {
-      leftId: match[1],
-      leftCard: match[2] || undefined,
-      rightCard: match[3] || undefined,
-      rightId: match[4],
-      bidirectional: pattern.bidirectional,
-      reverse: pattern.reverse,
-      simple: pattern.simple || false,
-      leftCircle: pattern.leftCircle || false,
-      rightCircle: pattern.rightCircle || false,
-      length: match[0].length
-    };
+  const leftPart = parts[0];
+  const rightPart = parts[1];
+
+  const leftCircle = leftPart.includes('o');
+  const rightCircle = rightPart.includes('o');
+
+  const leftRhombus = leftPart.includes('<>');
+  const rightRhombus = rightPart.includes('<>');
+
+  const hasLeftArrow = leftPart.replace(/<>/g, '').includes('<');
+  const hasRightArrow = rightPart.replace(/<>/g, '').includes('>');
+
+  let bidirectional = false;
+  let reverse = false;
+  let simple = false;
+
+  if (hasLeftArrow && hasRightArrow) {
+    bidirectional = true;
+  } else if (hasLeftArrow) {
+    reverse = true;
+  } else if (hasRightArrow) {
+    // forward
+  } else {
+    simple = true;
   }
 
-  return null;
+  return {
+    leftId,
+    leftCard,
+    rightCard,
+    rightId,
+    bidirectional,
+    reverse,
+    simple,
+    leftCircle,
+    rightCircle,
+    leftRhombus,
+    rightRhombus,
+    length
+  };
 }
 
 function buildParsedRelationship(arrow: ArrowMatch): ParsedRelationship {
@@ -198,9 +187,11 @@ function buildParsedRelationship(arrow: ArrowMatch): ParsedRelationship {
       targetCardinality: arrow.leftCard,
       bidirectional: false,
       simple: arrow.simple,
-      // When reversed, left/right circles swap to source/target
+      // When reversed, left/right circles and rhombuses swap to source/target
       sourceCircle: arrow.rightCircle || false,
-      targetCircle: arrow.leftCircle || false
+      targetCircle: arrow.leftCircle || false,
+      sourceRhombus: arrow.rightRhombus || false,
+      targetRhombus: arrow.leftRhombus || false
     };
   }
 
@@ -212,7 +203,9 @@ function buildParsedRelationship(arrow: ArrowMatch): ParsedRelationship {
     bidirectional: arrow.bidirectional,
     simple: arrow.simple,
     sourceCircle: arrow.leftCircle || false,
-    targetCircle: arrow.rightCircle || false
+    targetCircle: arrow.rightCircle || false,
+    sourceRhombus: arrow.leftRhombus || false,
+    targetRhombus: arrow.rightRhombus || false
   };
 }
 
@@ -260,6 +253,20 @@ function parseRelationshipStyleBlock(body: string): RelationshipStyle {
   }
   const color = body.match(/color\s*:\s*"([^"]*)"/);
   if (color) style.color = color[1];
+
+  const thickness = body.match(/thickness\s*:\s*(?:"(\d+)"|(\d+))/);
+  if (thickness) {
+    style.thickness = parseInt(thickness[1] || thickness[2], 10);
+  }
+
+  const routeType = body.match(/routeType\s*:\s*(?:"([^"]*)"|([a-zA-Z]+))/);
+  if (routeType) {
+    const value = routeType[1] || routeType[2];
+    if (value === 'orthogonal' || value === 'curved' || value === 'straight') {
+      style.routeType = value as RelationshipStyle['routeType'];
+    }
+  }
+
   return style;
 }
 

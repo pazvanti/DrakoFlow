@@ -116,4 +116,138 @@ describe('relationshipRenderer overlap prevention', () => {
     // Rel 2 path: start on shape (356, 100) -> elbow (356, y_first_relation + REL_GAP = 220) -> end (50, 220)
     expect(d2).toContain('M 356 100 L 356 220 L 50 220');
   });
+
+  it('should apply thickness and support curved, orthogonal, and straight routing styles', () => {
+    const comp1 = new RectangleComponent({ id: 'comp1', type: 'Rectangle', tags: [] }, { label: 'Comp 1' }, {});
+    comp1.bounds = { x: 0, y: 0, width: 100, height: 100 };
+
+    const comp2 = new RectangleComponent({ id: 'comp2', type: 'Rectangle', tags: [] }, { label: 'Comp 2' }, {});
+    comp2.bounds = { x: 300, y: 150, width: 100, height: 100 };
+
+    const relationships: ParsedRelationship[] = [
+      {
+        sourceId: 'comp1',
+        targetId: 'comp2',
+        label: 'Straight Rel',
+        simple: false,
+        style: { thickness: 5, routeType: 'straight' }
+      },
+      {
+        sourceId: 'comp1',
+        targetId: 'comp2',
+        label: 'Orthogonal Rel',
+        simple: true,
+        style: { thickness: 1, routeType: 'orthogonal' }
+      },
+      {
+        sourceId: 'comp1',
+        targetId: 'comp2',
+        label: 'Curved Rel',
+        simple: true,
+        style: { thickness: 3, routeType: 'curved' }
+      }
+    ];
+
+    const svgRoot = document.createElementNS('http://www.w3.org/2000/svg', 'svg') as SVGSVGElement;
+    const layers = renderRelationships(relationships, [comp1, comp2], defaultTheme, svgRoot);
+
+    const paths = layers.pathsLayer.querySelectorAll('path');
+    expect(paths.length).toBe(3);
+
+    // 1. Straight path
+    const pathStraight = paths[0];
+    expect(pathStraight.getAttribute('stroke-width')).toBe('5');
+    const dStraight = pathStraight.getAttribute('d') || '';
+    expect(dStraight).toContain('M');
+    expect(dStraight).toContain('L');
+    expect(dStraight).not.toContain('C');
+    // For 2 points, only one L segment: "M x y L x y"
+    const lCountStraight = (dStraight.match(/L/g) || []).length;
+    expect(lCountStraight).toBe(1);
+
+    // Assert marker properties
+    const marker0 = svgRoot.querySelector('#drako-arrowhead-0') as SVGMarkerElement | null;
+    expect(marker0).not.toBeNull();
+    expect(marker0!.getAttribute('markerUnits')).toBe('userSpaceOnUse');
+    // thickness is 5, so markerSize is 12 + 5 * 2 = 22
+    expect(marker0!.getAttribute('markerWidth')).toBe('22');
+
+    // 2. Orthogonal path
+    const pathOrthogonal = paths[1];
+    expect(pathOrthogonal.getAttribute('stroke-width')).toBe('1');
+    const dOrthogonal = pathOrthogonal.getAttribute('d') || '';
+    expect(dOrthogonal).toContain('M');
+    expect(dOrthogonal).toContain('L');
+    expect(dOrthogonal).not.toContain('C');
+    // Orthogonal routing between these horizontal blocks will have elbow segments: should have at least 2 L segments
+    const lCountOrthogonal = (dOrthogonal.match(/L/g) || []).length;
+    expect(lCountOrthogonal).toBeGreaterThan(1);
+
+    // 3. Curved path
+    const pathCurved = paths[2];
+    expect(pathCurved.getAttribute('stroke-width')).toBe('3');
+    const dCurved = pathCurved.getAttribute('d') || '';
+    expect(dCurved).toContain('M');
+    expect(dCurved).toContain('C'); // Cubic bezier curve command
+  });
+
+  it('should support curved, orthogonal, and straight routeTypes for relationships involving lifelines', () => {
+    const life1 = new RectangleComponent({ id: 'life1', type: 'Rectangle', tags: [] }, { label: 'Lifeline 1' }, {});
+    life1.lifeline = true;
+    life1.bounds = { x: 0, y: 0, width: 100, height: 100 };
+
+    const shape2 = new RectangleComponent({ id: 'shape2', type: 'Rectangle', tags: [] }, { label: 'Shape 2' }, {});
+    shape2.bounds = { x: 300, y: 0, width: 100, height: 100 };
+
+    const relationships: ParsedRelationship[] = [
+      {
+        sourceId: 'life1',
+        targetId: 'shape2',
+        label: 'Orthogonal Rel',
+        simple: true,
+        style: { routeType: 'orthogonal' }
+      },
+      {
+        sourceId: 'life1',
+        targetId: 'shape2',
+        label: 'Curved Rel',
+        simple: true,
+        style: { routeType: 'curved' }
+      },
+      {
+        sourceId: 'life1',
+        targetId: 'shape2',
+        label: 'Straight Rel',
+        simple: true,
+        style: { routeType: 'straight' }
+      }
+    ];
+
+    const svgRoot = document.createElementNS('http://www.w3.org/2000/svg', 'svg') as SVGSVGElement;
+    const layers = renderRelationships(relationships, [life1, shape2], defaultTheme, svgRoot);
+
+    const paths = layers.pathsLayer.querySelectorAll('path');
+    expect(paths.length).toBe(3);
+
+    // 1. Orthogonal - should contain elbows (L commands, multiple segments)
+    const dOrthogonal = paths[0].getAttribute('d') || '';
+    expect(dOrthogonal).toContain('M');
+    expect(dOrthogonal).toContain('L');
+    expect(dOrthogonal).not.toContain('C');
+    const lCountOrthogonal = (dOrthogonal.match(/L/g) || []).length;
+    expect(lCountOrthogonal).toBe(2); // start -> elbow -> end
+
+    // 2. Curved - should use cubic Bezier (C commands)
+    const dCurved = paths[1].getAttribute('d') || '';
+    expect(dCurved).toContain('M');
+    expect(dCurved).toContain('C');
+
+    // 3. Straight - should be a direct line (M start L end)
+    const dStraight = paths[2].getAttribute('d') || '';
+    expect(dStraight).toContain('M');
+    expect(dStraight).toContain('L');
+    expect(dStraight).not.toContain('C');
+    const lCountStraight = (dStraight.match(/L/g) || []).length;
+    expect(lCountStraight).toBe(1); // direct segment start -> end
+  });
 });
