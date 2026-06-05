@@ -118,9 +118,9 @@ export function exportToHTML(
       --app-text-muted: ${isThemeDark ? '#a1a1aa' : '#52525b'};
       --app-accent-color: #0d6efd;
       --app-accent-glow: rgba(13, 110, 253, 0.25);
-      --element-shadow: ${isThemeDark 
-        ? 'drop-shadow(0 10px 20px rgba(0, 0, 0, 0.75)) drop-shadow(0 2px 6px rgba(255, 255, 255, 0.1))' 
-        : 'drop-shadow(0 6px 12px rgba(0, 0, 0, 0.15)) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.08))'};
+      --element-shadow: ${isThemeDark
+      ? 'drop-shadow(0 10px 20px rgba(0, 0, 0, 0.75)) drop-shadow(0 2px 6px rgba(255, 255, 255, 0.1))'
+      : 'drop-shadow(0 6px 12px rgba(0, 0, 0, 0.15)) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.08))'};
     }
     
     body {
@@ -448,6 +448,57 @@ export function exportToHTML(
       padding: 0;
       font-size: 0.85rem;
     }
+    
+    /* Watermark / Attribution Badge */
+    .drakoflow-watermark {
+      position: absolute;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 100;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.45rem 0.85rem;
+      background: rgba(20, 20, 23, 0.75);
+      border: 1px solid var(--app-border-color);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      font-size: 0.72rem;
+      font-weight: 500;
+      color: var(--app-text-muted);
+      text-decoration: none !important;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      letter-spacing: 0.02em;
+    }
+    
+    .drakoflow-watermark:hover {
+      background: rgba(20, 20, 23, 0.9);
+      border-color: var(--app-accent-color);
+      color: var(--app-text-main) !important;
+      box-shadow: 0 6px 16px var(--app-accent-glow), 0 0 8px rgba(13, 110, 253, 0.15);
+      transform: translateX(-50%) translateY(-2px);
+    }
+
+    .drakoflow-watermark .brand-name {
+      background: linear-gradient(135deg, #60a5fa 30%, #a78bfa 90%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: 600;
+    }
+
+    .drakoflow-watermark i {
+      font-size: 0.85rem;
+      color: #60a5fa;
+      transition: transform 0.25s ease;
+      display: inline-flex;
+      align-self: center;
+    }
+
+    .drakoflow-watermark:hover i {
+      transform: translate(2px, -1px) scale(1.1);
+    }
   </style>
 </head>
 <body>
@@ -514,6 +565,13 @@ export function exportToHTML(
   <div id="canvas-container" class="diagram-canvas-container">
     ${svgMarkup}
   </div>
+
+  <!-- Attribution Badge -->
+  <a href="https://pazvanti.github.io/DrakoFlow/" target="_blank" rel="noopener noreferrer" class="drakoflow-watermark shadow">
+    <span>Made with</span>
+    <span class="brand-name">DrakoFlow</span>
+    <i class="bi bi-arrow-up-right-short"></i>
+  </a>
 
   <!-- Element Documentation Modal -->
   ${options.includeDocs ? `
