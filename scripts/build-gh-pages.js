@@ -47,6 +47,21 @@ try {
   console.log('Copying application assets to docs/drako/ directory...');
   copyFolderRecursiveSync(distDir, drakoDir);
 
+  // 4. Inject tracking script into docs/drako/index.html (GitHub Pages version)
+  const targetIndexHtml = path.join(drakoDir, 'index.html');
+  if (fs.existsSync(targetIndexHtml)) {
+    console.log('Injecting tracking script into docs/drako/index.html...');
+    let htmlContent = fs.readFileSync(targetIndexHtml, 'utf8');
+    const trackingScript = `
+  <!-- 100% privacy-first analytics -->
+  <script async src="https://scripts.simpleanalyticscdn.com/latest.js"></script>
+  <noscript><img src="https://queue.simpleanalyticscdn.com/noscript.gif" alt=""
+      referrerpolicy="no-referrer-when-downgrade" /></noscript>
+`;
+    htmlContent = htmlContent.replace('</body>', `${trackingScript}</body>`);
+    fs.writeFileSync(targetIndexHtml, htmlContent, 'utf8');
+  }
+
   console.log('GitHub Pages build completed successfully!');
 } catch (error) {
   console.error('Build failed:', error.message);
