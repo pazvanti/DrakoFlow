@@ -40,7 +40,7 @@ export class DrakoFlowPreviewPanel {
       {
         enableScripts: true,
         localResourceRoots: [
-          vscode.Uri.file(path.join(extensionUri.fsPath, 'dist'))
+          vscode.Uri.file(path.join(extensionUri.fsPath, 'webview-dist'))
         ],
         retainContextWhenHidden: true
       }
@@ -94,7 +94,7 @@ export class DrakoFlowPreviewPanel {
   }
 
   private _getHtmlForWebview(webview: vscode.Webview): string {
-    const htmlPath = path.join(this._extensionUri.fsPath, 'dist', 'index.html');
+    const htmlPath = path.join(this._extensionUri.fsPath, 'webview-dist', 'index.html');
     if (!fs.existsSync(htmlPath)) {
       return `
         <!DOCTYPE html>
@@ -117,10 +117,10 @@ export class DrakoFlowPreviewPanel {
 
     // Load webview URIs for assets
     const jsUri = webview.asWebviewUri(vscode.Uri.file(
-      path.join(this._extensionUri.fsPath, 'dist', 'assets', 'index.js')
+      path.join(this._extensionUri.fsPath, 'webview-dist', 'assets', 'index.js')
     ));
     const cssUri = webview.asWebviewUri(vscode.Uri.file(
-      path.join(this._extensionUri.fsPath, 'dist', 'assets', 'index.css')
+      path.join(this._extensionUri.fsPath, 'webview-dist', 'assets', 'index.css')
     ));
 
     // Replace relative assets with webview URIs

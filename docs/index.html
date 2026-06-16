@@ -6,7 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description"
     content="Create architecture diagrams from plain text with DrakoFlow. Features interactive drag-and-drop layouts, bidirectional sync, a PlantUML translator, and standalone HTML player exports. 100% serverless and private.">
-  <meta name="keywords" content="text to diagram, architecture diagram, dsl, diagram editor, drag and drop, plantuml translator, serverless, offline-first, drakoflow">
+  <meta name="keywords"
+    content="text to diagram, architecture diagram, dsl, diagram editor, drag and drop, plantuml translator, serverless, offline-first, drakoflow">
   <meta name="author" content="pazvanti">
   <meta name="robots" content="index, follow">
   <title>DrakoFlow - Free Serverless Text-to-Diagram Tool | PlantUML Translator</title>
@@ -540,10 +541,10 @@
       border: 1px solid var(--border-color);
       border-radius: 12px;
       padding: 2.5rem 2rem;
-      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
-                  border-color 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
-                  background-color 0.4s cubic-bezier(0.16, 1, 0.3, 1),
-                  box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+        border-color 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+        background-color 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+        box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1);
       display: flex;
       flex-direction: column;
       gap: 1.25rem;
@@ -571,15 +572,50 @@
     }
 
     /* Individual Card Color Themes (CSS Variables) */
-    .feature-card:nth-child(1) { --card-accent: #60a5fa; --card-glow: rgba(96, 165, 250, 0.15); }
-    .feature-card:nth-child(2) { --card-accent: #a78bfa; --card-glow: rgba(167, 139, 250, 0.15); }
-    .feature-card:nth-child(3) { --card-accent: #34d399; --card-glow: rgba(52, 211, 153, 0.15); }
-    .feature-card:nth-child(4) { --card-accent: #22d3ee; --card-glow: rgba(34, 211, 238, 0.15); }
-    .feature-card:nth-child(5) { --card-accent: #fbbf24; --card-glow: rgba(251, 191, 36, 0.15); }
-    .feature-card:nth-child(6) { --card-accent: #f472b6; --card-glow: rgba(244, 114, 182, 0.15); }
-    .feature-card:nth-child(7) { --card-accent: #2dd4bf; --card-glow: rgba(45, 212, 191, 0.15); }
-    .feature-card:nth-child(8) { --card-accent: #818cf8; --card-glow: rgba(129, 140, 248, 0.15); }
-    .feature-card:nth-child(9) { --card-accent: #fb923c; --card-glow: rgba(251, 146, 60, 0.15); }
+    .feature-card:nth-child(1) {
+      --card-accent: #60a5fa;
+      --card-glow: rgba(96, 165, 250, 0.15);
+    }
+
+    .feature-card:nth-child(2) {
+      --card-accent: #a78bfa;
+      --card-glow: rgba(167, 139, 250, 0.15);
+    }
+
+    .feature-card:nth-child(3) {
+      --card-accent: #34d399;
+      --card-glow: rgba(52, 211, 153, 0.15);
+    }
+
+    .feature-card:nth-child(4) {
+      --card-accent: #22d3ee;
+      --card-glow: rgba(34, 211, 238, 0.15);
+    }
+
+    .feature-card:nth-child(5) {
+      --card-accent: #fbbf24;
+      --card-glow: rgba(251, 191, 36, 0.15);
+    }
+
+    .feature-card:nth-child(6) {
+      --card-accent: #f472b6;
+      --card-glow: rgba(244, 114, 182, 0.15);
+    }
+
+    .feature-card:nth-child(7) {
+      --card-accent: #2dd4bf;
+      --card-glow: rgba(45, 212, 191, 0.15);
+    }
+
+    .feature-card:nth-child(8) {
+      --card-accent: #818cf8;
+      --card-glow: rgba(129, 140, 248, 0.15);
+    }
+
+    .feature-card:nth-child(9) {
+      --card-accent: #fb923c;
+      --card-glow: rgba(251, 146, 60, 0.15);
+    }
 
     .feature-card h3 {
       font-size: 1.25rem;
@@ -847,10 +883,13 @@
     }
 
     @keyframes title-scan {
-      0%, 100% {
+
+      0%,
+      100% {
         left: 10%;
         width: 30%;
       }
+
       50% {
         left: 60%;
         width: 30%;
@@ -911,9 +950,20 @@
       opacity: 1;
     }
 
-    .formula-element.dra { --element-accent: var(--accent-blue); --element-glow: rgba(96, 165, 250, 0.25); }
-    .formula-element.ko { --element-accent: var(--accent-purple); --element-glow: rgba(167, 139, 250, 0.25); }
-    .formula-element.flow { --element-accent: var(--accent-green); --element-glow: rgba(52, 211, 153, 0.25); }
+    .formula-element.dra {
+      --element-accent: var(--accent-blue);
+      --element-glow: rgba(96, 165, 250, 0.25);
+    }
+
+    .formula-element.ko {
+      --element-accent: var(--accent-purple);
+      --element-glow: rgba(167, 139, 250, 0.25);
+    }
+
+    .formula-element.flow {
+      --element-accent: var(--accent-green);
+      --element-glow: rgba(52, 211, 153, 0.25);
+    }
 
     .formula-prefix {
       font-size: 1.8rem;
@@ -931,10 +981,13 @@
     }
 
     @keyframes pulse-arrow {
-      0%, 100% {
+
+      0%,
+      100% {
         transform: translateY(0);
         opacity: 0.6;
       }
+
       50% {
         transform: translateY(4px);
         opacity: 1;
@@ -1006,11 +1059,13 @@
       text-shadow: 0 0 15px rgba(96, 165, 250, 0.8);
       transform: scale(1.1) translateY(-1px);
     }
+
     .brand-formula-container:has(.ko:hover) .res-ko {
       color: #a78bfa !important;
       text-shadow: 0 0 15px rgba(167, 139, 250, 0.8);
       transform: scale(1.1) translateY(-1px);
     }
+
     .brand-formula-container:has(.flow:hover) .res-flow {
       color: #34d399 !important;
       text-shadow: 0 0 15px rgba(52, 211, 153, 0.8);
@@ -1027,19 +1082,24 @@
       color: #60a5fa;
       text-shadow: 0 0 8px rgba(96, 165, 250, 0.5);
     }
+
     .brand-result:hover .res-ko {
       color: #a78bfa;
       text-shadow: 0 0 8px rgba(167, 139, 250, 0.5);
     }
+
     .brand-result:hover .res-flow {
       color: #34d399;
       text-shadow: 0 0 8px rgba(52, 211, 153, 0.5);
     }
 
     @keyframes pulse-glow {
-      0%, 100% {
+
+      0%,
+      100% {
         box-shadow: 0 4px 15px rgba(13, 110, 253, 0.15);
       }
+
       50% {
         box-shadow: 0 4px 25px rgba(13, 110, 253, 0.3);
         border-color: rgba(13, 110, 253, 0.4);
@@ -1051,10 +1111,159 @@
         flex-direction: column;
         gap: 0.75rem;
       }
+
       .brand-formula-row .formula-plus {
         transform: rotate(90deg);
         margin: 0.25rem 0;
       }
+    }
+
+    /* VS Code Section Styles */
+    section.vscode-section {
+      max-width: 1100px;
+      margin: 4rem auto 6rem auto;
+      padding: 0 2rem;
+      position: relative;
+      z-index: 10;
+    }
+
+    .vscode-card {
+      background: linear-gradient(135deg, rgba(20, 20, 22, 0.65) 0%, rgba(9, 9, 11, 0.8) 100%);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 3rem;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 3rem;
+      align-items: center;
+    }
+
+    @media (max-width: 900px) {
+      .vscode-card {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+        padding: 2rem;
+      }
+    }
+
+    .vscode-info h2 {
+      font-size: 2.25rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 1rem;
+      color: var(--text-main);
+    }
+
+    .vscode-info p {
+      color: var(--text-muted);
+      font-size: 1.05rem;
+      margin-bottom: 1.5rem;
+      line-height: 1.6;
+    }
+
+    .vscode-features-list {
+      list-style-type: none;
+      margin-bottom: 2rem;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .vscode-features-list li {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.95rem;
+      color: var(--text-main);
+    }
+
+    .vscode-features-list li i {
+      color: #38bdf8;
+      /* Sky-400 for VS Code feel */
+      font-size: 1.25rem;
+    }
+
+    .vscode-install {
+      background: rgba(15, 23, 42, 0.4);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .vscode-install h3 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .vscode-install h3 i {
+      color: #3b82f6;
+    }
+
+    .vscode-install ol {
+      padding-left: 1.25rem;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .vscode-install code {
+      background: #09090b;
+      border: 1px solid #27272a;
+      color: #38bdf8;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      font-family: var(--font-fira);
+      font-size: 0.85rem;
+    }
+
+    .code-block-container {
+      position: relative;
+      margin-top: 0.25rem;
+    }
+
+    .code-block-container code {
+      display: block;
+      padding: 0.75rem 1rem;
+      overflow-x: auto;
+      text-align: left;
+    }
+
+    .btn-vscode-download {
+      background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+      color: white;
+      padding: 0.85rem 1.75rem;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 1.05rem;
+      box-shadow: 0 4px 15px rgba(2, 132, 199, 0.3);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .btn-vscode-download:hover {
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(2, 132, 199, 0.4);
+    }
+
+    .vscode-version-tag {
+      font-size: 0.8rem;
+      color: var(--text-muted);
     }
   </style>
 </head>
@@ -1074,6 +1283,7 @@
       </a>
       <div class="nav-links">
         <a href="#features">Features</a>
+        <a href="#vscode">VS Code Extension</a>
         <a href="#demo">Live Demo</a>
         <a href="#syntax">Syntax Guide</a>
         <a href="./compare.html">PlantUML Alternative</a>
@@ -1098,6 +1308,9 @@
       <a href="./drako/index.html" class="btn-hero-primary">
         Launch Interactive Editor <i class="bi bi-arrow-right"></i>
       </a>
+      <a href="#vscode" class="btn-hero-secondary">
+        <i class="bi bi-code-square text-info"></i> VS Code Extension
+      </a>
       <a href="https://github.com/pazvanti/DrakoFlow" target="_blank" rel="noopener" class="btn-hero-secondary">
         <i class="bi bi-github"></i> View GitHub Project
       </a>
@@ -1108,7 +1321,7 @@
   <section class="name-explanation fade-in">
     <div class="brand-formula-container">
       <div class="brand-formula-title">Decoding the Name</div>
-      
+
       <div class="brand-formula-row">
         <!-- Dra (Draw) -->
         <div class="formula-element dra">
@@ -1116,18 +1329,18 @@
           <div class="formula-arrow"><i class="bi bi-arrow-down-short"></i></div>
           <div class="formula-meaning">Draw (Visual Canvas)</div>
         </div>
-        
+
         <div class="formula-plus"><i class="bi bi-plus-lg"></i></div>
-        
+
         <!-- ko (Code) -->
         <div class="formula-element ko">
           <div class="formula-prefix">ko</div>
           <div class="formula-arrow"><i class="bi bi-arrow-down-short"></i></div>
           <div class="formula-meaning">Code (Declarative DSL)</div>
         </div>
-        
+
         <div class="formula-plus"><i class="bi bi-plus-lg"></i></div>
-        
+
         <!-- Flow (Flow) -->
         <div class="formula-element flow">
           <div class="formula-prefix">Flow</div>
@@ -1135,9 +1348,9 @@
           <div class="formula-meaning">Flow (Diagram Paths)</div>
         </div>
       </div>
-      
+
       <div class="formula-plus" style="margin-top: 0.5rem;"><i class="bi bi-arrow-down-lg"></i></div>
-      
+
       <div class="brand-result">
         <i class="bi bi-diagram-3-fill text-primary"></i>
         <span><span class="res-dra">Dra</span><span class="res-ko">ko</span><span class="res-flow">Flow</span></span>
@@ -1168,6 +1381,58 @@
     </div>
   </section>
 
+  <!-- VS Code Extension Section -->
+  <section class="vscode-section fade-in" id="vscode">
+    <div class="vscode-card">
+      <div class="vscode-info">
+        <h2>VS Code Extension</h2>
+        <p>Bring the power of DrakoFlow directly into your local development environment. Write diagram scripts,
+          structure your documentation, and preview results side-by-side with real-time bidirectional synchronization.
+        </p>
+
+        <ul class="vscode-features-list">
+          <li><i class="bi bi-window-sidebar"></i> <span><strong>Auto-Open Preview:</strong> Automatically opens the
+              interactive preview panel to the side whenever you open a <code>.drako</code> file.</span></li>
+          <li><i class="bi bi-box-seam"></i> <span><strong>Component Library:</strong> Access standard elements from the
+              sidebar dock to quickly insert diagram nodes into your DSL.</span></li>
+          <li><i class="bi bi-shield-check"></i> <span><strong>100% Offline-First:</strong> Renders your diagrams
+              entirely locally within VS Code without any external network request.</span></li>
+        </ul>
+
+        <div class="d-flex align-items-center flex-wrap gap-3 mt-4">
+          <a href="https://github.com/pazvanti/DrakoFlow/raw/main/vscode-extension/dist/drakoflow-vscode-1.0.0.vsix"
+            class="btn-vscode-download">
+            <i class="bi bi-download"></i> Download Extension (.vsix)
+          </a>
+          <a href="https://github.com/pazvanti/DrakoFlow/tree/main/vscode-extension/dist" target="_blank" rel="noopener"
+            class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1.5"
+            style="font-size: 0.95rem; padding: 0.75rem 1.25rem; border-radius: 8px; font-weight: 600; border-color: var(--border-color); color: var(--text-main);">
+            <i class="bi bi-folder-symlink text-info"></i> All Versions on GitHub
+          </a>
+          <span class="vscode-version-tag">v1.0.0 &bull; Offline Installer</span>
+        </div>
+      </div>
+
+      <div class="vscode-install">
+        <h3><i class="bi bi-terminal"></i> How to Install</h3>
+        <ol>
+          <li>Download the <code>drakoflow-vscode-1.0.0.vsix</code> package using the button on the left.</li>
+          <li>
+            Install it from your command line:
+            <div class="code-block-container">
+              <code>code --install-extension drakoflow-vscode-1.0.0.vsix</code>
+            </div>
+          </li>
+          <li>
+            <strong>Alternatively:</strong> Open VS Code, navigate to the Extensions tab (<code>Ctrl+Shift+X</code>),
+            click the <code>...</code> menu at the top-right, choose <strong>Install from VSIX...</strong>, and select
+            the downloaded file.
+          </li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
   <!-- Features Grid Section -->
   <section class="features-section" id="features">
     <div class="section-header fade-in">
@@ -1183,7 +1448,8 @@
           <i class="bi bi-code-slash"></i>
         </div>
         <h3>Text-to-Diagram Engine</h3>
-        <p>Define components, structures, and relationships using a clean, readable DSL. Watch it compile instantly entirely client-side.</p>
+        <p>Define components, structures, and relationships using a clean, readable DSL. Watch it compile instantly
+          entirely client-side.</p>
       </div>
 
       <!-- Card 2 -->
@@ -1192,7 +1458,8 @@
           <i class="bi bi-hand-index-thumb"></i>
         </div>
         <h3>Bidirectional Drag & Drop</h3>
-        <p>Arrange components freely by dragging them on the grid. Position coordinates automatically round and write back to your DSL code in real time.</p>
+        <p>Arrange components freely by dragging them on the grid. Position coordinates automatically round and write
+          back to your DSL code in real time.</p>
       </div>
 
       <!-- Card 3 -->
@@ -1201,7 +1468,8 @@
           <i class="bi bi-translate"></i>
         </div>
         <h3>PlantUML Translator (Beta)</h3>
-        <p>Paste and translate standard PlantUML sequence, activity, or class diagrams into DrakoFlow DSL instantly with case-insensitive component matching.</p>
+        <p>Paste and translate standard PlantUML sequence, activity, or class diagrams into DrakoFlow DSL instantly with
+          case-insensitive component matching.</p>
       </div>
 
       <!-- Card 4 -->
@@ -1210,7 +1478,8 @@
           <i class="bi bi-window-sidebar"></i>
         </div>
         <h3>Interactive HTML Exporter</h3>
-        <p>Export your diagram as a standalone, single-file HTML player equipped with interactive zooming, a navigation minimap, tag-based filtering, and a DSL code viewer.</p>
+        <p>Export your diagram as a standalone, single-file HTML player equipped with interactive zooming, a navigation
+          minimap, tag-based filtering, and a DSL code viewer.</p>
       </div>
 
       <!-- Card 5 -->
@@ -1219,7 +1488,8 @@
           <i class="bi bi-lightning-charge"></i>
         </div>
         <h3>Bidirectional Highlights</h3>
-        <p>Hovering over components on the canvas instantly highlights their corresponding declaration lines in the editor gutter for seamless navigation.</p>
+        <p>Hovering over components on the canvas instantly highlights their corresponding declaration lines in the
+          editor gutter for seamless navigation.</p>
       </div>
 
       <!-- Card 6 -->
@@ -1228,7 +1498,8 @@
           <i class="bi bi-share"></i>
         </div>
         <h3>Serverless URL Sharing</h3>
-        <p>Share diagrams instantly without databases or user accounts. The entire diagram state is compressed and embedded directly within the share link.</p>
+        <p>Share diagrams instantly without databases or user accounts. The entire diagram state is compressed and
+          embedded directly within the share link.</p>
       </div>
 
       <!-- Card 7 -->
@@ -1237,7 +1508,8 @@
           <i class="bi bi-folder-symlink"></i>
         </div>
         <h3>Nested Scopes & Subsystems</h3>
-        <p>Group system microservices and structural boundaries visually using standard UML Package directories or VerticalContainers.</p>
+        <p>Group system microservices and structural boundaries visually using standard UML Package directories or
+          VerticalContainers.</p>
       </div>
 
       <!-- Card 8 -->
@@ -1246,7 +1518,8 @@
           <i class="bi bi-compass"></i>
         </div>
         <h3>Interactive Minimap</h3>
-        <p>Keep track of complex diagrams and coordinate spaces at a glance using a toggleable navigation minimap panel.</p>
+        <p>Keep track of complex diagrams and coordinate spaces at a glance using a toggleable navigation minimap panel.
+        </p>
       </div>
 
       <!-- Card 9 -->
@@ -1255,7 +1528,8 @@
           <i class="bi bi-grid-3x3-gap"></i>
         </div>
         <h3>Snap to Grid Alignment</h3>
-        <p>Enforce clean layout alignment and pixel-perfect rendering by locking element positions to grid cells with customizable sizing.</p>
+        <p>Enforce clean layout alignment and pixel-perfect rendering by locking element positions to grid cells with
+          customizable sizing.</p>
       </div>
     </div>
   </section>
@@ -1401,7 +1675,7 @@ Gateway -> RedisCache: "Check Session"</code></pre>
       </div>
       <div class="footer-links">
         <a href="#features">Features</a>
-        <a href="#demo">Live Demo</a>
+        <a href="#vscode">VS Code Extension</a>
         <a href="#syntax">Syntax</a>
         <a href="./compare.html">Drako vs PlantUML</a>
         <a href="https://github.com/pazvanti/DrakoFlow" target="_blank" rel="noopener">GitHub</a>

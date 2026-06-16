@@ -26,11 +26,11 @@ try {
     console.error(`Source directory ${srcDir} does not exist. Make sure to run 'npx vite build' in the root project first.`);
     process.exit(1);
   }
-  
+
   if (fs.existsSync(destDir)) {
     fs.rmSync(destDir, { recursive: true, force: true });
   }
-  
+
   copyRecursiveSync(srcDir, destDir);
   console.log('Built assets copied successfully.');
 } catch (err) {

@@ -58,7 +58,7 @@ class DrakoFlowPreviewPanel {
         const panel = vscode.window.createWebviewPanel(DrakoFlowPreviewPanel.viewType, `Preview: ${path.basename(doc.fileName)}`, { viewColumn, preserveFocus }, {
             enableScripts: true,
             localResourceRoots: [
-                vscode.Uri.file(path.join(extensionUri.fsPath, 'dist'))
+                vscode.Uri.file(path.join(extensionUri.fsPath, 'webview-dist'))
             ],
             retainContextWhenHidden: true
         });
@@ -97,7 +97,7 @@ class DrakoFlowPreviewPanel {
         this._panel.webview.html = this._getHtmlForWebview(this._panel.webview);
     }
     _getHtmlForWebview(webview) {
-        const htmlPath = path.join(this._extensionUri.fsPath, 'dist', 'index.html');
+        const htmlPath = path.join(this._extensionUri.fsPath, 'webview-dist', 'index.html');
         if (!fs.existsSync(htmlPath)) {
             return `
         <!DOCTYPE html>
@@ -117,8 +117,8 @@ class DrakoFlowPreviewPanel {
         }
         let htmlContent = fs.readFileSync(htmlPath, 'utf8');
         // Load webview URIs for assets
-        const jsUri = webview.asWebviewUri(vscode.Uri.file(path.join(this._extensionUri.fsPath, 'dist', 'assets', 'index.js')));
-        const cssUri = webview.asWebviewUri(vscode.Uri.file(path.join(this._extensionUri.fsPath, 'dist', 'assets', 'index.css')));
+        const jsUri = webview.asWebviewUri(vscode.Uri.file(path.join(this._extensionUri.fsPath, 'webview-dist', 'assets', 'index.js')));
+        const cssUri = webview.asWebviewUri(vscode.Uri.file(path.join(this._extensionUri.fsPath, 'webview-dist', 'assets', 'index.css')));
         // Replace relative assets with webview URIs
         htmlContent = htmlContent.replace('src="./assets/index.js"', `src="${jsUri}"`);
         htmlContent = htmlContent.replace('href="./assets/index.css"', `href="${cssUri}"`);
