@@ -1,0 +1,91 @@
+{
+  "name": "drakoflow-vscode",
+  "displayName": "DrakoFlow Diagram Engine",
+  "description": "Visual Studio Code preview panel for DrakoFlow text diagrams",
+  "version": "1.0.0",
+  "icon": "icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pazvanti/DrakoFlow.git",
+    "directory": "vscode-extension"
+  },
+  "engines": {
+    "vscode": "^1.75.0"
+  },
+  "categories": [
+    "Visualization",
+    "Programming Languages"
+  ],
+  "main": "./out/extension.js",
+  "activationEvents": [
+    "onLanguage:drakoflow"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "drakoflow",
+        "aliases": [
+          "DrakoFlow",
+          "drakoflow"
+        ],
+        "extensions": [
+          ".drako"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "commands": [
+      {
+        "command": "drakoflow.showPreview",
+        "title": "DrakoFlow: Open Preview",
+        "category": "DrakoFlow",
+        "icon": "$(graph)"
+      },
+      {
+        "command": "drakoflow.showPreviewToSide",
+        "title": "DrakoFlow: Open Preview to the Side",
+        "category": "DrakoFlow",
+        "icon": "$(layout-centered-single)"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "drakoflow.showPreviewToSide",
+          "when": "resourceLangId == drakoflow",
+          "group": "navigation"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "drakoflow.showPreview",
+          "when": "resourceExtname == .drako"
+        },
+        {
+          "command": "drakoflow.showPreviewToSide",
+          "when": "resourceExtname == .drako"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "DrakoFlow",
+      "properties": {
+        "drakoflow.preview.autoOpen": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically open the DrakoFlow preview panel to the side when a .drako file is opened."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run build-all",
+    "build-all": "npm run compile && node scripts/copy-dist.js",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.75.0",
+    "typescript": "^5.0.4"
+  }
+}
