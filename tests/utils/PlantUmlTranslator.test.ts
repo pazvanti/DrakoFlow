@@ -265,4 +265,31 @@ stop
     const userDeclarations = result.split('user:').length - 1;
     expect(userDeclarations).toBe(1);
   });
+
+  it('escapes nested double quotes in labels and return messages correctly', () => {
+    const input = `
+      Alice -> Bob : {"action": "greet"}
+      return {"status": "ok"}
+    `;
+    const result = translator.translate(input);
+    expect(result).toContain('alice -> bob : "{\\"action\\": \\"greet\\"}"');
+    expect(result).toContain('bob -> alice : "{\\"status\\": \\"ok\\"}" {\n  lineStyle: "dashed"\n}');
+  });
+
+  it('translates box containers in sequence diagrams and nested elements correctly', () => {
+    const input = `
+      box "Application Web" #LightBlue
+        participant form
+      end box
+    `;
+    const result = translator.translate(input);
+    expect(result).toContain('application_web_1: Package {');
+    expect(result).toContain('label: "Application Web"');
+    expect(result).toContain('backgroundColor: "LightBlue"');
+    expect(result).toContain('form: Rectangle {');
+    const formIndex = result.indexOf('form: Rectangle {');
+    const boxIndex = result.indexOf('application_web_1: Package {');
+    expect(boxIndex).toBeGreaterThan(-1);
+    expect(formIndex).toBeGreaterThan(boxIndex);
+  });
 });

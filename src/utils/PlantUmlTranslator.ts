@@ -80,6 +80,10 @@ export class PlantUmlTranslator {
       return l;
     };
 
+    const escapeString = (str: string): string => {
+      return str.replace(/"/g, '\\"');
+    };
+
     const toSafeId = (id: string): string => {
       let clean = cleanLabel(id);
       let safe = clean.replace(/[^a-zA-Z0-9_]/g, '_').toLowerCase();
@@ -129,6 +133,19 @@ export class PlantUmlTranslator {
             comp.children = [];
           }
         }
+        // If we are currently parsing inside a package, and the component is at the root level, move it to the package
+        if (packageStack.length > 0) {
+          const parentId = packageStack[packageStack.length - 1];
+          const parent = componentsMap.get(parentId);
+          if (parent && parent.children && !parent.children.includes(comp)) {
+            // Remove from root if present
+            const rootIdx = rootComponents.indexOf(comp);
+            if (rootIdx !== -1) {
+              rootComponents.splice(rootIdx, 1);
+            }
+            parent.children.push(comp);
+          }
+        }
       }
       return comp;
     };
@@ -165,7 +182,7 @@ export class PlantUmlTranslator {
         });
         pendingJoinNodes = [];
       } else if (lastActiveNodeId) {
-        const labelPart = lastBranchLabel ? ` : "${lastBranchLabel}"` : '';
+        const labelPart = lastBranchLabel ? ` : "${escapeString(lastBranchLabel)}"` : '';
         relationships.push(`${lastActiveNodeId} -> ${newId}${labelPart}`);
         lastBranchLabel = '';
       }
@@ -203,6 +220,40 @@ export class PlantUmlTranslator {
       const line = lines[i].trim();
       
       if (line === '' || line.startsWith("'") || line.startsWith('@startuml') || line.startsWith('@enduml')) {
+        continue;
+      }
+
+      // Match box start block
+      const boxRegex = /^\s*box\s+("[^"]+"|[^\s#]+)(?:\s+(#[^\s]+))?\s*$/i;
+      const boxMatch = line.match(boxRegex);
+      if (boxMatch) {
+        const boxLabel = cleanLabel(boxMatch[1]);
+        const boxId = toSafeId(boxLabel) + '_' + (++nodeCounter);
+        let boxColor = boxMatch[2] ? boxMatch[2].trim() : null;
+        if (boxColor && boxColor.startsWith('#')) {
+          const hexPattern = /^#[0-9a-fA-F]{3,8}$/;
+          if (!hexPattern.test(boxColor)) {
+            boxColor = boxColor.substring(1);
+          }
+        }
+        
+        const comp = getOrCreateComponent(boxId, 'Package', boxLabel, true);
+        if (boxColor) {
+          comp.themeOverride = {
+            backgroundColor: boxColor,
+            textColor: '#1f2937',
+            borderColor: '#9ca3af'
+          };
+        }
+        packageStack.push(boxId);
+        continue;
+      }
+
+      // Match box end block
+      if (line.toLowerCase() === 'end box') {
+        if (packageStack.length > 0) {
+          packageStack.pop();
+        }
         continue;
       }
       
@@ -361,7 +412,7 @@ export class PlantUmlTranslator {
           const returnMsg = returnMatch[1].trim();
           let labelPart = '';
           if (returnMsg) {
-            labelPart = ` : "${cleanLabel(returnMsg)}"`;
+            labelPart = ` : "${escapeString(cleanLabel(returnMsg))}"`;
           }
           relationships.push(`${lastTargetId} -> ${lastSourceId}${labelPart} {\n  lineStyle: "dashed"\n}`);
         }
@@ -435,7 +486,7 @@ export class PlantUmlTranslator {
         
         let labelPart = '';
         if (label) {
-          labelPart = ` : "${cleanLabel(label)}"`;
+          labelPart = ` : "${escapeString(cleanLabel(label))}"`;
         }
         
         lastSourceId = sourceId;
@@ -496,7 +547,14 @@ export class PlantUmlTranslator {
       
       if (comp.type === 'Package') {
         res += `${indent}${comp.id}: Package {\n`;
-        res += `${indent}  label: "${comp.label}"\n`;
+        res += `${indent}  label: "${escapeString(comp.label)}"\n`;
+        if (comp.themeOverride) {
+          res += `${indent}  themeOverride: {\n`;
+          res += `${indent}    backgroundColor: "${comp.themeOverride.backgroundColor}"\n`;
+          res += `${indent}    textColor: "${comp.themeOverride.textColor}"\n`;
+          res += `${indent}    borderColor: "${comp.themeOverride.borderColor}"\n`;
+          res += `${indent}  }\n`;
+        }
         if (comp.children && comp.children.length > 0) {
           const childrenStr = comp.children.map(c => serializeComponent(c, depth + 1)).join('\n');
           res += childrenStr + '\n';
@@ -504,7 +562,7 @@ export class PlantUmlTranslator {
         res += `${indent}}`;
       } else {
         res += `${indent}${comp.id}: ${comp.type} {\n`;
-        res += `${indent}  label: "${comp.label}"`;
+        res += `${indent}  label: "${escapeString(comp.label)}"`;
         if (comp.lifeline) {
           res += `\n${indent}  lifeline: true`;
         }
