@@ -1,6 +1,8 @@
+// @vitest-environment jsdom
 import { describe, it, expect } from 'vitest';
 import { parseDsl, collectReferencedIds, parseDslDocument } from '../../src/dsl/parser';
 import { createComponentsFromDsl } from '../../src/engine/componentFactory';
+import { renderRelationships } from '../../src/engine/relationshipRenderer';
 import { VerticalContainerComponent } from '../../src/components/VerticalContainerComponent';
 import { RectangleComponent } from '../../src/components/RectangleComponent';
 
@@ -94,7 +96,8 @@ MyContainer: VerticalContainer {
     expect(container.childEntries[1]).toEqual({
       kind: 'reference',
       slotId: 'MyRect',
-      refId: 'MyRectangle'
+      refId: 'MyRectangle',
+      line: 16
     });
 
     const refs = collectReferencedIds(nodes);
@@ -309,6 +312,111 @@ B -> A {
 
     expect(doc.relationships[1].style?.thickness).toBe(5);
     expect(doc.relationships[1].style?.routeType).toBe('orthogonal');
+  });
+
+  describe('error line numbers', () => {
+    it('sets the line number for unexpected syntax errors at the top level', () => {
+      const code = `A: Rectangle {}
+B: Rectangle {}
+Invalid Syntax Line Here
+C: Rectangle {}`;
+      let error: any = null;
+      try {
+        parseDslDocument(code);
+      } catch (err) {
+        error = err;
+      }
+      expect(error).not.toBeNull();
+      expect(error.line).toBe(3);
+    });
+
+    it('sets the line number for component errors inside bodies', () => {
+      const code = `A: Rectangle {}
+B: Rectangle {
+  nested: InvalidType {
+    label: "Error"
+  }
+}`;
+      let error: any = null;
+      try {
+        parseDslDocument(code);
+      } catch (err) {
+        error = err;
+      }
+      expect(error).not.toBeNull();
+      expect(error.line).toBe(3);
+    });
+
+    it('sets the line number for unclosed block errors', () => {
+      const code = `A: Rectangle {}
+B: Rectangle {
+  label: "Unclosed"
+  // missing closing brace`;
+      let error: any = null;
+      try {
+        parseDslDocument(code);
+      } catch (err) {
+        error = err;
+      }
+      expect(error).not.toBeNull();
+      expect(error.line).toBe(2); // open brace is on line 2
+    });
+
+    it('sets the line number for unknown component type errors inside body during instantiation', () => {
+      const code = `A: Rectangle {}
+B: UnknownType {
+  label: "Test"
+}`;
+      let error: any = null;
+      try {
+        const doc = parseDslDocument(code);
+        createComponentsFromDsl(doc.components);
+      } catch (err) {
+        error = err;
+      }
+      expect(error).not.toBeNull();
+      expect(error.line).toBe(2);
+    });
+
+    it('sets the line number for missing component references inside vertical containers', () => {
+      const code = `A: Rectangle {}
+B: VerticalContainer {
+  child: MissingComponent
+}`;
+      let error: any = null;
+      try {
+        const doc = parseDslDocument(code);
+        createComponentsFromDsl(doc.components);
+      } catch (err) {
+        error = err;
+      }
+      expect(error).not.toBeNull();
+      expect(error.line).toBe(3);
+    });
+
+    it('sets the line number for relationship references to unknown components', () => {
+      const code = `A: Rectangle {}
+B: Rectangle {}
+A -> MissingComp : "Sends message"`;
+      let error: any = null;
+      try {
+        const doc = parseDslDocument(code);
+        const components = createComponentsFromDsl(doc.components);
+        const svgRoot = document.createElementNS('http://www.w3.org/2000/svg', 'svg') as SVGSVGElement;
+        renderRelationships(doc.relationships, components, {
+          primaryColor: '#0d6efd',
+          secondaryColor: '#6c757d',
+          backgroundColor: '#ffffff',
+          textColor: '#212529',
+          borderColor: '#dee2e6',
+          fontFamily: 'sans-serif'
+        }, svgRoot);
+      } catch (err) {
+        error = err;
+      }
+      expect(error).not.toBeNull();
+      expect(error.line).toBe(3);
+    });
   });
 });
 

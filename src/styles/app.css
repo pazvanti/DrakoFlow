@@ -256,6 +256,14 @@ body {
   color: #4ade80;
   font-weight: bold;
 }
+.hl-error-line {
+  text-decoration: underline wavy #f7768e;
+  display: inline;
+}
+.gutter-error-line {
+  color: #f7768e !important;
+  font-weight: bold;
+}
 
 /* Color Picker Trigger inside pre */
 .color-picker-trigger {

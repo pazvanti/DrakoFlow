@@ -10,7 +10,7 @@ export interface ParsedReference {
 
 export type ParsedChildEntry =
   | { kind: 'inline'; node: ParsedNode }
-  | { kind: 'reference'; slotId: string; refId: string; tags?: string[] };
+  | { kind: 'reference'; slotId: string; refId: string; tags?: string[]; line?: number };
 
 export interface ParsedNode {
   id: string;
@@ -26,6 +26,7 @@ export interface ParsedNode {
    * an array of trimmed, non-empty lines.  Used by ClassComponent.
    */
   subBlocks?: Record<string, string[]>;
+  line?: number;
 }
 
 export interface DslDocument {
@@ -45,6 +46,13 @@ export function parseDslDocument(code: string): DslDocument {
   let i = 0;
   // Tags from the most recent @tags directive, to be applied to the next component.
   let pendingTags: string[] | undefined;
+
+  const throwError = (msg: string, offset: number) => {
+    const line = code.slice(0, offset).split('\n').length;
+    const err = new Error(msg) as any;
+    err.line = line;
+    throw err;
+  };
 
   while (i < stripped.length) {
     i = skipWhitespace(stripped, i);
@@ -66,7 +74,7 @@ export function parseDslDocument(code: string): DslDocument {
       continue;
     }
 
-    const relationship = tryParseRelationship(stripped, i);
+    const relationship = tryParseRelationship(stripped, i, code);
     if (relationship) {
       relationships.push(relationship.parsed);
       i = relationship.end;
@@ -75,12 +83,13 @@ export function parseDslDocument(code: string): DslDocument {
 
     const decl = readComponentDeclaration(stripped, i);
     if (!decl) {
-      throw new Error(`Unexpected syntax near: "${stripped.slice(i, i + 40).trim()}..."`);
+      throwError(`Unexpected syntax near: "${stripped.slice(i, i + 40).trim()}..."`, i);
     }
 
-    const closeBrace = findMatchingBrace(stripped, decl.bodyStart);
+    const componentLine = code.slice(0, i).split('\n').length;
+    const closeBrace = findMatchingBrace(stripped, decl.bodyStart, 0, code);
     const body = stripped.slice(decl.bodyStart + 1, closeBrace);
-    const node = parseNode(decl.id, decl.type, body);
+    const node = parseNode(decl.id, decl.type, body, decl.bodyStart + 1, code, componentLine);
     if (pendingTags) {
       node.tags = pendingTags;
       pendingTags = undefined;
@@ -211,12 +220,14 @@ function buildParsedRelationship(arrow: ArrowMatch): ParsedRelationship {
 
 function tryParseRelationship(
   text: string,
-  start: number
+  start: number,
+  code: string
 ): { parsed: ParsedRelationship; end: number } | null {
   const arrow = matchRelationshipArrow(text.slice(start));
   if (!arrow) return null;
 
   const parsed = buildParsedRelationship(arrow);
+  parsed.line = code.slice(0, start).split('\n').length;
 
   let i = start + arrow.length;
   i = skipWhitespace(text, i);
@@ -234,7 +245,7 @@ function tryParseRelationship(
 
   if (text[i] === '{') {
     const open = i;
-    const close = findMatchingBrace(text, open);
+    const close = findMatchingBrace(text, open, 0, code);
     Object.assign(parsed, { style: parseRelationshipStyleBlock(text.slice(open + 1, close)) });
     i = close + 1;
   }
@@ -300,12 +311,27 @@ function readQuotedString(
   return null;
 }
 
-function parseNode(id: string, type: string, body: string): ParsedNode {
+function parseNode(
+  id: string,
+  type: string,
+  body: string,
+  bodyOffset: number,
+  code: string,
+  line: number
+): ParsedNode {
   const properties: Record<string, string | number | boolean> = {};
   const themeOverride: Record<string, string> = {};
   const childEntries: ParsedChildEntry[] = [];
   const subBlocksList: Record<string, string[]> = {};
   let pendingTags: string[] | undefined;
+
+  const throwError = (msg: string, offsetInsideBody: number) => {
+    const absoluteOffset = bodyOffset + offsetInsideBody;
+    const line = code.slice(0, absoluteOffset).split('\n').length;
+    const err = new Error(msg) as any;
+    err.line = line;
+    throw err;
+  };
 
   let i = 0;
   while (i < body.length) {
@@ -325,7 +351,7 @@ function parseNode(id: string, type: string, body: string): ParsedNode {
     const themeMatch = body.slice(i).match(/^themeOverride\s*:\s*\{/);
     if (themeMatch) {
       const open = i + themeMatch[0].length - 1;
-      const close = findMatchingBrace(body, open);
+      const close = findMatchingBrace(body, open, bodyOffset, code);
       Object.assign(themeOverride, parseKeyValueBlock(body.slice(open + 1, close)));
       i = close + 1;
       continue;
@@ -337,7 +363,7 @@ function parseNode(id: string, type: string, body: string): ParsedNode {
     if (subBlockMatch) {
       const blockKey = subBlockMatch[1];
       const open = i + subBlockMatch[0].length - 1;
-      const close = findMatchingBrace(body, open);
+      const close = findMatchingBrace(body, open, bodyOffset, code);
       const blockContent = body.slice(open + 1, close);
       const lines = blockContent
         .split('\n')
@@ -373,14 +399,16 @@ function parseNode(id: string, type: string, body: string): ParsedNode {
 
       if (body[afterName] === '{') {
         if (!isComponentType(name)) {
-          throw new Error(
-            `Unknown component type "${name}" for "${slotId}". Expected one of: Rectangle, Process, Ellipse, VerticalContainer.`
+          throwError(
+            `Unknown component type "${name}" for "${slotId}". Expected one of: Rectangle, Process, Ellipse, VerticalContainer.`,
+            afterName
           );
         }
         const bodyStart = afterName;
-        const close = findMatchingBrace(body, bodyStart);
+        const close = findMatchingBrace(body, bodyStart, bodyOffset, code);
         const childBody = body.slice(bodyStart + 1, close);
-        const childNode = parseNode(slotId, name, childBody);
+        const childLine = code.slice(0, bodyOffset + afterName).split('\n').length;
+        const childNode = parseNode(slotId, name, childBody, bodyOffset + bodyStart + 1, code, childLine);
         if (pendingTags) {
           childNode.tags = pendingTags;
           pendingTags = undefined;
@@ -394,10 +422,11 @@ function parseNode(id: string, type: string, body: string): ParsedNode {
       }
 
       if (isComponentType(name)) {
-        throw new Error(`Component type "${name}" requires a definition block for "${slotId}".`);
+        throwError(`Component type "${name}" requires a definition block for "${slotId}".`, afterName);
       }
 
-      const refEntry: ParsedChildEntry = { kind: 'reference', slotId, refId: name };
+      const refLine = code.slice(0, bodyOffset + i).split('\n').length;
+      const refEntry: ParsedChildEntry = { kind: 'reference', slotId, refId: name, line: refLine };
       if (pendingTags) {
         refEntry.tags = pendingTags;
         pendingTags = undefined;
@@ -410,7 +439,7 @@ function parseNode(id: string, type: string, body: string): ParsedNode {
     i++;
   }
 
-  const node: ParsedNode = { id, type, properties, themeOverride, childEntries };
+  const node: ParsedNode = { id, type, properties, themeOverride, childEntries, line };
   if (Object.keys(subBlocksList).length > 0) {
     node.subBlocks = subBlocksList;
   }
@@ -584,14 +613,43 @@ function stripComments(code: string): string {
   let i = 0;
   while (i < code.length) {
     if (code[i] === '/' && code[i + 1] === '/') {
+      result += '  ';
       i += 2;
-      while (i < code.length && code[i] !== '\n') i++;
+      while (i < code.length && code[i] !== '\n') {
+        result += ' ';
+        i++;
+      }
       continue;
     }
     if (code[i] === '/' && code[i + 1] === '*') {
+      const start = i;
       i += 2;
-      while (i < code.length - 1 && !(code[i] === '*' && code[i + 1] === '/')) i++;
-      i += 2;
+      let closed = false;
+      while (i < code.length - 1) {
+        if (code[i] === '*' && code[i + 1] === '/') {
+          closed = true;
+          break;
+        }
+        i++;
+      }
+      
+      if (closed) {
+        const commentText = code.slice(start, i + 2);
+        let replacement = '';
+        for (let c = 0; c < commentText.length; c++) {
+          replacement += commentText[c] === '\n' ? '\n' : ' ';
+        }
+        result += replacement;
+        i += 2;
+      } else {
+        const commentText = code.slice(start);
+        let replacement = '';
+        for (let c = 0; c < commentText.length; c++) {
+          replacement += commentText[c] === '\n' ? '\n' : ' ';
+        }
+        result += replacement;
+        i = code.length;
+      }
       continue;
     }
     if (code[i] === '"') {
@@ -622,7 +680,12 @@ function skipWhitespace(text: string, index: number): number {
   return index;
 }
 
-function findMatchingBrace(text: string, openIndex: number): number {
+function findMatchingBrace(
+  text: string,
+  openIndex: number,
+  absoluteOffsetBase = 0,
+  code?: string
+): number {
   let depth = 0;
   let i = openIndex;
 
@@ -651,5 +714,11 @@ function findMatchingBrace(text: string, openIndex: number): number {
     i++;
   }
 
+  if (code) {
+    const line = code.slice(0, absoluteOffsetBase + openIndex).split('\n').length;
+    const err = new Error('Unclosed block in DSL') as any;
+    err.line = line;
+    throw err;
+  }
   throw new Error('Unclosed block in DSL');
 }

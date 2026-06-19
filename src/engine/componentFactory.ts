@@ -54,7 +54,9 @@ function instantiateFromDefinition(
   registry: Map<string, ParsedNode>
 ): BaseComponent {
   if (!isComponentType(node.type)) {
-    throw new Error(`Unknown component type: ${node.type}`);
+    const err = new Error(`Unknown component type: ${node.type}`) as any;
+    if (node.line) err.line = node.line;
+    throw err;
   }
 
   const metadata: ComponentMetadata = {
@@ -450,8 +452,11 @@ function instantiateFromDefinition(
       component = new TableComponent(metadata, props, themeOverride);
       break;
     }
-    default:
-      throw new Error(`Unknown component type: ${node.type}`);
+    default: {
+      const err = new Error(`Unknown component type: ${node.type}`) as any;
+      if (node.line) err.line = node.line;
+      throw err;
+    }
   }
 
   component.validateProps();
@@ -495,7 +500,9 @@ function resolveChildEntries(
 
     const definition = registry.get(entry.refId);
     if (!definition) {
-      throw new Error(`Component reference not found: "${entry.refId}"`);
+      const err = new Error(`Component reference not found: "${entry.refId}"`) as any;
+      if (entry.line) err.line = entry.line;
+      throw err;
     }
 
     const entryTags = entry.tags || [];

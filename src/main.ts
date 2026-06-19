@@ -137,6 +137,9 @@ let currentMinimapDy = 0;
 // Range of editor text to highlight when hovering over a component in the SVG
 let activeHighlightRange: { start: number; end: number } | null = null;
 
+// Parse error line number to highlight with a red underline
+let parseErrorLine: number | null = null;
+
 // Diagram dragging lock state (locked by default to prevent accidental moves)
 let isDiagramLocked = true;
 
@@ -939,7 +942,11 @@ function updateEditorMetrics(): void {
   // Update Gutter
   let gutterHtml = '';
   for (let i = 1; i <= linesCount; i++) {
-    gutterHtml += `${i}<br>`;
+    if (parseErrorLine !== null && i === parseErrorLine) {
+      gutterHtml += `<span class="gutter-error-line">${i}</span><br>`;
+    } else {
+      gutterHtml += `${i}<br>`;
+    }
   }
   gutter.innerHTML = gutterHtml;
 
@@ -953,6 +960,13 @@ function updateEditorMetrics(): void {
     const codeElem = highlighting.querySelector('code');
     if (codeElem) {
       let html = highlightResult.html;
+      if (parseErrorLine !== null && parseErrorLine > 0) {
+        const lines = html.split('\n');
+        if (parseErrorLine <= lines.length) {
+          lines[parseErrorLine - 1] = `<span class="hl-error-line">${lines[parseErrorLine - 1]}</span>`;
+          html = lines.join('\n');
+        }
+      }
       if (code.endsWith('\n')) {
         html += '\n';
       }
@@ -1039,6 +1053,11 @@ function renderDiagram(): void {
 
   try {
     const dslDocument = parseDslDocument(code);
+    const wasError = parseErrorLine !== null;
+    parseErrorLine = null;
+    if (wasError) {
+      updateEditorMetrics();
+    }
     if (dslDocument.components.length === 0) {
       throw new Error('No components found in DSL');
     }
@@ -1290,6 +1309,15 @@ function renderDiagram(): void {
     // Update minimap
     updateMinimapContent();
   } catch (error: any) {
+    const oldLine = parseErrorLine;
+    if (error && typeof error.line === 'number') {
+      parseErrorLine = error.line;
+    } else {
+      parseErrorLine = null;
+    }
+    if (parseErrorLine !== oldLine) {
+      updateEditorMetrics();
+    }
     statusText.innerHTML = `<i class="bi bi-exclamation-triangle-fill"></i> Error: ${error.message}`;
     statusText.className = 'd-flex align-items-center gap-1.5 text-danger';
   }

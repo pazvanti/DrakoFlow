@@ -29,6 +29,7 @@ export interface Relationship {
   sourceRhombus?: boolean;
   /** True when rhombus appears at the target end: -<> */
   targetRhombus?: boolean;
+  line?: number;
 }
 
 /**
@@ -53,4 +54,5 @@ export interface ParsedRelationship {
   sourceRhombus?: boolean;
   /** True when rhombus appears at the target end: -<> */
   targetRhombus?: boolean;
+  line?: number;
 }

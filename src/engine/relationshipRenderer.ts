@@ -332,9 +332,13 @@ export function renderRelationships(
     const target = componentIndex.get(rel.targetId);
 
     if (!source || !target) {
-      throw new Error(
+      const err = new Error(
         `Relationship references unknown component: ${!source ? rel.sourceId : rel.targetId}`
-      );
+      ) as any;
+      if (rel.line) {
+        err.line = rel.line;
+      }
+      throw err;
     }
 
     const sourceIsLifeline = source.component.lifeline;
