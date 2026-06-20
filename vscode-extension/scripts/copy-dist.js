@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 const srcDir = path.join(__dirname, '../../dist');
-const destDir = path.join(__dirname, '../dist');
+const destDir = path.join(__dirname, '../webview-dist');
 
 function copyRecursiveSync(src, dest) {
   const exists = fs.existsSync(src);

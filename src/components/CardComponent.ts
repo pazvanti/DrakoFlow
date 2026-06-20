@@ -17,14 +17,25 @@ export class CardComponent extends VerticalContainerComponent {
     const gap = this.props.gap ?? 12;
 
     let innerWidth = 0;
-    let innerHeight = labelHeight;
+    let innerHeight = 0;
 
-    this.children.forEach((child, index) => {
-      const childDim = child.calculateMinDimensions(theme);
-      innerWidth = Math.max(innerWidth, childDim.width);
-      innerHeight += childDim.height;
-      if (index > 0) innerHeight += gap;
-    });
+    if (this.isHorizontalLayout()) {
+      this.children.forEach((child, index) => {
+        const childDim = child.calculateMinDimensions(theme);
+        innerWidth += childDim.width;
+        if (index > 0) innerWidth += gap;
+        innerHeight = Math.max(innerHeight, childDim.height);
+      });
+      innerHeight += labelHeight;
+    } else {
+      innerHeight = labelHeight;
+      this.children.forEach((child, index) => {
+        const childDim = child.calculateMinDimensions(theme);
+        innerWidth = Math.max(innerWidth, childDim.width);
+        innerHeight += childDim.height;
+        if (index > 0) innerHeight += gap;
+      });
+    }
 
     return {
       width: Math.max(innerWidth + padding * 2, labelWidth, 140),

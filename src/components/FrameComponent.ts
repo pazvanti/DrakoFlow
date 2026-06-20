@@ -17,14 +17,25 @@ export class FrameComponent extends VerticalContainerComponent {
     const gap = this.props.gap ?? 12;
 
     let innerWidth = 0;
-    let innerHeight = tabH; // Header space
+    let innerHeight = 0;
 
-    this.children.forEach((child, index) => {
-      const childDim = child.calculateMinDimensions(theme);
-      innerWidth = Math.max(innerWidth, childDim.width);
-      innerHeight += childDim.height;
-      if (index > 0) innerHeight += gap;
-    });
+    if (this.isHorizontalLayout()) {
+      this.children.forEach((child, index) => {
+        const childDim = child.calculateMinDimensions(theme);
+        innerWidth += childDim.width;
+        if (index > 0) innerWidth += gap;
+        innerHeight = Math.max(innerHeight, childDim.height);
+      });
+      innerHeight += tabH;
+    } else {
+      innerHeight = tabH; // Header space
+      this.children.forEach((child, index) => {
+        const childDim = child.calculateMinDimensions(theme);
+        innerWidth = Math.max(innerWidth, childDim.width);
+        innerHeight += childDim.height;
+        if (index > 0) innerHeight += gap;
+      });
+    }
 
     const frameWidth = Math.max(innerWidth + padding * 2, tabMinWidth + 20, 160);
     const frameHeight = innerHeight + padding * 2;
@@ -39,22 +50,39 @@ export class FrameComponent extends VerticalContainerComponent {
     const gap = this.props.gap ?? 12;
     const tabH = 24;
 
-    let y = tabH + padding;
+    if (this.isHorizontalLayout()) {
+      let x = padding;
+      this.children.forEach((child, index) => {
+        const childDim = child.calculateMinDimensions(theme);
+        const childWidth = childDim.width;
+        const childHeight = Math.max(childDim.height, this.bounds.height - tabH - padding * 2);
 
-    this.children.forEach((child, index) => {
-      const childDim = child.calculateMinDimensions(theme);
-      const childWidth = Math.max(childDim.width, this.bounds.width - padding * 2);
-      const childHeight = childDim.height;
+        child.bounds = {
+          x,
+          y: tabH + padding,
+          width: childWidth,
+          height: childHeight
+        };
 
-      child.bounds = {
-        x: padding,
-        y,
-        width: childWidth,
-        height: childHeight
-      };
+        x += childWidth + (index < this.children.length - 1 ? gap : 0);
+      });
+    } else {
+      let y = tabH + padding;
+      this.children.forEach((child, index) => {
+        const childDim = child.calculateMinDimensions(theme);
+        const childWidth = Math.max(childDim.width, this.bounds.width - padding * 2);
+        const childHeight = childDim.height;
 
-      y += childHeight + (index < this.children.length - 1 ? gap : 0);
-    });
+        child.bounds = {
+          x: padding,
+          y,
+          width: childWidth,
+          height: childHeight
+        };
+
+        y += childHeight + (index < this.children.length - 1 ? gap : 0);
+      });
+    }
   }
 
   render(theme: ThemeVariables): SVGElement {

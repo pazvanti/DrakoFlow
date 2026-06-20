@@ -27,20 +27,36 @@ export class VerticalContainerComponent extends BaseComponent<VerticalContainerP
     }
   }
 
+  protected isHorizontalLayout(): boolean {
+    return BaseComponent.currentLayoutAlgorithm === 'left-to-right' && this.children.some(c => c.lifeline);
+  }
+
+
   calculateMinDimensions(theme: ThemeVariables): Dimension {
     const padding = this.props.padding ?? DEFAULT_PADDING;
     const gap = this.props.gap ?? DEFAULT_GAP;
     const labelHeight = this.props.label ? 28 : 0;
 
     let innerWidth = 0;
-    let innerHeight = labelHeight;
+    let innerHeight = 0;
 
-    this.children.forEach((child, index) => {
-      const childDim = child.calculateMinDimensions(theme);
-      innerWidth = Math.max(innerWidth, childDim.width);
-      innerHeight += childDim.height;
-      if (index > 0) innerHeight += gap;
-    });
+    if (this.isHorizontalLayout()) {
+      this.children.forEach((child, index) => {
+        const childDim = child.calculateMinDimensions(theme);
+        innerWidth += childDim.width;
+        if (index > 0) innerWidth += gap;
+        innerHeight = Math.max(innerHeight, childDim.height);
+      });
+      innerHeight += labelHeight;
+    } else {
+      innerHeight = labelHeight;
+      this.children.forEach((child, index) => {
+        const childDim = child.calculateMinDimensions(theme);
+        innerWidth = Math.max(innerWidth, childDim.width);
+        innerHeight += childDim.height;
+        if (index > 0) innerHeight += gap;
+      });
+    }
 
     return {
       width: innerWidth + padding * 2,
@@ -53,22 +69,39 @@ export class VerticalContainerComponent extends BaseComponent<VerticalContainerP
     const gap = this.props.gap ?? DEFAULT_GAP;
     const labelHeight = this.props.label ? 28 : 0;
 
-    let y = padding + labelHeight;
+    if (this.isHorizontalLayout()) {
+      let x = padding;
+      this.children.forEach((child, index) => {
+        const childDim = child.calculateMinDimensions(theme);
+        const childWidth = childDim.width;
+        const childHeight = Math.max(childDim.height, this.bounds.height - padding * 2 - labelHeight);
 
-    this.children.forEach((child, index) => {
-      const childDim = child.calculateMinDimensions(theme);
-      const childWidth = Math.max(childDim.width, this.bounds.width - padding * 2);
-      const childHeight = childDim.height;
+        child.bounds = {
+          x,
+          y: padding + labelHeight,
+          width: childWidth,
+          height: childHeight
+        };
 
-      child.bounds = {
-        x: padding,
-        y,
-        width: childWidth,
-        height: childHeight
-      };
+        x += childWidth + (index < this.children.length - 1 ? gap : 0);
+      });
+    } else {
+      let y = padding + labelHeight;
+      this.children.forEach((child, index) => {
+        const childDim = child.calculateMinDimensions(theme);
+        const childWidth = Math.max(childDim.width, this.bounds.width - padding * 2);
+        const childHeight = childDim.height;
 
-      y += childHeight + (index < this.children.length - 1 ? gap : 0);
-    });
+        child.bounds = {
+          x: padding,
+          y,
+          width: childWidth,
+          height: childHeight
+        };
+
+        y += childHeight + (index < this.children.length - 1 ? gap : 0);
+      });
+    }
   }
 
   render(theme: ThemeVariables): SVGElement {

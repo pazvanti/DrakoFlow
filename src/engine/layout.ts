@@ -1,4 +1,4 @@
-import { BaseComponent, ThemeVariables, Dimension, Point, BoundingBox } from '../components/BaseComponent';
+import { BaseComponent, ThemeVariables, Dimension, Point, BoundingBox, setCurrentLayoutAlgorithm } from '../components/BaseComponent';
 import { VerticalContainerComponent } from '../components/VerticalContainerComponent';
 import { ParsedRelationship } from './Relationship';
 import { estimateTextWidth } from './routing';
@@ -841,6 +841,7 @@ export function layoutRootComponents(
   relationships: ParsedRelationship[] = [],
   algorithm: 'left-to-right' | 'top-to-bottom' = 'left-to-right'
 ): void {
+  setCurrentLayoutAlgorithm(algorithm);
   if (relationships.length > 0) {
     if (algorithm === 'top-to-bottom') {
       layoutTopToBottomV1(components, relationships, theme);

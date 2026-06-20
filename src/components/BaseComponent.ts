@@ -95,4 +95,11 @@ export abstract class BaseComponent<TProps = any, TStyle = Partial<ThemeVariable
     }
     return trimmed;
   }
+
+  public static currentLayoutAlgorithm: 'left-to-right' | 'top-to-bottom' = 'left-to-right';
 }
+
+export function setCurrentLayoutAlgorithm(alg: 'left-to-right' | 'top-to-bottom'): void {
+  BaseComponent.currentLayoutAlgorithm = alg;
+}
+

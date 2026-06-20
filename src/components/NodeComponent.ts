@@ -19,14 +19,25 @@ export class NodeComponent extends VerticalContainerComponent {
     const gap = this.props.gap ?? 12;
 
     let innerWidth = 0;
-    let innerHeight = labelHeight;
+    let innerHeight = 0;
 
-    this.children.forEach((child, index) => {
-      const childDim = child.calculateMinDimensions(theme);
-      innerWidth = Math.max(innerWidth, childDim.width);
-      innerHeight += childDim.height;
-      if (index > 0) innerHeight += gap;
-    });
+    if (this.isHorizontalLayout()) {
+      this.children.forEach((child, index) => {
+        const childDim = child.calculateMinDimensions(theme);
+        innerWidth += childDim.width;
+        if (index > 0) innerWidth += gap;
+        innerHeight = Math.max(innerHeight, childDim.height);
+      });
+      innerHeight += labelHeight;
+    } else {
+      innerHeight = labelHeight;
+      this.children.forEach((child, index) => {
+        const childDim = child.calculateMinDimensions(theme);
+        innerWidth = Math.max(innerWidth, childDim.width);
+        innerHeight += childDim.height;
+        if (index > 0) innerHeight += gap;
+      });
+    }
 
     return {
       width: Math.max(innerWidth + padding * 2, labelWidth) + this.depthOffset,
@@ -39,23 +50,41 @@ export class NodeComponent extends VerticalContainerComponent {
     const gap = this.props.gap ?? 12;
     const labelHeight = this.props.label ? 28 : 0;
 
-    // Children are offset inside the front face (which starts at y = depthOffset)
-    let y = this.depthOffset + padding + labelHeight;
+    if (this.isHorizontalLayout()) {
+      let x = padding;
+      this.children.forEach((child, index) => {
+        const childDim = child.calculateMinDimensions(theme);
+        const childWidth = childDim.width;
+        const childHeight = Math.max(childDim.height, this.bounds.height - this.depthOffset - padding * 2 - labelHeight);
 
-    this.children.forEach((child, index) => {
-      const childDim = child.calculateMinDimensions(theme);
-      const childWidth = Math.max(childDim.width, this.bounds.width - this.depthOffset - padding * 2);
-      const childHeight = childDim.height;
+        child.bounds = {
+          x,
+          y: this.depthOffset + padding + labelHeight,
+          width: childWidth,
+          height: childHeight
+        };
 
-      child.bounds = {
-        x: padding,
-        y,
-        width: childWidth,
-        height: childHeight
-      };
+        x += childWidth + (index < this.children.length - 1 ? gap : 0);
+      });
+    } else {
+      // Children are offset inside the front face (which starts at y = depthOffset)
+      let y = this.depthOffset + padding + labelHeight;
 
-      y += childHeight + (index < this.children.length - 1 ? gap : 0);
-    });
+      this.children.forEach((child, index) => {
+        const childDim = child.calculateMinDimensions(theme);
+        const childWidth = Math.max(childDim.width, this.bounds.width - this.depthOffset - padding * 2);
+        const childHeight = childDim.height;
+
+        child.bounds = {
+          x: padding,
+          y,
+          width: childWidth,
+          height: childHeight
+        };
+
+        y += childHeight + (index < this.children.length - 1 ? gap : 0);
+      });
+    }
   }
 
   render(theme: ThemeVariables): SVGElement {
