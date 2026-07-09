@@ -1,7 +1,11 @@
 interface ThemeOverride {
-  backgroundColor: string;
-  textColor: string;
-  borderColor: string;
+  backgroundColor?: string;
+  textColor?: string;
+  borderColor?: string;
+  headerBackgroundColor?: string;
+  headerTextColor?: string;
+  headerTypeColor?: string;
+  headerTypeTextColor?: string;
 }
 
 interface ComponentIR {
@@ -11,6 +15,7 @@ interface ComponentIR {
   isExplicit: boolean;
   lifeline?: boolean;
   themeOverride?: ThemeOverride;
+  headerType?: string;
   attributes?: string[];
   methods?: string[];
   children?: ComponentIR[];
@@ -191,11 +196,11 @@ export class PlantUmlTranslator {
     
     const TYPE_MAP: Record<string, string> = {
       'class': 'Class',
-      'interface': 'Interface',
-      'enum': 'Enum',
-      'annotation': 'Annotation',
-      'abstract class': 'Abstract',
-      'abstract': 'Abstract',
+      'interface': 'Class',
+      'enum': 'Class',
+      'annotation': 'Class',
+      'abstract class': 'Class',
+      'abstract': 'Class',
       'actor': 'Actor',
       'usecase': 'Usecase',
       'node': 'Node',
@@ -533,9 +538,17 @@ export class PlantUmlTranslator {
           currentClassAttributes = [];
           currentClassMethods = [];
           
-          getOrCreateComponent(elementId, mappedType, elementLabel, true);
+          const comp = getOrCreateComponent(elementId, mappedType, elementLabel, true);
+          if (typeRaw === 'abstract class' || typeRaw === 'abstract') comp.headerType = 'abstract';
+          else if (typeRaw === 'interface') comp.headerType = 'interface';
+          else if (typeRaw === 'enum') comp.headerType = 'enum';
+          else if (typeRaw === 'annotation') comp.headerType = 'annotation';
         } else {
-          getOrCreateComponent(elementId, mappedType, elementLabel, true);
+          const comp = getOrCreateComponent(elementId, mappedType, elementLabel, true);
+          if (typeRaw === 'abstract class' || typeRaw === 'abstract') comp.headerType = 'abstract';
+          else if (typeRaw === 'interface') comp.headerType = 'interface';
+          else if (typeRaw === 'enum') comp.headerType = 'enum';
+          else if (typeRaw === 'annotation') comp.headerType = 'annotation';
         }
         continue;
       }
@@ -550,9 +563,13 @@ export class PlantUmlTranslator {
         res += `${indent}  label: "${escapeString(comp.label)}"\n`;
         if (comp.themeOverride) {
           res += `${indent}  themeOverride: {\n`;
-          res += `${indent}    backgroundColor: "${comp.themeOverride.backgroundColor}"\n`;
-          res += `${indent}    textColor: "${comp.themeOverride.textColor}"\n`;
-          res += `${indent}    borderColor: "${comp.themeOverride.borderColor}"\n`;
+          if (comp.themeOverride.backgroundColor) res += `${indent}    backgroundColor: "${comp.themeOverride.backgroundColor}"\n`;
+          if (comp.themeOverride.textColor) res += `${indent}    textColor: "${comp.themeOverride.textColor}"\n`;
+          if (comp.themeOverride.borderColor) res += `${indent}    borderColor: "${comp.themeOverride.borderColor}"\n`;
+          if (comp.themeOverride.headerBackgroundColor) res += `${indent}    headerBackgroundColor: "${comp.themeOverride.headerBackgroundColor}"\n`;
+          if (comp.themeOverride.headerTextColor) res += `${indent}    headerTextColor: "${comp.themeOverride.headerTextColor}"\n`;
+          if (comp.themeOverride.headerTypeColor) res += `${indent}    headerTypeColor: "${comp.themeOverride.headerTypeColor}"\n`;
+          if (comp.themeOverride.headerTypeTextColor) res += `${indent}    headerTypeTextColor: "${comp.themeOverride.headerTypeTextColor}"\n`;
           res += `${indent}  }\n`;
         }
         if (comp.children && comp.children.length > 0) {
@@ -566,11 +583,18 @@ export class PlantUmlTranslator {
         if (comp.lifeline) {
           res += `\n${indent}  lifeline: true`;
         }
+        if (comp.headerType) {
+          res += `\n${indent}  headerType: "${comp.headerType}"`;
+        }
         if (comp.themeOverride) {
           res += `\n${indent}  themeOverride: {`;
-          res += `\n${indent}    backgroundColor: "${comp.themeOverride.backgroundColor}"`;
-          res += `\n${indent}    textColor: "${comp.themeOverride.textColor}"`;
-          res += `\n${indent}    borderColor: "${comp.themeOverride.borderColor}"`;
+          if (comp.themeOverride.backgroundColor) res += `\n${indent}    backgroundColor: "${comp.themeOverride.backgroundColor}"`;
+          if (comp.themeOverride.textColor) res += `\n${indent}    textColor: "${comp.themeOverride.textColor}"`;
+          if (comp.themeOverride.borderColor) res += `\n${indent}    borderColor: "${comp.themeOverride.borderColor}"`;
+          if (comp.themeOverride.headerBackgroundColor) res += `\n${indent}    headerBackgroundColor: "${comp.themeOverride.headerBackgroundColor}"`;
+          if (comp.themeOverride.headerTextColor) res += `\n${indent}    headerTextColor: "${comp.themeOverride.headerTextColor}"`;
+          if (comp.themeOverride.headerTypeColor) res += `\n${indent}    headerTypeColor: "${comp.themeOverride.headerTypeColor}"`;
+          if (comp.themeOverride.headerTypeTextColor) res += `\n${indent}    headerTypeTextColor: "${comp.themeOverride.headerTypeTextColor}"`;
           res += `\n${indent}  }`;
         }
         if (comp.attributes && comp.attributes.length > 0) {

@@ -21,6 +21,7 @@ const ACCESSOR_REGEX = /^([+\-#~])\s*/;
  */
 export interface ClassProps {
   label?: string;
+  headerType?: string;
   /** Legacy semicolon-separated strings */
   attributes?: string;
   methods?: string;
@@ -30,6 +31,21 @@ export interface ClassProps {
   methodLines?: string[];
   itemLines?: string[];
 }
+
+const HEADER_TYPES: Record<string, { char: string; color: string }> = {
+  'abstract': { char: 'A', color: '#a5f3fc' },
+  'class': { char: 'C', color: '#bbf7d0' },
+  'enum': { char: 'E', color: '#fed7aa' },
+  'interface': { char: 'I', color: '#e9d5ff' },
+  'annotation': { char: '@', color: '#fca5a5' },
+  'struct': { char: 'S', color: '#e2e8f0' },
+  'entity': { char: 'E', color: '#bbf7d0' },
+  'exception': { char: 'X', color: '#fecaca' },
+  'metaclass': { char: 'M', color: '#e2e8f0' },
+  'protocol': { char: 'P', color: '#e2e8f0' },
+  'record': { char: 'R', color: '#fed7aa' },
+  'stereotype': { char: 'S', color: '#fbcfe8' }
+};
 
 /** Parse a semicolon-separated legacy string into an array of trimmed, non-empty lines. */
 function parseSemicolonList(val: string | undefined): string[] {
@@ -69,6 +85,9 @@ export class ClassComponent extends BaseComponent<ClassProps> {
     const textLen = (line: string) => line.replace(ACCESSOR_REGEX, '  ').length;
 
     let maxChars = title.length;
+    if (this.props.headerType) {
+      maxChars += 3;
+    }
     attributes.forEach(l => { maxChars = Math.max(maxChars, textLen(l)); });
     methods.forEach(l => { maxChars = Math.max(maxChars, textLen(l)); });
     items.forEach(l => { maxChars = Math.max(maxChars, l.length); });
@@ -92,28 +111,89 @@ export class ClassComponent extends BaseComponent<ClassProps> {
     const font       = theme.fontFamily;
     const strokeWidth = this.lineWidth !== undefined ? this.lineWidth.toString() : '1.5';
 
+    const headerBg = this.themeOverride.headerBackgroundColor
+      ? this.resolveColor(this.themeOverride.headerBackgroundColor, theme, theme.backgroundColor)
+      : null;
+    const headerText = this.themeOverride.headerTextColor
+      ? this.resolveColor(this.themeOverride.headerTextColor, theme, textColor)
+      : textColor;
+
     const { width, height } = this.bounds;
 
     const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
     g.setAttribute('id', this.id);
     g.setAttribute('transform', `translate(${this.bounds.x}, ${this.bounds.y})`);
 
-    // Outer rect
+    // Outer rect background (fill only, no stroke, to prevent overlapping when headerBg is filled)
     const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
     rect.setAttribute('width', width.toString());
     rect.setAttribute('height', height.toString());
     rect.setAttribute('fill', background);
-    rect.setAttribute('stroke', border);
-    rect.setAttribute('stroke-width', strokeWidth);
+    rect.setAttribute('stroke', 'none');
     g.appendChild(rect);
+
+    // Header background rect (if headerBg is specified)
+    if (headerBg) {
+      const headerRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      headerRect.setAttribute('width', width.toString());
+      headerRect.setAttribute('height', '36');
+      headerRect.setAttribute('fill', headerBg);
+      headerRect.setAttribute('stroke', 'none');
+      g.appendChild(headerRect);
+    }
 
     // Header (class name / title) — bold, centred, 36px tall
     const title = this.props.label || '';
     if (title) {
       const textElem = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-      textElem.setAttribute('x', (width / 2).toString());
+      let titleX = width / 2;
+
+      if (this.props.headerType) {
+        const headerTypeLower = this.props.headerType.trim().toLowerCase();
+        const typeInfo = HEADER_TYPES[headerTypeLower] || {
+          char: this.props.headerType.trim().charAt(0).toUpperCase(),
+          color: '#e2e8f0'
+        };
+        const typeColor = this.themeOverride.headerTypeColor
+          ? this.resolveColor(this.themeOverride.headerTypeColor, theme, '#e2e8f0')
+          : typeInfo.color;
+        const typeChar = typeInfo.char;
+
+        const textWidth = title.length * 7.5;
+        const cx = width / 2 - 3 - textWidth / 2;
+        titleX = width / 2 + 11;
+
+        // Draw header type circle
+        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute('cx', cx.toString());
+        circle.setAttribute('cy', '18');
+        circle.setAttribute('r', '8');
+        circle.setAttribute('fill', typeColor);
+        circle.setAttribute('stroke', border);
+        circle.setAttribute('stroke-width', '1');
+        g.appendChild(circle);
+
+        const typeTextColor = this.themeOverride.headerTypeTextColor
+          ? this.resolveColor(this.themeOverride.headerTypeTextColor, theme, '#111827')
+          : '#111827';
+
+        // Draw header type letter
+        const charElem = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        charElem.setAttribute('x', cx.toString());
+        charElem.setAttribute('y', '18');
+        charElem.setAttribute('fill', typeTextColor);
+        charElem.setAttribute('font-family', font);
+        charElem.setAttribute('font-size', '9');
+        charElem.setAttribute('font-weight', 'bold');
+        charElem.setAttribute('text-anchor', 'middle');
+        charElem.setAttribute('dominant-baseline', 'central');
+        charElem.textContent = typeChar;
+        g.appendChild(charElem);
+      }
+
+      textElem.setAttribute('x', titleX.toString());
       textElem.setAttribute('y', '18');
-      textElem.setAttribute('fill', textColor);
+      textElem.setAttribute('fill', headerText);
       textElem.setAttribute('font-family', font);
       textElem.setAttribute('font-weight', 'bold');
       textElem.setAttribute('font-size', '13');
@@ -124,19 +204,38 @@ export class ClassComponent extends BaseComponent<ClassProps> {
     }
 
     let currentY = 36;
+    let separatorDrawnAt36 = false;
+
+    // Draw partition separator at y=36 if headerBg is present
+    if (headerBg) {
+      const sep = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      sep.setAttribute('x1', '0');
+      sep.setAttribute('y1', '36');
+      sep.setAttribute('x2', width.toString());
+      sep.setAttribute('y2', '36');
+      sep.setAttribute('stroke', border);
+      sep.setAttribute('stroke-width', strokeWidth);
+      g.appendChild(sep);
+      separatorDrawnAt36 = true;
+    }
 
     const addCompartment = (lines: string[]): void => {
       if (lines.length === 0) return;
 
       // Horizontal separator
-      const sep = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-      sep.setAttribute('x1', '0');
-      sep.setAttribute('y1', currentY.toString());
-      sep.setAttribute('x2', width.toString());
-      sep.setAttribute('y2', currentY.toString());
-      sep.setAttribute('stroke', border);
-      sep.setAttribute('stroke-width', strokeWidth);
-      g.appendChild(sep);
+      if (currentY !== 36 || !separatorDrawnAt36) {
+        const sep = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        sep.setAttribute('x1', '0');
+        sep.setAttribute('y1', currentY.toString());
+        sep.setAttribute('x2', width.toString());
+        sep.setAttribute('y2', currentY.toString());
+        sep.setAttribute('stroke', border);
+        sep.setAttribute('stroke-width', strokeWidth);
+        g.appendChild(sep);
+        if (currentY === 36) {
+          separatorDrawnAt36 = true;
+        }
+      }
 
       currentY += 6; // top padding
 
@@ -186,6 +285,15 @@ export class ClassComponent extends BaseComponent<ClassProps> {
     addCompartment(attributes);
     addCompartment(methods);
     addCompartment(items);
+
+    // Outer rect border (drawn on top of background & header rect to keep borders crisp)
+    const borderRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    borderRect.setAttribute('width', width.toString());
+    borderRect.setAttribute('height', height.toString());
+    borderRect.setAttribute('fill', 'none');
+    borderRect.setAttribute('stroke', border);
+    borderRect.setAttribute('stroke-width', strokeWidth);
+    g.appendChild(borderRect);
 
     return g;
   }

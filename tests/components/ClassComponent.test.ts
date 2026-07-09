@@ -342,4 +342,90 @@ describe('ClassComponent – render', () => {
     expect(startAligned[0].textContent).toBe('One');
     expect(startAligned[2].textContent).toBe('Three');
   });
+
+  it('handles headerBackgroundColor and headerTextColor overrides', () => {
+    const comp = new ClassComponent(
+      metadata,
+      { label: 'MyClass' },
+      { headerBackgroundColor: '#00ff00', headerTextColor: '#ff00ff' }
+    );
+    comp.bounds = makeBounds(200, 100);
+    const g = comp.render(theme);
+    
+    // There should be three rect elements: background fill, header fill, and outer border stroke
+    const rects = Array.from(g.querySelectorAll('rect'));
+    expect(rects).toHaveLength(3);
+    
+    expect(rects[0].getAttribute('fill')).toBe('#1e1e2e'); // outer background fill
+    expect(rects[1].getAttribute('fill')).toBe('#00ff00'); // header fill
+    expect(rects[1].getAttribute('height')).toBe('36');
+    expect(rects[2].getAttribute('fill')).toBe('none'); // border stroke
+    expect(rects[2].getAttribute('stroke')).toBe('#45475a');
+
+    // Header text should have the custom headerTextColor
+    const texts = Array.from(g.querySelectorAll('text'));
+    const titleText = texts.find(t => t.textContent === 'MyClass');
+    expect(titleText).toBeDefined();
+    expect(titleText!.getAttribute('fill')).toBe('#ff00ff');
+
+    // A separator at y=36 should be present
+    const lines = Array.from(g.querySelectorAll('line'));
+    const separatorAt36 = lines.find(l => l.getAttribute('y1') === '36');
+    expect(separatorAt36).toBeDefined();
+  });
+
+  it('renders a type circle marker when headerType is defined', () => {
+    const comp = new ClassComponent(
+      metadata,
+      { label: 'MyAbstractClass', headerType: 'abstract' },
+      {}
+    );
+    comp.bounds = makeBounds(200, 100);
+    const g = comp.render(theme);
+    
+    // There should be a circle element for the header type marker
+    const circles = Array.from(g.querySelectorAll('circle'));
+    expect(circles).toHaveLength(1);
+    const typeCircle = circles[0];
+    expect(typeCircle.getAttribute('fill')).toBe('#a5f3fc'); // cyan color for abstract
+    expect(typeCircle.getAttribute('r')).toBe('8');
+    
+    // There should be a text element inside the circle with "A"
+    const texts = Array.from(g.querySelectorAll('text'));
+    const letterText = texts.find(t => t.textContent === 'A');
+    expect(letterText).toBeDefined();
+    expect(letterText!.getAttribute('font-weight')).toBe('bold');
+
+    // Title text center should be shifted to the right (+11px from width/2 = 100) -> 111
+    const titleText = texts.find(t => t.textContent === 'MyAbstractClass');
+    expect(titleText).toBeDefined();
+    expect(titleText!.getAttribute('x')).toBe('111');
+  });
+
+  it('respects headerTypeColor and headerTypeTextColor overrides', () => {
+    const comp = new ClassComponent(
+      metadata,
+      { label: 'Custom', headerType: 'record' },
+      { headerTypeColor: '#ff0000', headerTypeTextColor: '#00ffff' }
+    );
+    comp.bounds = makeBounds(200, 100);
+    const g = comp.render(theme);
+    
+    const typeCircle = g.querySelector('circle');
+    expect(typeCircle!.getAttribute('fill')).toBe('#ff0000');
+
+    const texts = Array.from(g.querySelectorAll('text'));
+    const letterText = texts.find(t => t.textContent === 'R');
+    expect(letterText).toBeDefined();
+    expect(letterText!.getAttribute('fill')).toBe('#00ffff');
+  });
+
+  it('adds padding to minimum width calculation for headerType', () => {
+    const longLabel = 'A_very_long_title_that_exceeds';
+    const compNoType = new ClassComponent(metadata, { label: longLabel }, {});
+    const compWithType = new ClassComponent(metadata, { label: longLabel, headerType: 'class' }, {});
+    const dimNoType = compNoType.calculateMinDimensions(theme);
+    const dimWithType = compWithType.calculateMinDimensions(theme);
+    expect(dimWithType.width).toBe(dimNoType.width + 3 * 7.5);
+  });
 });

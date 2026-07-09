@@ -1136,6 +1136,11 @@
                       <td>String</td>
                       <td>Semicolon-separated list rows. Use this for a simple list without UML class structure.</td>
                     </tr>
+                    <tr>
+                      <td><code>headerType</code></td>
+                      <td>String</td>
+                      <td>UML class type marker. Renders a colored circle with the type initial (e.g. <code>"abstract"</code>, <code>"interface"</code>, <code>"enum"</code>, <code>"annotation"</code>, <code>"struct"</code>, <code>"record"</code>).</td>
+                    </tr>
                   </tbody>
                 </table>
 
@@ -1159,6 +1164,22 @@
                     <tr>
                       <td><code>textColor</code></td>
                       <td>Text color for header and all rows.</td>
+                    </tr>
+                    <tr>
+                      <td><code>headerBackgroundColor</code></td>
+                      <td>Fill color for the header compartment only (overrides <code>backgroundColor</code> for the header).</td>
+                    </tr>
+                    <tr>
+                      <td><code>headerTextColor</code></td>
+                      <td>Text color for the header text only (overrides <code>textColor</code> for the header).</td>
+                    </tr>
+                    <tr>
+                      <td><code>headerTypeColor</code></td>
+                      <td>Fill color for the header type circle indicator (overrides type default color).</td>
+                    </tr>
+                    <tr>
+                      <td><code>headerTypeTextColor</code></td>
+                      <td>Text color for the character inside the header type circle indicator (default is dark grey).</td>
                     </tr>
                   </tbody>
                 </table>

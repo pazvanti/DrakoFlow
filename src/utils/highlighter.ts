@@ -22,7 +22,7 @@ const tokenRegex = new RegExp(
     // Keywords/Types (all registered component types)
     '(?<keyword>\\b(Rectangle|Process|Ellipse|VerticalContainer|Cylinder|Cube|Diamond|Hexagon|Actor|Parallelogram|Class|Interface|UMLComponent|Module|Package|Text|Paragraph|SVGImage|RasterImage|Table)\\b)',
     // Properties (all known DSL property names)
-    '(?<property>\\b(label|rx|ry|lifeline|url|lineWidth|shadow|themeOverride|lineStyle|color|thickness|routeType|gap|padding|tabWidthRatio|radius|backgroundColor|borderColor|textColor|headerBackgroundColor|attributes|methods|items|align|text|content|scale|width|height|header|rows|headerAtTop|headerAtBottom)\\b)',
+    '(?<property>\\b(label|rx|ry|lifeline|url|lineWidth|shadow|themeOverride|lineStyle|color|thickness|routeType|gap|padding|tabWidthRatio|radius|backgroundColor|borderColor|textColor|headerBackgroundColor|headerTextColor|headerType|headerTypeColor|headerTypeTextColor|attributes|methods|items|align|text|content|scale|width|height|header|rows|headerAtTop|headerAtBottom)\\b)',
     // Accessor modifiers at the start of a line (after optional leading whitespace)
     // These are +, -, #, ~ when they appear as the first non-space token on a line
     // inside a class sub-block. We match them as a line-leading token.
