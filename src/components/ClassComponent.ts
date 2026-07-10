@@ -82,7 +82,15 @@ export class ClassComponent extends BaseComponent<ClassProps> {
     const items = resolveLines(this.props.itemLines, this.props.items);
 
     // Strip accessor prefix for width calculation
-    const textLen = (line: string) => line.replace(ACCESSOR_REGEX, '  ').length;
+    const textLen = (line: string) => {
+      let cleaned = line;
+      let extra = 0;
+      if (cleaned.startsWith('*')) {
+        cleaned = cleaned.slice(1).trimStart();
+        extra = 6; // badge length (approx 6 characters)
+      }
+      return cleaned.replace(ACCESSOR_REGEX, '  ').length + extra;
+    };
 
     let maxChars = title.length;
     if (this.props.headerType) {
@@ -240,10 +248,17 @@ export class ClassComponent extends BaseComponent<ClassProps> {
       currentY += 6; // top padding
 
       lines.forEach(lineText => {
+        let isMandatory = false;
+        let remainingText = lineText;
+        if (remainingText.startsWith('*')) {
+          isMandatory = true;
+          remainingText = remainingText.slice(1).trimStart();
+        }
+
         // Extract accessor prefix if present
-        const accessorMatch = lineText.match(ACCESSOR_REGEX);
+        const accessorMatch = remainingText.match(ACCESSOR_REGEX);
         const accessor = accessorMatch ? accessorMatch[1] : null;
-        const body = accessor ? lineText.slice(accessorMatch![0].length) : lineText;
+        const body = accessor ? remainingText.slice(accessorMatch![0].length) : remainingText;
 
         // Accessor glyph (coloured)
         if (accessor) {
@@ -269,8 +284,43 @@ export class ClassComponent extends BaseComponent<ClassProps> {
         bodyElem.setAttribute('font-size', '11');
         bodyElem.setAttribute('text-anchor', 'start');
         bodyElem.setAttribute('dominant-baseline', 'central');
+        if (isMandatory) {
+          bodyElem.setAttribute('font-weight', 'bold');
+        }
         bodyElem.textContent = body;
         g.appendChild(bodyElem);
+
+        // Draw (M) markdown-like inline code block badge next to text
+        if (isMandatory) {
+          const charWidth = font.includes('monospace') || font.includes('Fira Code') ? 6.6 : 6.1;
+          const textWidth = body.length * charWidth;
+          const badgeX = (accessor ? 22 : 12) + textWidth + 8;
+
+          const badgeRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+          badgeRect.setAttribute('x', badgeX.toString());
+          badgeRect.setAttribute('y', (currentY + 3).toString());
+          badgeRect.setAttribute('width', '28');
+          badgeRect.setAttribute('height', '14');
+          badgeRect.setAttribute('rx', '3');
+          badgeRect.setAttribute('ry', '3');
+          const isDark = theme.backgroundColor === '#1e1e2e' || theme.backgroundColor.startsWith('#1') || theme.backgroundColor.startsWith('#0');
+          badgeRect.setAttribute('fill', isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)');
+          badgeRect.setAttribute('stroke', isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.12)');
+          badgeRect.setAttribute('stroke-width', '1');
+          g.appendChild(badgeRect);
+
+          const badgeText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          badgeText.setAttribute('x', (badgeX + 14).toString());
+          badgeText.setAttribute('y', (currentY + 10).toString());
+          badgeText.setAttribute('fill', isDark ? '#a1a1aa' : '#555555');
+          badgeText.setAttribute('font-family', font);
+          badgeText.setAttribute('font-size', '9');
+          badgeText.setAttribute('font-weight', 'bold');
+          badgeText.setAttribute('text-anchor', 'middle');
+          badgeText.setAttribute('dominant-baseline', 'central');
+          badgeText.textContent = '(M)';
+          g.appendChild(badgeText);
+        }
 
         currentY += 20;
       });

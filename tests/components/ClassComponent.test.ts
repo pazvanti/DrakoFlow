@@ -428,4 +428,30 @@ describe('ClassComponent – render', () => {
     const dimWithType = compWithType.calculateMinDimensions(theme);
     expect(dimWithType.width).toBe(dimNoType.width + 3 * 7.5);
   });
+
+  it('supports mandatory asterisk indicators for fields and styles them bold with a distinct M badge', () => {
+    const comp = new ClassComponent(
+      metadata,
+      {
+        label: 'MyClass',
+        attributeLines: ['* +id: string', '-status: UserStatus']
+      },
+      {}
+    );
+    comp.bounds = comp.calculateMinDimensions(theme);
+    const g = comp.render(theme);
+    
+    const texts = Array.from(g.querySelectorAll('text'));
+    const idText = texts.find(t => t.textContent === 'id: string');
+    const statusText = texts.find(t => t.textContent === 'status: UserStatus');
+    const markerText = texts.find(t => t.textContent === '(M)');
+    
+    expect(idText).toBeDefined();
+    expect(statusText).toBeDefined();
+    expect(markerText).toBeDefined();
+    expect(idText!.getAttribute('font-weight')).toBe('bold');
+    expect(statusText!.getAttribute('font-weight')).toBeNull();
+    expect(markerText!.getAttribute('font-weight')).toBe('bold');
+    expect(markerText!.getAttribute('font-size')).toBe('9');
+  });
 });

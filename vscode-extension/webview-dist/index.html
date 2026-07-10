@@ -1184,20 +1184,21 @@
                   </tbody>
                 </table>
 
-                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Access Modifier Symbols (PlantUML-style)</h6>
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Access Modifier & Styling Symbols (PlantUML-style)</h6>
                 <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
                   <thead>
                     <tr>
                       <th style="width: 15%;">Symbol</th>
-                      <th style="width: 25%;">Visibility</th>
-                      <th>Colour</th>
+                      <th style="width: 25%;">Meaning</th>
+                      <th>Effect</th>
                     </tr>
                   </thead>
                   <tbody>
-                    <tr><td><code>+</code></td><td>Public</td><td style="color:#4ade80;">Green</td></tr>
-                    <tr><td><code>-</code></td><td>Private</td><td style="color:#f87171;">Red</td></tr>
-                    <tr><td><code>#</code></td><td>Protected</td><td style="color:#fb923c;">Amber</td></tr>
-                    <tr><td><code>~</code></td><td>Package / Internal</td><td style="color:#a78bfa;">Violet</td></tr>
+                    <tr><td><code>+</code></td><td>Public</td><td style="color:#4ade80;">Green modifier icon</td></tr>
+                    <tr><td><code>-</code></td><td>Private</td><td style="color:#f87171;">Red modifier icon</td></tr>
+                    <tr><td><code>#</code></td><td>Protected</td><td style="color:#fb923c;">Amber modifier icon</td></tr>
+                    <tr><td><code>~</code></td><td>Package / Internal</td><td style="color:#a78bfa;">Violet modifier icon</td></tr>
+                    <tr><td><code>*</code></td><td>Mandatory / Abstract</td><td>Renders text in <strong>bold</strong></td></tr>
                   </tbody>
                 </table>
 
@@ -1205,7 +1206,7 @@
                 <pre class="bg-black p-3 rounded font-monospace text-success" style="font-size: 0.75rem;">UserService: Class {
   label: "UserService"
   attributes: {
-    +id: string
+    * +id: string
     +name: string
     -passwordHash: string
     #createdAt: Date

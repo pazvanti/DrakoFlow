@@ -26,7 +26,7 @@ const tokenRegex = new RegExp(
     // Accessor modifiers at the start of a line (after optional leading whitespace)
     // These are +, -, #, ~ when they appear as the first non-space token on a line
     // inside a class sub-block. We match them as a line-leading token.
-    '(?<accessor>(?:^|(?<=\\n))[^\\S\\n]*[+\\-#~](?=[^>\\s]))',
+    '(?<accessor>(?:^|(?<=\\n))[^\\S\\n]*(?:\\*\\s*)?[+\\-#~](?=[^>\\s])|(?:^|(?<=\\n))[^\\S\\n]*\\*(?=\\s*[a-zA-Z_]))',
     // Operators: generic connector combinations followed by fallback chars
     '(?<operator>(?<![a-zA-Z0-9_])[<>o]+-[<>o]*(?![a-zA-Z0-9_])|(?<![a-zA-Z0-9_])[<>o]*-[<>o]+(?![a-zA-Z0-9_])|[-:{}\\[\\]\\.])',
     // Identifiers/IDs (word followed by optional spaces then ':')

@@ -833,8 +833,8 @@
         icon: "bi-layout-text-window",
         properties: [
           { name: "label", type: "String", desc: "Header text displayed in the top compartment." },
-          { name: "attributes", type: "String", desc: "Semicolon-separated attribute rows. Renders a second compartment below the header." },
-          { name: "methods", type: "String", desc: "Semicolon-separated method rows. Renders a third compartment below attributes." },
+          { name: "attributes", type: "String", desc: "Semicolon-separated attribute rows. Renders a second compartment below the header. Can be prefixed with access modifiers (+, -, #, ~) and optionally * to mark it mandatory (renders in bold)." },
+          { name: "methods", type: "String", desc: "Semicolon-separated method rows. Renders a third compartment below attributes. Can be prefixed with access modifiers (+, -, #, ~) and optionally * to mark it abstract/mandatory (renders in bold)." },
           { name: "items", type: "String", desc: "Semicolon-separated list rows. Use this for a simple list without UML class structure." },
           { name: "headerType", type: "String", desc: "UML class type marker. Renders a colored circle with the type initial (e.g. \"abstract\", \"interface\", \"enum\", \"struct\")." }
         ],
@@ -851,7 +851,7 @@
   label: "UserService"
   headerType: "class"
   attributes: {
-    +id: string
+    * +id: string
     -status: UserStatus
   }
   methods: {
