@@ -1,0 +1,1635 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description"
+    content="Comprehensive DSL Elements Reference for DrakoFlow. Learn about all supported diagram components, properties, syntax rules, and style theme overrides.">
+  <meta name="keywords"
+    content="DrakoFlow documentation, text-to-diagram DSL, architecture flowchart components, class diagram elements, robustness diagram shapes">
+  <meta name="author" content="pazvanti">
+  <title>DrakoFlow DSL Elements Reference & Documentation</title>
+
+  <link rel="canonical" href="https://pazvanti.github.io/DrakoFlow/documentation.html" />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&family=Outfit:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+  <!-- Premium Dark Styling -->
+  <style>
+    :root {
+      --bg-dark: #09090b;
+      --bg-panel: #141416;
+      --bg-card: #18181b;
+      --bg-card-hover: #222226;
+      --border-color: #27272a;
+      --text-main: #f4f4f5;
+      --text-muted: #a1a1aa;
+      --accent-blue: #3b82f6;
+      --accent-purple: #8b5cf6;
+      --accent-green: #10b981;
+      --accent-gradient: linear-gradient(135deg, #60a5fa 0%, #3b82f6 50%, #8b5cf6 100%);
+      --glow-glow: rgba(59, 130, 246, 0.15);
+      --font-outfit: 'Outfit', sans-serif;
+      --font-fira: 'Fira Code', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: var(--font-outfit);
+      line-height: 1.6;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Ambient glow orbs */
+    .glow-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(150px);
+      opacity: 0.1;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .orb-1 {
+      width: 500px;
+      height: 500px;
+      background: var(--accent-blue);
+      top: -100px;
+      left: -100px;
+    }
+
+    .orb-2 {
+      width: 400px;
+      height: 400px;
+      background: var(--accent-purple);
+      bottom: 10%;
+      right: -100px;
+    }
+
+    a {
+      color: var(--accent-blue);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    a:hover {
+      color: #60a5fa;
+    }
+
+    /* Navigation Header */
+    header.site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background-color: rgba(9, 9, 11, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .nav-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      background: var(--accent-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      transition: opacity 0.2s;
+    }
+
+    .logo:hover {
+      opacity: 0.9;
+    }
+
+    .logo i {
+      background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+    }
+
+    .nav-links a {
+      color: var(--text-muted);
+      font-weight: 500;
+      font-size: 0.95rem;
+    }
+
+    .nav-links a:hover {
+      color: var(--text-main);
+    }
+
+    .nav-links a.active {
+      color: #60a5fa;
+      border-bottom: 2px solid #3b82f6;
+      padding-bottom: 0.2rem;
+    }
+
+    .btn-launch {
+      background: var(--accent-gradient);
+      color: #ffffff;
+      padding: 0.5rem 1.25rem;
+      border-radius: 9999px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+
+    .btn-launch:hover {
+      color: #ffffff;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
+    }
+
+    /* Main Grid Layout */
+    .docs-layout {
+      max-width: 1200px;
+      margin: 2rem auto 5rem auto;
+      padding: 0 2rem;
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 3rem;
+      position: relative;
+      z-index: 10;
+    }
+
+    /* Sticky Sidebar Navigation */
+    .docs-sidebar {
+      position: sticky;
+      top: 100px;
+      height: calc(100vh - 140px);
+      overflow-y: auto;
+      padding-right: 1rem;
+    }
+
+    .docs-sidebar::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .docs-sidebar::-webkit-scrollbar-thumb {
+      background: var(--border-color);
+      border-radius: 4px;
+    }
+
+    .sidebar-section-title {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin: 1.5rem 0 0.5rem 0;
+      padding-left: 0.5rem;
+    }
+
+    .sidebar-section-title:first-child {
+      margin-top: 0;
+    }
+
+    .sidebar-menu {
+      list-style-type: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .sidebar-item a {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      color: var(--text-muted);
+      padding: 0.5rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .sidebar-item a:hover {
+      color: var(--text-main);
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .sidebar-item a.active {
+      color: #60a5fa;
+      background-color: rgba(59, 130, 246, 0.1);
+      font-weight: 600;
+    }
+
+    /* Documentation Content cards */
+    .docs-content {
+      display: flex;
+      flex-direction: column;
+      gap: 4rem;
+    }
+
+    .doc-card {
+      background-color: var(--bg-panel);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 2.5rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      scroll-margin-top: 100px;
+      transition: border-color 0.3s;
+    }
+
+    .doc-card:hover {
+      border-color: rgba(96, 165, 250, 0.3);
+    }
+
+    .doc-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .doc-title-group {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .doc-icon-box {
+      width: 48px;
+      height: 48px;
+      border-radius: 10px;
+      background-color: rgba(59, 130, 246, 0.1);
+      border: 1px solid rgba(59, 130, 246, 0.2);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #60a5fa;
+      font-size: 1.35rem;
+    }
+
+    .doc-title {
+      font-size: 1.75rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .doc-group-badge {
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: rgba(139, 92, 246, 0.1);
+      border: 1px solid rgba(139, 92, 246, 0.2);
+      color: #a78bfa;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+    }
+
+    .doc-description {
+      color: var(--text-muted);
+      font-size: 1.05rem;
+      margin-bottom: 2rem;
+      line-height: 1.6;
+    }
+
+    /* Subheadings */
+    .section-subtitle {
+      font-size: 0.95rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #3b82f6;
+      margin: 2rem 0 1rem 0;
+    }
+
+    /* Table styles */
+    .doc-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 2rem;
+      font-size: 0.9rem;
+      text-align: left;
+    }
+
+    .doc-table th,
+    .doc-table td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .doc-table th {
+      font-weight: 600;
+      color: var(--text-main);
+      background-color: rgba(255, 255, 255, 0.02);
+    }
+
+    .doc-table td {
+      color: var(--text-muted);
+    }
+
+    .doc-table code {
+      font-family: var(--font-fira);
+      color: #38bdf8;
+      background-color: rgba(56, 189, 248, 0.08);
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      border: 1px solid rgba(56, 189, 248, 0.15);
+    }
+
+    /* Code blocks */
+    .doc-code-container {
+      position: relative;
+    }
+
+    .doc-code-container pre {
+      background-color: #09090b;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 1.25rem;
+      font-family: var(--font-fira);
+      font-size: 0.85rem;
+      color: #34d399;
+      overflow-x: auto;
+    }
+
+    /* Header Panel */
+    .doc-header-panel {
+      max-width: 1200px;
+      margin: 3rem auto 1rem auto;
+      padding: 0 2rem;
+      position: relative;
+      z-index: 10;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 2rem;
+    }
+
+    .doc-header-title h1 {
+      font-size: 2.75rem;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      background: var(--accent-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.5rem;
+    }
+
+    .doc-header-title p {
+      color: var(--text-muted);
+      font-size: 1.15rem;
+      max-width: 700px;
+    }
+
+    .doc-actions {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .btn-export {
+      background-color: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: #34d399;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+
+    .btn-export:hover {
+      background-color: rgba(16, 185, 129, 0.2);
+      border-color: #10b981;
+      transform: translateY(-1px);
+    }
+
+    /* Footer styling */
+    footer {
+      border-top: 1px solid var(--border-color);
+      padding: 4rem 2rem 2rem 2rem;
+      position: relative;
+      z-index: 10;
+      margin-top: 5rem;
+    }
+
+    .footer-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .footer-brand {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 2rem;
+    }
+
+    .footer-links a {
+      color: var(--text-muted);
+    }
+
+    .footer-links a:hover {
+      color: var(--text-main);
+    }
+
+    @media (max-width: 900px) {
+      .docs-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .docs-sidebar {
+        display: none;
+      }
+
+      .doc-header-panel {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1.5rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Ambient Glow Orbs -->
+  <div class="glow-orb orb-1"></div>
+  <div class="glow-orb orb-2"></div>
+
+  <!-- Header Navigation -->
+  <header class="site-header">
+    <div class="nav-container">
+      <a href="https://pazvanti.github.io/DrakoFlow/" class="logo">
+        <i class="bi bi-diagram-3-fill"></i> DrakoFlow
+      </a>
+      <div class="nav-links">
+        <a href="./index.html#features">Features</a>
+        <a href="./index.html#syntax">Syntax Guide</a>
+        <a href="./compare.html">PlantUML Alternative</a>
+        <a href="./documentation.html" class="active">Documentation</a>
+        <a href="https://github.com/pazvanti/DrakoFlow" target="_blank" rel="noopener"><i class="bi bi-github"></i>
+          GitHub</a>
+      </div>
+      <div>
+        <a href="./drako/index.html" class="btn-launch">Launch App</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Header Panel -->
+  <div class="doc-header-panel">
+    <div class="doc-header-title">
+      <h1>DSL Elements Reference</h1>
+      <p>A comprehensive reference guide for all components, properties, style triggers, and relationship notations in
+        DrakoFlow.</p>
+    </div>
+    <div class="doc-actions">
+      <button class="btn-export" onclick="exportMarkdown()"><i class="bi bi-file-earmark-arrow-down"></i> Export
+        Markdown</button>
+    </div>
+  </div>
+
+  <!-- Main Content Layout -->
+  <div class="docs-layout">
+    <!-- Sidebar Navigation -->
+    <aside class="docs-sidebar">
+      <div class="sidebar-section-title">Common Attributes</div>
+      <ul class="sidebar-menu">
+        <li class="sidebar-item"><a href="#common-attrs"><i class="bi bi-sliders"></i> General Options</a></li>
+        <li class="sidebar-item"><a href="#theme-overrides"><i class="bi bi-palette"></i> Style Overrides</a></li>
+      </ul>
+
+      <div class="sidebar-section-title">Basic Shapes</div>
+      <ul class="sidebar-menu">
+        <li class="sidebar-item"><a href="#rectangle"><i class="bi bi-square"></i> Rectangle</a></li>
+        <li class="sidebar-item"><a href="#process"><i class="bi bi-bezier2"></i> Process</a></li>
+        <li class="sidebar-item"><a href="#ellipse"><i class="bi bi-circle"></i> Circle / Ellipse</a></li>
+        <li class="sidebar-item"><a href="#cylinder"><i class="bi bi-database"></i> Cylinder</a></li>
+        <li class="sidebar-item"><a href="#cube"><i class="bi bi-box"></i> Cube</a></li>
+        <li class="sidebar-item"><a href="#diamond"><i class="bi bi-suit-diamond"></i> Diamond</a></li>
+        <li class="sidebar-item"><a href="#hexagon"><i class="bi bi-hexagon"></i> Hexagon</a></li>
+        <li class="sidebar-item"><a href="#parallelogram"><i class="bi bi-distribute-vertical"></i> Parallelogram</a>
+        </li>
+      </ul>
+
+      <div class="sidebar-section-title">UML & Class Shapes</div>
+      <ul class="sidebar-menu">
+        <li class="sidebar-item"><a href="#class"><i class="bi bi-layout-text-window"></i> Class / List</a></li>
+        <li class="sidebar-item"><a href="#interface"><i class="bi bi-braces"></i> Interface</a></li>
+        <li class="sidebar-item"><a href="#umlcomponent"><i class="bi bi-puzzle"></i> UML Component</a></li>
+        <li class="sidebar-item"><a href="#module"><i class="bi bi-file-earmark-code"></i> Module</a></li>
+        <li class="sidebar-item"><a href="#package"><i class="bi bi-folder2"></i> Package</a></li>
+        <li class="sidebar-item"><a href="#actor"><i class="bi bi-person"></i> Actor</a></li>
+        <li class="sidebar-item"><a href="#usecase"><i class="bi bi-circle"></i> Use Case</a></li>
+        <li class="sidebar-item"><a href="#enum"><i class="bi bi-hash"></i> Enum</a></li>
+        <li class="sidebar-item"><a href="#abstract"><i class="bi bi-slash-circle"></i> Abstract Class</a></li>
+        <li class="sidebar-item"><a href="#annotation"><i class="bi bi-bookmark-star"></i> Annotation</a></li>
+        <li class="sidebar-item"><a href="#struct"><i class="bi bi-braces-asterisk"></i> Struct</a></li>
+        <li class="sidebar-item"><a href="#object"><i class="bi bi-box-arrow-in-down-right"></i> Object</a></li>
+      </ul>
+
+      <div class="sidebar-section-title">Infrastructure & Robust</div>
+      <ul class="sidebar-menu">
+        <li class="sidebar-item"><a href="#cloud"><i class="bi bi-cloud"></i> Cloud</a></li>
+        <li class="sidebar-item"><a href="#node"><i class="bi bi-box"></i> Node</a></li>
+        <li class="sidebar-item"><a href="#artifact"><i class="bi bi-file-earmark-code"></i> Artifact</a></li>
+        <li class="sidebar-item"><a href="#folder"><i class="bi bi-folder"></i> Folder</a></li>
+        <li class="sidebar-item"><a href="#frame"><i class="bi bi-aspect-ratio"></i> Frame</a></li>
+        <li class="sidebar-item"><a href="#storage"><i class="bi bi-database"></i> Storage</a></li>
+        <li class="sidebar-item"><a href="#stack"><i class="bi bi-layers"></i> Stack</a></li>
+        <li class="sidebar-item"><a href="#file"><i class="bi bi-file-earmark"></i> File</a></li>
+        <li class="sidebar-item"><a href="#card"><i class="bi bi-card-text"></i> Card</a></li>
+        <li class="sidebar-item"><a href="#table"><i class="bi bi-table"></i> Table</a></li>
+        <li class="sidebar-item"><a href="#boundary"><i class="bi bi-door-open"></i> Boundary</a></li>
+        <li class="sidebar-item"><a href="#control"><i class="bi bi-arrow-repeat"></i> Control</a></li>
+        <li class="sidebar-item"><a href="#entity"><i class="bi bi-record-circle"></i> Entity</a></li>
+        <li class="sidebar-item"><a href="#queue"><i class="bi bi-distribute-horizontal"></i> Queue</a></li>
+        <li class="sidebar-item"><a href="#collections"><i class="bi bi-collection"></i> Collections</a></li>
+        <li class="sidebar-item"><a href="#agent"><i class="bi bi-person-gear"></i> Agent</a></li>
+      </ul>
+
+      <div class="sidebar-section-title">Relationships</div>
+      <ul class="sidebar-menu">
+        <li class="sidebar-item"><a href="#arrows"><i class="bi bi-arrow-right"></i> Connectors & Styles</a></li>
+      </ul>
+    </aside>
+
+    <!-- Main Documentation Elements Render Pane -->
+    <main class="docs-content" id="docs-content-pane">
+      <!-- Container targets loaded dynamically by JavaScript below -->
+    </main>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-container">
+      <div class="footer-brand">
+        <a href="https://pazvanti.github.io/DrakoFlow/" class="logo" style="font-size: 1.25rem;">
+          <i class="bi bi-diagram-3-fill"></i> DrakoFlow
+        </a>
+        <p style="font-size: 0.8rem; margin-top: 0.25rem;">Browser-based client-side diagram mapping.</p>
+      </div>
+      <div class="footer-links">
+        <a href="./index.html#features">Features</a>
+        <a href="./compare.html">Drako vs PlantUML</a>
+        <a href="./documentation.html">Documentation</a>
+        <a href="https://github.com/pazvanti/DrakoFlow" target="_blank" rel="noopener">GitHub</a>
+      </div>
+    </div>
+    <div style="text-align: center; margin-top: 2rem; font-size: 0.8rem; opacity: 0.6;">
+      &copy; 2026 DrakoFlow. Released under GNU General Public License v3.
+    </div>
+  </footer>
+
+  <!-- Documentation Elements Data & Rendering Engine -->
+  <script>
+    const ELEMENTS_DOC = [
+      {
+        id: "common-attrs",
+        name: "General Options",
+        group: "Common Attributes",
+        description: "These general attributes are supported by all diagram elements inside DrakoFlow to customize positions, add documentation, or change borders.",
+        icon: "bi-sliders",
+        properties: [
+          { name: "doc", type: "String", desc: "Embedded Markdown documentation. Adds a document badge on the element that displays the rendered markdown in a reader modal when clicked." },
+          { name: "url", type: "String", desc: "External link URL. Adds a link badge on the element that opens the URL in a new tab when clicked." },
+          { name: "x", type: "Number", desc: "Explicit horizontal position override (in pixels). Useful for manual grid arrangements." },
+          { name: "y", type: "Number", desc: "Explicit vertical position override (in pixels). Useful for manual grid arrangements." },
+          { name: "lifeline", type: "Boolean", desc: "If set to true, treats the element as a sequence diagram lifeline, drawing a vertical dashed line below it (default false)." },
+          { name: "lineWidth", type: "Number", desc: "Defines how thick the border of the element is (in pixels)." },
+          { name: "shadow", type: "Boolean", desc: "If set to true, applies a drop shadow effect behind the element's visual contour (default false)." }
+        ],
+        example: `Database: Rectangle {
+  label: "User Store"
+  doc: "Stores critical user records."
+  url: "https://db-monitor.example.com"
+  x: 250
+  y: 120
+}`
+      },
+      {
+        id: "theme-overrides",
+        name: "Style Overrides",
+        group: "Common Attributes",
+        description: "Customize an individual element's visual presentation using style properties inside a nested themeOverride block.",
+        icon: "bi-palette",
+        properties: [
+          { name: "backgroundColor", type: "String", desc: "Local fill color override (Hex code like \"#1e1e2e\" or color name)." },
+          { name: "borderColor", type: "String", desc: "Local border outline color override." },
+          { name: "textColor", type: "String", desc: "Local text label color override." }
+        ],
+        example: `MyComponent: Rectangle {
+  label: "Custom Colors"
+  themeOverride: {
+    backgroundColor: "#1e1e2e"
+    borderColor: "#cdd6f4"
+    textColor: "#f5e0dc"
+  }
+}`
+      },
+      {
+        id: "rectangle",
+        name: "Rectangle Component",
+        group: "Basic Shapes",
+        description: "A standard rectangular component supporting corner rounding, label text, and local styling overrides.",
+        icon: "bi-square",
+        properties: [
+          { name: "label", type: "String", desc: "Text displayed inside the rectangle." },
+          { name: "rx", type: "Number", desc: "Horizontal corner radius (for rounded corners)." },
+          { name: "ry", type: "Number", desc: "Vertical corner radius (for rounded corners)." }
+        ],
+        themeOverrides: [
+          { name: "backgroundColor", desc: "Fill color of the rectangle." },
+          { name: "borderColor", desc: "Outline color of the rectangle." },
+          { name: "textColor", desc: "Label text color." }
+        ],
+        example: `UserDB: Rectangle {
+  label: "User DB"
+  rx: 8
+  ry: 8
+}`
+      },
+      {
+        id: "process",
+        name: "Process Component",
+        group: "Basic Shapes",
+        description: "A process step box with vertical segment lines, commonly used in flowchart steps or sequence actors.",
+        icon: "bi-bezier2",
+        properties: [
+          { name: "label", type: "String", desc: "Text displayed inside the central section." },
+          { name: "tabWidthRatio", type: "Number", desc: "Ratio of the side segments' width (default is 0.2)." }
+        ],
+        themeOverrides: [
+          { name: "backgroundColor", desc: "Fill color of the process box." },
+          { name: "borderColor", desc: "Border and segment line color." },
+          { name: "textColor", desc: "Label text color." }
+        ],
+        example: `ProcessQueue: Process {
+  label: "Publish Event"
+  tabWidthRatio: 0.15
+}`
+      },
+      {
+        id: "ellipse",
+        name: "Circle / Ellipse Component",
+        group: "Basic Shapes",
+        description: "Renders a circle (using radius) or an oval/ellipse shape (using rx and ry).",
+        icon: "bi-circle",
+        properties: [
+          { name: "label", type: "String", desc: "Text displayed inside the circle." },
+          { name: "radius", type: "Number", desc: "Radius for a perfect circle." },
+          { name: "rx", type: "Number", desc: "Horizontal radius for an ellipse." },
+          { name: "ry", type: "Number", desc: "Vertical radius for an ellipse." }
+        ],
+        themeOverrides: [
+          { name: "backgroundColor", desc: "Fill color of the circle/ellipse." },
+          { name: "borderColor", desc: "Outline color of the circle/ellipse." },
+          { name: "textColor", desc: "Label text color." }
+        ],
+        example: `StartNode: Ellipse {
+  label: "Start"
+  radius: 35
+}`
+      },
+      {
+        id: "cylinder",
+        name: "Cylinder Component",
+        group: "Basic Shapes",
+        description: "A 3D cylinder shape commonly used to represent databases or data stores.",
+        icon: "bi-database",
+        properties: [
+          { name: "label", type: "String", desc: "Text label displayed inside the cylinder." }
+        ],
+        themeOverrides: [
+          { name: "backgroundColor", desc: "Fill color of the cylinder." },
+          { name: "borderColor", desc: "Outline and ellipse lines color." },
+          { name: "textColor", desc: "Label text color." }
+        ],
+        example: `MainDB: Cylinder {
+  label: "PostgreSQL Database"
+}`
+      },
+      {
+        id: "cube",
+        name: "Cube Component",
+        group: "Basic Shapes",
+        description: "A 3D isometric box shape commonly representing services, processes, or modules.",
+        icon: "bi-box",
+        properties: [
+          { name: "label", type: "String", desc: "Text label displayed on the front face of the cube." }
+        ],
+        themeOverrides: [
+          { name: "backgroundColor", desc: "Fill color of the front face (isometric perspective shading is applied automatically)." },
+          { name: "borderColor", desc: "Outline and 3D corner lines color." },
+          { name: "textColor", desc: "Label text color." }
+        ],
+        example: `AuthService: Cube {
+  label: "Auth Service"
+}`
+      },
+      {
+        id: "diamond",
+        name: "Diamond Component",
+        group: "Basic Shapes",
+        description: "A diamond shape used for decision gateways or conditional branches in flowcharts.",
+        icon: "bi-suit-diamond",
+        properties: [
+          { name: "label", type: "String", desc: "Text label displayed inside the diamond." }
+        ],
+        themeOverrides: [
+          { name: "backgroundColor", desc: "Fill color of the diamond." },
+          { name: "borderColor", desc: "Outline color of the diamond." },
+          { name: "textColor", desc: "Label text color." }
+        ],
+        example: `CheckToken: Diamond {
+  label: "Token Valid?"
+}`
+      },
+      {
+        id: "hexagon",
+        name: "Hexagon Component",
+        group: "Basic Shapes",
+        description: "A flat-topped hexagon shape commonly representing subsystems, domains, or nodes.",
+        icon: "bi-hexagon",
+        properties: [
+          { name: "label", type: "String", desc: "Text label displayed inside the hexagon." }
+        ],
+        themeOverrides: [
+          { name: "backgroundColor", desc: "Fill color of the hexagon." },
+          { name: "borderColor", desc: "Outline color of the hexagon." },
+          { name: "textColor", desc: "Label text color." }
+        ],
+        example: `CoreDomain: Hexagon {
+  label: "Core Domain"
+}`
+      },
+      {
+        id: "parallelogram",
+        name: "Parallelogram Component",
+        group: "Basic Shapes",
+        description: "A skewed parallelogram shape representing data, input/output files, or reports.",
+        icon: "bi-distribute-vertical",
+        properties: [
+          { name: "label", type: "String", desc: "Text label displayed inside the parallelogram." }
+        ],
+        themeOverrides: [
+          { name: "backgroundColor", desc: "Fill color of the parallelogram." },
+          { name: "borderColor", desc: "Outline color of the parallelogram." },
+          { name: "textColor", desc: "Label text color." }
+        ],
+        example: `UploadCSV: Parallelogram {
+  label: "Process CSV file"
+}`
+      },
+      {
+        id: "class",
+        name: "Class / List Component",
+        group: "UML & Class Shapes",
+        description: "A multi-compartment shape for UML class diagrams (with attributes and methods sections) or structured lists (with a header and item rows). Separated by line dividers.",
+        icon: "bi-layout-text-window",
+        properties: [
+          { name: "label", type: "String", desc: "Header text displayed in the top compartment." },
+          { name: "attributes", type: "String", desc: "Semicolon-separated attribute rows. Renders a second compartment below the header." },
+          { name: "methods", type: "String", desc: "Semicolon-separated method rows. Renders a third compartment below attributes." },
+          { name: "items", type: "String", desc: "Semicolon-separated list rows. Use this for a simple list without UML class structure." },
+          { name: "headerType", type: "String", desc: "UML class type marker. Renders a colored circle with the type initial (e.g. \"abstract\", \"interface\", \"enum\", \"struct\")." }
+        ],
+        themeOverrides: [
+          { name: "backgroundColor", desc: "Fill color for all compartments." },
+          { name: "borderColor", desc: "Border and compartment divider line color." },
+          { name: "textColor", desc: "Text color for header and all rows." },
+          { name: "headerBackgroundColor", desc: "Fill color for the header compartment only." },
+          { name: "headerTextColor", desc: "Text color for the header text only." },
+          { name: "headerTypeColor", desc: "Fill color for the header type circle indicator." },
+          { name: "headerTypeTextColor", desc: "Text color for the character inside the header type circle indicator." }
+        ],
+        example: `UserService: Class {
+  label: "UserService"
+  headerType: "class"
+  attributes: {
+    +id: string
+    -status: UserStatus
+  }
+  methods: {
+    +getUser(): User
+  }
+}`
+      },
+      {
+        id: "interface",
+        name: "Interface Component",
+        group: "UML & Class Shapes",
+        description: "A UML interface shape — rectangle with an «interface» stereotype label in italics above the bold interface name.",
+        icon: "bi-braces",
+        properties: [
+          { name: "label", type: "String", desc: "The interface name displayed in the header." }
+        ],
+        themeOverrides: [
+          { name: "backgroundColor", desc: "Fill color of the interface box." },
+          { name: "borderColor", desc: "Outline color of the interface box." },
+          { name: "textColor", desc: "Label text color." }
+        ],
+        example: `IUserRepository: Interface {
+  label: "IUserRepository"
+}`
+      },
+      {
+        id: "umlcomponent",
+        name: "UML Component Shape",
+        group: "UML & Class Shapes",
+        description: "A UML component box — rectangle with the standard two-notch component icon on the right side.",
+        icon: "bi-puzzle",
+        properties: [
+          { name: "label", type: "String", desc: "The component name displayed inside the shape." }
+        ],
+        themeOverrides: [
+          { name: "backgroundColor", desc: "Fill color of the component box." },
+          { name: "borderColor", desc: "Outline color." },
+          { name: "textColor", desc: "Label text color." }
+        ],
+        example: `OrderApi: UMLComponent {
+  label: "OrderApiComponent"
+}`
+      },
+      {
+        id: "module",
+        name: "Module Shape",
+        group: "UML & Class Shapes",
+        description: "A file-card shape with a small tab on the top-left corner — commonly used to represent a code module, file, or library unit.",
+        icon: "bi-file-earmark-code",
+        properties: [
+          { name: "label", type: "String", desc: "The module name displayed in the body." }
+        ],
+        themeOverrides: [
+          { name: "backgroundColor", desc: "Fill color of the module." },
+          { name: "borderColor", desc: "Outline color." },
+          { name: "textColor", desc: "Label text color." }
+        ],
+        example: `ConfigLoader: Module {
+  label: "config_loader.py"
+}`
+      },
+      {
+        id: "package",
+        name: "Package Shape",
+        group: "UML & Class Shapes",
+        description: "A UML package — folder-style shape with a wider angled tab on the top-left that displays the package name, hosting nested child elements.",
+        icon: "bi-folder2",
+        properties: [
+          { name: "label", type: "String", desc: "The package name shown inside the tab." },
+          { name: "gap", type: "Number", desc: "Vertical spacing in pixels between nested children." },
+          { name: "padding", type: "Number", desc: "Internal margins around nested children." }
+        ],
+        themeOverrides: [
+          { name: "backgroundColor", desc: "Fill color of the package tab." },
+          { name: "borderColor", desc: "Color of the outer package box stroke." },
+          { name: "textColor", desc: "Package tab header text color." }
+        ],
+        example: `CorePkg: Package {
+  label: "com.core.services"
+  gap: 15
+  ServiceA: Rectangle { label: "Service A" }
+}`
+      },
+      {
+        id: "actor",
+        name: "Actor Component",
+        group: "UML & Class Shapes",
+        description: "A UML stick figure representing system users, actors, or external integrations.",
+        icon: "bi-person",
+        properties: [
+          { name: "label", type: "String", desc: "Text label displayed centered below the stick figure." }
+        ],
+        themeOverrides: [
+          { name: "backgroundColor", desc: "Fill color of the actor figure components." },
+          { name: "borderColor", desc: "Outline color of the actor lines." },
+          { name: "textColor", desc: "Label text color." }
+        ],
+        example: `Customer: Actor {
+  label: "End User"
+}`
+      },
+      {
+        id: "usecase",
+        name: "Use Case Component",
+        group: "UML & Class Shapes",
+        description: "A horizontal flat ellipse representing system use cases or user goals.",
+        icon: "bi-circle",
+        properties: [
+          { name: "label", type: "String", desc: "The use case name displayed inside the ellipse." }
+        ],
+        themeOverrides: [
+          { name: "backgroundColor", desc: "Fill color." },
+          { name: "borderColor", desc: "Outline color." },
+          { name: "textColor", desc: "Label text color." }
+        ],
+        example: `LoginFlow: Usecase {
+  label: "Log In User"
+}`
+      },
+      {
+        id: "enum",
+        name: "Enum Component",
+        group: "UML & Class Shapes",
+        description: "Renders a UML enumeration class showing the «enumeration» stereotype above the enum name.",
+        icon: "bi-hash",
+        properties: [
+          { name: "label", type: "String", desc: "The name of the enum." },
+          { name: "attributes", type: "String", desc: "Semicolon-separated attributes/values row." },
+          { name: "items", type: "String", desc: "Semicolon-separated item row rows (list view)." }
+        ],
+        themeOverrides: [
+          { name: "backgroundColor", desc: "Fill color." },
+          { name: "borderColor", desc: "Outline color." },
+          { name: "textColor", desc: "Label text color." }
+        ],
+        example: `StateEnum: Enum {
+  label: "UserStatus"
+  items: {
+    ACTIVE
+    SUSPENDED
+  }
+}`
+      },
+      {
+        id: "abstract",
+        name: "Abstract Class Component",
+        group: "UML & Class Shapes",
+        description: "Renders a UML abstract class with italicized bold title name and a «abstract» stereotype row.",
+        icon: "bi-slash-circle",
+        properties: [
+          { name: "label", type: "String", desc: "The name of the abstract class." },
+          { name: "attributes", type: "String", desc: "Semicolon-separated attribute definitions." },
+          { name: "methods", type: "String", desc: "Semicolon-separated method definitions." }
+        ],
+        themeOverrides: [
+          { name: "backgroundColor", desc: "Fill color." },
+          { name: "borderColor", desc: "Outline color." },
+          { name: "textColor", desc: "Label text color." }
+        ],
+        example: `BaseController: Abstract {
+  label: "Controller"
+  methods: {
+    +execute(): void
+  }
+}`
+      },
+      {
+        id: "annotation",
+        name: "Annotation Component",
+        group: "UML & Class Shapes",
+        description: "Renders a UML annotation class showing the «annotation» stereotype row.",
+        icon: "bi-bookmark-star",
+        properties: [
+          { name: "label", type: "String", desc: "The name of the annotation." },
+          { name: "attributes", type: "String", desc: "Semicolon-separated annotation elements/properties." }
+        ],
+        themeOverrides: [
+          { name: "backgroundColor", desc: "Fill color." },
+          { name: "borderColor", desc: "Outline color." },
+          { name: "textColor", desc: "Label text color." }
+        ],
+        example: `TableAnnotation: Annotation {
+  label: "Table"
+  attributes: {
+    name: String
+  }
+}`
+      },
+      {
+        id: "struct",
+        name: "Struct Component",
+        group: "UML & Class Shapes",
+        description: "Renders a UML structure showing the «struct» stereotype row above the structure name.",
+        icon: "bi-braces-asterisk",
+        properties: [
+          { name: "label", type: "String", desc: "The name of the struct." },
+          { name: "attributes", type: "String", desc: "Semicolon-separated struct fields." }
+        ],
+        themeOverrides: [
+          { name: "backgroundColor", desc: "Fill color." },
+          { name: "borderColor", desc: "Outline color." },
+          { name: "textColor", desc: "Label text color." }
+        ],
+        example: `UserDTO: Struct {
+  label: "UserDTO"
+  attributes: {
+    id: UUID
+    name: String
+  }
+}`
+      },
+      {
+        id: "object",
+        name: "Object Component",
+        group: "UML & Class Shapes",
+        description: "Renders a UML object instance with the header label underlined, representing instances in Object Diagrams.",
+        icon: "bi-box-arrow-in-down-right",
+        properties: [
+          { name: "label", type: "String", desc: "The object instance name (e.g. myUser : User)." },
+          { name: "attributes", type: "String", desc: "Semicolon-separated attribute value assignments." }
+        ],
+        themeOverrides: [
+          { name: "backgroundColor", desc: "Fill color." },
+          { name: "borderColor", desc: "Outline color." },
+          { name: "textColor", desc: "Label text color." }
+        ],
+        example: `aliceInstance: Object {
+  label: "alice: User"
+  attributes: {
+    id = "1"
+    role = "Admin"
+  }
+}`
+      },
+      {
+        id: "cloud",
+        name: "Cloud Component",
+        group: "Infrastructure & Robust",
+        description: "A container component styled as a cloud, ideal for representing external services, APIs, or internet-based infrastructure networks.",
+        icon: "bi-cloud",
+        properties: [
+          { name: "label", type: "String", desc: "The text label displayed inside the cloud container." }
+        ],
+        themeOverrides: [
+          { name: "backgroundColor", desc: "Fill color of the cloud." },
+          { name: "borderColor", desc: "Outline color." },
+          { name: "textColor", desc: "Label text color." }
+        ],
+        example: `AWSCloud: Cloud {
+  label: "Amazon Web Services"
+}`
+      },
+      {
+        id: "node",
+        name: "Node Component",
+        group: "Infrastructure & Robust",
+        description: "A 3D box component representing a physical machine, virtual server, or device. Nodes can host other sub-components.",
+        icon: "bi-box",
+        properties: [
+          { name: "label", type: "String", desc: "The name of the node displayed near the top." }
+        ],
+        themeOverrides: [
+          { name: "backgroundColor", desc: "Fill color." },
+          { name: "borderColor", desc: "Outline color." },
+          { name: "textColor", desc: "Label text color." }
+        ],
+        example: `AppServer: Node {
+  label: "Linux EC2 Host"
+  ApiApp: Rectangle { label: "Microservice" }
+}`
+      },
+      {
+        id: "artifact",
+        name: "Artifact Component",
+        group: "Infrastructure & Robust",
+        description: "Represents a deployed file or software package (like a JAR, zip, or executable), decorated with a document sheet icon in the top-right corner.",
+        icon: "bi-file-earmark-code",
+        properties: [
+          { name: "label", type: "String", desc: "The name of the artifact." }
+        ],
+        themeOverrides: [
+          { name: "backgroundColor", desc: "Fill color." },
+          { name: "borderColor", desc: "Outline color." },
+          { name: "textColor", desc: "Label text color." }
+        ],
+        example: `ZipArchive: Artifact {
+  label: "build-v1.2.zip"
+}`
+      },
+      {
+        id: "folder",
+        name: "Folder Component",
+        group: "Infrastructure & Robust",
+        description: "A container component styled as a folder outline. Useful for showing file-system structures or grouping related packages.",
+        icon: "bi-folder",
+        properties: [
+          { name: "label", type: "String", desc: "Folder name shown inside the tab." }
+        ],
+        themeOverrides: [
+          { name: "backgroundColor", desc: "Fill color." },
+          { name: "borderColor", desc: "Outline color." },
+          { name: "textColor", desc: "Label text color." }
+        ],
+        example: `ImageDir: Folder {
+  label: "static/images"
+}`
+      },
+      {
+        id: "frame",
+        name: "Frame Component",
+        group: "Infrastructure & Robust",
+        description: "A general-purpose container representing a logical boundaries frame. Displays a top-left title tab with an angled cut.",
+        icon: "bi-aspect-ratio",
+        properties: [
+          { name: "label", type: "String", desc: "The frame name." }
+        ],
+        themeOverrides: [
+          { name: "backgroundColor", desc: "Fill color." },
+          { name: "borderColor", desc: "Outline color." },
+          { name: "textColor", desc: "Label text color." }
+        ],
+        example: `SecBound: Frame {
+  label: "DMZ Zone"
+}`
+      },
+      {
+        id: "storage",
+        name: "Storage Component",
+        group: "Infrastructure & Robust",
+        description: "Represents a storage volume or storage drum, rendered as a horizontal cylinder/barrel.",
+        icon: "bi-database",
+        properties: [
+          { name: "label", type: "String", desc: "Storage name label." }
+        ],
+        themeOverrides: [
+          { name: "backgroundColor", desc: "Fill color." },
+          { name: "borderColor", desc: "Outline color." },
+          { name: "textColor", desc: "Label text color." }
+        ],
+        example: `BackupS3: Storage {
+  label: "Raw Log Storage"
+}`
+      },
+      {
+        id: "stack",
+        name: "Stack Component",
+        group: "Infrastructure & Robust",
+        description: "A component styled as a stack of boxes to represent layered components or clusters of similar instances.",
+        icon: "bi-layers",
+        properties: [
+          { name: "label", type: "String", desc: "The name of the stack." }
+        ],
+        themeOverrides: [
+          { name: "backgroundColor", desc: "Fill color." },
+          { name: "borderColor", desc: "Outline color." },
+          { name: "textColor", desc: "Label text color." }
+        ],
+        example: `AppCluster: Stack {
+  label: "K8s Pod Replicas"
+}`
+      },
+      {
+        id: "file",
+        name: "File Component",
+        group: "Infrastructure & Robust",
+        description: "A clean sheet of paper representation with a folded top-right corner to indicate a file resource.",
+        icon: "bi-file-earmark",
+        properties: [
+          { name: "label", type: "String", desc: "Name of the file." }
+        ],
+        themeOverrides: [
+          { name: "backgroundColor", desc: "Fill color." },
+          { name: "borderColor", desc: "Outline color." },
+          { name: "textColor", desc: "Label text color." }
+        ],
+        example: `SettingsIni: File {
+  label: "settings.ini"
+}`
+      },
+      {
+        id: "card",
+        name: "Card Component",
+        group: "Infrastructure & Robust",
+        description: "A clean, modern container styled as a card with a left-accent color stripe representing smaller hosts, tasks, or logical components.",
+        icon: "bi-card-text",
+        properties: [
+          { name: "label", type: "String", desc: "The card header label." }
+        ],
+        themeOverrides: [
+          { name: "backgroundColor", desc: "Fill color." },
+          { name: "borderColor", desc: "Outline color." },
+          { name: "textColor", desc: "Label text color." }
+        ],
+        example: `JobQueue: Card {
+  label: "Background Worker"
+}`
+      },
+      {
+        id: "table",
+        name: "Table Component",
+        group: "Infrastructure & Robust",
+        description: "A tabular grid layout that displays rows and columns of text, ideal for architecture comparisons, API mapping tables, or data listings.",
+        icon: "bi-table",
+        properties: [
+          { name: "header", type: "Array of Strings", desc: "An array of column headers, e.g. { \"Col 1\", \"Col 2\" }." },
+          { name: "rows", type: "Matrix of Strings", desc: "A list of cell values for each row, e.g. { { \"Cell A1\", \"Cell A2\" }, { \"Cell B1\", \"Cell B2\" } }." },
+          { name: "headerAtTop", type: "Boolean", desc: "If set to false, hides the top header row (default: true)." },
+          { name: "headerAtBottom", type: "Boolean", desc: "If set to true, repeats the header row at the bottom of the table (default: false)." }
+        ],
+        themeOverrides: [
+          { name: "backgroundColor", desc: "Fill color of the cell rows." },
+          { name: "borderColor", desc: "Outline and grid lines color." },
+          { name: "textColor", desc: "Text color inside cells." },
+          { name: "headerBackgroundColor", desc: "Fill color of the header row (overrides default background color)." }
+        ],
+        example: `MetricTable: Table {
+  header: { "Metric", "Value", "Threshold" }
+  rows: {
+    { "CPU Usage", "45%", "80%" }
+    { "Mem Usage", "65%", "90%" }
+  }
+}`
+      },
+      {
+        id: "boundary",
+        name: "Boundary Component",
+        group: "Infrastructure & Robust",
+        description: "A robustness diagram boundary node representing user interfaces, APIs, or system boundaries.",
+        icon: "bi-door-open",
+        properties: [
+          { name: "label", type: "String", desc: "The boundary name displayed centered below the icon." }
+        ],
+        themeOverrides: [
+          { name: "backgroundColor", desc: "Fill color." },
+          { name: "borderColor", desc: "Outline color." },
+          { name: "textColor", desc: "Label text color." }
+        ],
+        example: `WebUI: Boundary {
+  label: "Web Browser UI"
+}`
+      },
+      {
+        id: "control",
+        name: "Control Component",
+        group: "Infrastructure & Robust",
+        description: "A robustness diagram control node representing business logic, loop controllers, or orchestrators.",
+        icon: "bi-arrow-repeat",
+        properties: [
+          { name: "label", type: "String", desc: "The control loop name displayed centered below the icon." }
+        ],
+        themeOverrides: [
+          { name: "backgroundColor", desc: "Fill color." },
+          { name: "borderColor", desc: "Outline color." },
+          { name: "textColor", desc: "Label text color." }
+        ],
+        example: `BillingEngine: Control {
+  label: "Invoice Generator"
+}`
+      },
+      {
+        id: "entity",
+        name: "Entity Component",
+        group: "Infrastructure & Robust",
+        description: "A robustness diagram entity node representing database records, persistent data structures, or server models.",
+        icon: "bi-record-circle",
+        properties: [
+          { name: "label", type: "String", desc: "The entity name displayed centered below the icon." }
+        ],
+        themeOverrides: [
+          { name: "backgroundColor", desc: "Fill color." },
+          { name: "borderColor", desc: "Outline color." },
+          { name: "textColor", desc: "Label text color." }
+        ],
+        example: `UserRow: Entity {
+  label: "User Model"
+}`
+      },
+      {
+        id: "queue",
+        name: "Queue Component",
+        group: "Infrastructure & Robust",
+        description: "A horizontal cylinder tube representing a message broker, FIFO queue, or streaming data pipeline.",
+        icon: "bi-distribute-horizontal",
+        properties: [
+          { name: "label", type: "String", desc: "The name of the queue." }
+        ],
+        themeOverrides: [
+          { name: "backgroundColor", desc: "Fill color." },
+          { name: "borderColor", desc: "Outline color." },
+          { name: "textColor", desc: "Label text color." }
+        ],
+        example: `JobQueue: Queue {
+  label: "Kafka Jobs Topic"
+}`
+      },
+      {
+        id: "collections",
+        name: "Collections Component",
+        group: "Infrastructure & Robust",
+        description: "Representing multiple stacked participants, drawn as two overlapping offset rectangles.",
+        icon: "bi-collection",
+        properties: [
+          { name: "label", type: "String", desc: "The name of the collections." }
+        ],
+        themeOverrides: [
+          { name: "backgroundColor", desc: "Fill color." },
+          { name: "borderColor", desc: "Outline color." },
+          { name: "textColor", desc: "Label text color." }
+        ],
+        example: `ActiveSessions: Collections {
+  label: "Web Sessions"
+}`
+      },
+      {
+        id: "agent",
+        name: "Agent Container Component",
+        group: "Infrastructure & Robust",
+        description: "An active software agent container styled with a premium double-line outline. Supports nesting child components inside.",
+        icon: "bi-person-gear",
+        properties: [
+          { name: "label", type: "String", desc: "The name/title of the agent container." },
+          { name: "gap", type: "Number", desc: "Vertical gap spacing in pixels between nested children." },
+          { name: "padding", type: "Number", desc: "Internal padding space around nested components." }
+        ],
+        themeOverrides: [
+          { name: "backgroundColor", desc: "Fill color of the container." },
+          { name: "borderColor", desc: "Color of the outer box stroke." },
+          { name: "textColor", desc: "Agent title text color." }
+        ],
+        example: `MonitorAgent: Agent {
+  label: "Telemetry Agent"
+  DbProbe: Rectangle { label: "DB Probe" }
+}`
+      }
+    ];
+
+    // Page Load initializer
+    window.addEventListener('DOMContentLoaded', () => {
+      renderDocSections();
+      setupScrollspy();
+    });
+
+    // Render elements dynamically
+    function renderDocSections() {
+      const container = document.getElementById('docs-content-pane');
+      let currentHTML = '';
+
+      ELEMENTS_DOC.forEach(elem => {
+        let propertiesHTML = '';
+        if (elem.properties && elem.properties.length > 0) {
+          propertiesHTML = `
+            <div class="section-subtitle">Properties</div>
+            <table class="doc-table">
+              <thead>
+                <tr>
+                  <th style="width: 25%;">Property</th>
+                  <th style="width: 20%;">Type</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${elem.properties.map(p => `
+                  <tr>
+                    <td><code>${p.name}</code></td>
+                    <td><code>${p.type}</code></td>
+                    <td>${p.desc}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          `;
+        }
+
+        let overridesHTML = '';
+        if (elem.themeOverrides && elem.themeOverrides.length > 0) {
+          overridesHTML = `
+            <div class="section-subtitle">Theme Overrides (themeOverride block)</div>
+            <table class="doc-table">
+              <thead>
+                <tr>
+                  <th style="width: 35%;">Style Property</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${elem.themeOverrides.map(o => `
+                  <tr>
+                    <td><code>${o.name}</code></td>
+                    <td>${o.desc}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          `;
+        }
+
+        currentHTML += `
+          <article class="doc-card" id="${elem.id}">
+            <div class="doc-header">
+              <div class="doc-title-group">
+                <div class="doc-icon-box">
+                  <i class="bi ${elem.icon}"></i>
+                </div>
+                <div>
+                  <h2 class="doc-title">${elem.name}</h2>
+                </div>
+              </div>
+              <span class="doc-group-badge">${elem.group}</span>
+            </div>
+            <p class="doc-description">${elem.description}</p>
+            
+            ${propertiesHTML}
+            ${overridesHTML}
+            
+            <div class="section-subtitle">Example Usage</div>
+            <div class="doc-code-container">
+              <pre><code>${elem.example.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</code></pre>
+            </div>
+          </article>
+        `;
+      });
+
+      // Append relationships section manually at the end
+      currentHTML += `
+        <article class="doc-card" id="arrows">
+          <div class="doc-header">
+            <div class="doc-title-group">
+              <div class="doc-icon-box">
+                <i class="bi bi-arrow-right"></i>
+              </div>
+              <div>
+                <h2 class="doc-title">Relationships & Connectors</h2>
+              </div>
+            </div>
+            <span class="doc-group-badge">Relationships</span>
+          </div>
+          <p class="doc-description">Describe connection paths and arrow symbols between elements inside DrakoFlow.</p>
+          
+          <div class="section-subtitle">Connector Notations</div>
+          <table class="doc-table">
+            <thead>
+              <tr>
+                <th style="width: 25%;">Notation</th>
+                <th>Connector Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td><code>A -> B</code></td><td>Directed connector pointing from A to B.</td></tr>
+              <tr><td><code>A <- B</code></td><td>Directed connector pointing from B to A.</td></tr>
+              <tr><td><code>A <-> B</code></td><td>Bidirectional arrow between elements.</td></tr>
+              <tr><td><code>A - B</code></td><td>Straight line link without any arrow head indicators.</td></tr>
+              <tr><td><code>A o-> B</code></td><td>Circle marker at source, directed arrow head at target.</td></tr>
+              <tr><td><code>A <>- B</code></td><td>Diamond marker (aggregation/composition) at the source.</td></tr>
+            </tbody>
+          </table>
+
+          <div class="section-subtitle">Connector Style Options</div>
+          <table class="doc-table">
+            <thead>
+              <tr>
+                <th style="width: 25%;">Property</th>
+                <th style="width: 20%;">Type</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td><code>color</code></td><td>String</td><td>Stroke outline hex/rgb color of the connector.</td></tr>
+              <tr><td><code>lineStyle</code></td><td>String</td><td>Dash type: <code>"solid"</code>, <code>"dashed"</code>, or <code>"dotted"</code>.</td></tr>
+              <tr><td><code>thickness</code></td><td>Number</td><td>Line thickness in pixels (defaults to 2).</td></tr>
+              <tr><td><code>routeType</code></td><td>String</td><td>Routing algorithm: <code>"straight"</code>, <code>"orthogonal"</code>, or <code>"curved"</code>.</td></tr>
+            </tbody>
+          </table>
+
+          <div class="section-subtitle">Example Usage</div>
+          <div class="doc-code-container">
+            <pre><code>WebClient -> ApiGateway : "GET /v1/users" {\n  lineStyle: "dashed"\n  color: "#60a5fa"\n  routeType: "orthogonal"\n}</code></pre>
+          </div>
+        </article>
+      `;
+
+      container.innerHTML = currentHTML;
+    }
+
+    // Scrollspy navigation highlight
+    function setupScrollspy() {
+      const sidebarLinks = document.querySelectorAll('.sidebar-item a');
+      const cards = document.querySelectorAll('.doc-card');
+
+      window.addEventListener('scroll', () => {
+        let activeId = '';
+        const scrollPos = window.scrollY + 120;
+
+        cards.forEach(card => {
+          const cardTop = card.offsetTop;
+          const cardHeight = card.offsetHeight;
+          if (scrollPos >= cardTop && scrollPos < cardTop + cardHeight) {
+            activeId = card.getAttribute('id');
+          }
+        });
+
+        if (activeId) {
+          sidebarLinks.forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('href') === `#${activeId}`) {
+              link.classList.add('active');
+            }
+          });
+        }
+      });
+    }
+
+    // Generate and Download elements Markdown file
+    function exportMarkdown() {
+      let md = `# DrakoFlow DSL Elements Reference & Documentation\n\n`;
+      md += `This document provides a comprehensive reference of all supported DSL components, properties, styles, and relationship paths in DrakoFlow.\n\n`;
+
+      ELEMENTS_DOC.forEach(elem => {
+        md += `## ${elem.name}\n\n`;
+        md += `**Group:** ${elem.group}\n\n`;
+        md += `${elem.description}\n\n`;
+
+        if (elem.properties && elem.properties.length > 0) {
+          md += `### Properties\n\n`;
+          md += `| Property | Type | Description |\n`;
+          md += `| :--- | :--- | :--- |\n`;
+          elem.properties.forEach(p => {
+            md += `| \`${p.name}\` | \`${p.type}\` | ${p.desc} |\n`;
+          });
+          md += `\n`;
+        }
+
+        if (elem.themeOverrides && elem.themeOverrides.length > 0) {
+          md += `### Theme Overrides (themeOverride block)\n\n`;
+          md += `| Style Property | Description |\n`;
+          md += `| :--- | :--- |\n`;
+          elem.themeOverrides.forEach(o => {
+            md += `| \`${o.name}\` | ${o.desc} |\n`;
+          });
+          md += `\n`;
+        }
+
+        md += `### Example Usage\n\n\`\`\`scss\n${elem.example}\n\`\`\`\n\n---\n\n`;
+      });
+
+      // Add relationships
+      md += `## Relationships & Connectors\n\n`;
+      md += `Describe connections, cardinalities, and lines between components.\n\n`;
+      md += `### Connector Notations\n\n`;
+      md += `| Notation | Description |\n`;
+      md += `| :--- | :--- |\n`;
+      md += `| \`A -> B\` | Directed connector pointing from A to B. |\n`;
+      md += `| \`A <- B\` | Directed connector pointing from B to A. |\n`;
+      md += `| \`A <-> B\` | Bidirectional arrow between elements. |\n`;
+      md += `| \`A - B\` | Straight line link without any arrow head indicators. |\n`;
+      md += `| \`A o-> B\` | Circle marker at source, directed arrow head at target. |\n`;
+      md += `| \`A <>- B\` | Diamond marker (aggregation/composition) at the source. |\n\n`;
+
+      md += `### Connector Style Options\n\n`;
+      md += `| Property | Type | Description |\n`;
+      md += `| :--- | :--- | :--- |\n`;
+      md += `| \`color\` | String | Stroke outline hex/rgb color of the connector. |\n`;
+      md += `| \`lineStyle\` | String | Dash type: "solid", "dashed", or "dotted". |\n`;
+      md += `| \`thickness\` | Number | Line thickness in pixels (defaults to 2). |\n`;
+      md += `| \`routeType\` | String | Routing algorithm: "straight", "orthogonal", or "curved". |\n\n`;
+
+      md += `### Example Usage\n\n\`\`\`scss\nWebClient -> ApiGateway : "GET /v1/users" {\n  lineStyle: "dashed"\n  color: "#60a5fa"\n  routeType: "orthogonal"\n}\n\`\`\`\n`;
+
+      // Download trigger
+      const blob = new Blob([md], { type: 'text/markdown;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'DrakoFlow_Elements_Documentation.md');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  </script>
+</body>
+
+</html>

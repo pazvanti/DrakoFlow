@@ -6,7 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description"
     content="Looking for a PlantUML alternative or Mermaid.js alternative? Compare DrakoFlow, a modern client-side text-to-diagram tool with drag-and-drop fine-tuning, responsive standalone exports, and offline privacy.">
-  <meta name="keywords" content="PlantUML alternative, Mermaid.js alternative, text to diagram alternative, markdown diagram alternative, drag and drop diagram editor, serverless diagrams, offline flowchart editor">
+  <meta name="keywords"
+    content="PlantUML alternative, Mermaid.js alternative, text to diagram alternative, markdown diagram alternative, drag and drop diagram editor, serverless diagrams, offline flowchart editor">
   <meta name="author" content="pazvanti">
   <meta name="robots" content="index, follow">
   <title>DrakoFlow vs PlantUML & Mermaid.js | Modern Text-to-Diagram Alternative</title>
@@ -83,9 +84,17 @@
     }
 
     @keyframes drift {
-      0% { transform: translate(0, 0) scale(1); }
-      50% { transform: translate(50px, -40px) scale(1.05); }
-      100% { transform: translate(0, 0) scale(1); }
+      0% {
+        transform: translate(0, 0) scale(1);
+      }
+
+      50% {
+        transform: translate(50px, -40px) scale(1.05);
+      }
+
+      100% {
+        transform: translate(0, 0) scale(1);
+      }
     }
 
     .orb-1 {
@@ -358,7 +367,7 @@
       border-radius: 12px;
       overflow: hidden;
       margin-bottom: 5rem;
-      box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
     }
 
     table.compare-table {
@@ -367,7 +376,8 @@
       text-align: left;
     }
 
-    table.compare-table th, table.compare-table td {
+    table.compare-table th,
+    table.compare-table td {
       padding: 1.25rem 1.5rem;
       border-bottom: 1px solid var(--border-color);
     }
@@ -539,13 +549,35 @@
     }
 
     /* Highlighting classes */
-    .hl-comment { color: #6b7280; font-style: italic; }
-    .hl-string { color: #10b981; }
-    .hl-keyword { color: #c084fc; font-weight: 600; }
-    .hl-id { color: #fbbf24; }
-    .hl-property { color: #60a5fa; }
-    .hl-number { color: #f97316; }
-    .hl-operator { color: #22d3ee; }
+    .hl-comment {
+      color: #6b7280;
+      font-style: italic;
+    }
+
+    .hl-string {
+      color: #10b981;
+    }
+
+    .hl-keyword {
+      color: #c084fc;
+      font-weight: 600;
+    }
+
+    .hl-id {
+      color: #fbbf24;
+    }
+
+    .hl-property {
+      color: #60a5fa;
+    }
+
+    .hl-number {
+      color: #f97316;
+    }
+
+    .hl-operator {
+      color: #22d3ee;
+    }
 
     /* FAQ Section */
     section.faq-section {
@@ -687,7 +719,8 @@
         font-size: 0.85rem;
       }
 
-      table.compare-table th, table.compare-table td {
+      table.compare-table th,
+      table.compare-table td {
         padding: 1rem 0.75rem;
       }
     }
@@ -724,9 +757,9 @@
       </a>
       <div class="nav-links">
         <a href="./index.html#features">Features</a>
-        <a href="./index.html#demo">Live Demo</a>
         <a href="./index.html#syntax">Syntax Guide</a>
         <a href="./compare.html" class="active">PlantUML Alternative</a>
+        <a href="./documentation.html">Documentation</a>
         <a href="https://github.com/pazvanti/DrakoFlow" target="_blank" rel="noopener"><i class="bi bi-github"></i>
           GitHub</a>
       </div>
@@ -742,7 +775,8 @@
       <i class="bi bi-shuffle"></i> Comparing Modern Diagram Tools
     </div>
     <h1>The Ultimate <span class="gradient-text">PlantUML & Mermaid.js</span> Alternative</h1>
-    <p class="lead">Discover a faster, privacy-focused, and interactive approach to text-to-diagramming. Compile lightweight DSL definitions client-side and fine-tune your layouts with interactive drag-and-drop mechanics.</p>
+    <p class="lead">Discover a faster, privacy-focused, and interactive approach to text-to-diagramming. Compile
+      lightweight DSL definitions client-side and fine-tune your layouts with interactive drag-and-drop mechanics.</p>
   </section>
 
   <!-- Compare Container Section -->
@@ -753,24 +787,34 @@
       <!-- PlantUML Card -->
       <div class="compare-card">
         <h3><i class="bi bi-x-square text-danger"></i> The PlantUML Pain Points</h3>
-        <p class="card-desc">While highly powerful, PlantUML comes with legacy limitations that complicate modern developer workflows:</p>
+        <p class="card-desc">While highly powerful, PlantUML comes with legacy limitations that complicate modern
+          developer workflows:</p>
         <ul>
-          <li><i class="bi bi-x-circle-fill"></i> <span>Requires a Java runtime, local Graphviz installation, or external web service rendering.</span></li>
-          <li><i class="bi bi-x-circle-fill"></i> <span>Exported SVGs and images are completely static, offering no panning, zooming, or tag filtering.</span></li>
-          <li><i class="bi bi-x-circle-fill"></i> <span>Automatic layout is rigid; you cannot manually position components to clean up overlapping connectors.</span></li>
-          <li><i class="bi bi-x-circle-fill"></i> <span>No built-in interactive player or code-viewer widget for embedding.</span></li>
+          <li><i class="bi bi-x-circle-fill"></i> <span>Requires a Java runtime, local Graphviz installation, or
+              external web service rendering.</span></li>
+          <li><i class="bi bi-x-circle-fill"></i> <span>Exported SVGs and images are completely static, offering no
+              panning, zooming, or tag filtering.</span></li>
+          <li><i class="bi bi-x-circle-fill"></i> <span>Automatic layout is rigid; you cannot manually position
+              components to clean up overlapping connectors.</span></li>
+          <li><i class="bi bi-x-circle-fill"></i> <span>No built-in interactive player or code-viewer widget for
+              embedding.</span></li>
         </ul>
       </div>
 
       <!-- DrakoFlow Card -->
       <div class="compare-card primary-alt">
         <h3><i class="bi bi-star-fill text-warning"></i> The DrakoFlow Advantage</h3>
-        <p class="card-desc">DrakoFlow bridges the gap between text-to-diagram automation and coordinate-level layout control:</p>
+        <p class="card-desc">DrakoFlow bridges the gap between text-to-diagram automation and coordinate-level layout
+          control:</p>
         <ul>
-          <li><i class="bi bi-check-circle-fill"></i> <span><strong>100% Client-Side</strong>: No local software, JVM, or server-side rendering required. Works fully offline in your browser.</span></li>
-          <li><i class="bi bi-check-circle-fill"></i> <span><strong>Bidirectional Drag & Drop</strong>: Drag components on a grid to override coordinates, automatically updating the DSL code in real time.</span></li>
-          <li><i class="bi bi-check-circle-fill"></i> <span><strong>Interactive HTML Player Export</strong>: Package diagrams into single-file widgets with panning, zooming, minimap navigation, and filter tags.</span></li>
-          <li><i class="bi bi-check-circle-fill"></i> <span><strong>Absolute Privacy</strong>: Diagrams are processed entirely in memory, sharing states only via compressed client-side URL parameters.</span></li>
+          <li><i class="bi bi-check-circle-fill"></i> <span><strong>100% Client-Side</strong>: No local software, JVM,
+              or server-side rendering required. Works fully offline in your browser.</span></li>
+          <li><i class="bi bi-check-circle-fill"></i> <span><strong>Bidirectional Drag & Drop</strong>: Drag components
+              on a grid to override coordinates, automatically updating the DSL code in real time.</span></li>
+          <li><i class="bi bi-check-circle-fill"></i> <span><strong>Interactive HTML Player Export</strong>: Package
+              diagrams into single-file widgets with panning, zooming, minimap navigation, and filter tags.</span></li>
+          <li><i class="bi bi-check-circle-fill"></i> <span><strong>Absolute Privacy</strong>: Diagrams are processed
+              entirely in memory, sharing states only via compressed client-side URL parameters.</span></li>
         </ul>
       </div>
 
@@ -779,10 +823,14 @@
         <h3><i class="bi bi-x-square text-danger"></i> The Mermaid.js Trade-offs</h3>
         <p class="card-desc">Mermaid.js is popular for Markdown documentations, but lacks essential design features:</p>
         <ul>
-          <li><i class="bi bi-x-circle-fill"></i> <span>Connections and layout alignments break easily in nested subsystems or vertical boundaries.</span></li>
-          <li><i class="bi bi-x-circle-fill"></i> <span>Graph directions are global (TB/LR); you cannot route individual connections to clean up layout clutter.</span></li>
-          <li><i class="bi bi-x-circle-fill"></i> <span>No direct code-to-canvas layout synchronization or interactive drag positioning.</span></li>
-          <li><i class="bi bi-x-circle-fill"></i> <span>Exporting standalone interactive widgets for external embeds is not supported natively.</span></li>
+          <li><i class="bi bi-x-circle-fill"></i> <span>Connections and layout alignments break easily in nested
+              subsystems or vertical boundaries.</span></li>
+          <li><i class="bi bi-x-circle-fill"></i> <span>Graph directions are global (TB/LR); you cannot route individual
+              connections to clean up layout clutter.</span></li>
+          <li><i class="bi bi-x-circle-fill"></i> <span>No direct code-to-canvas layout synchronization or interactive
+              drag positioning.</span></li>
+          <li><i class="bi bi-x-circle-fill"></i> <span>Exporting standalone interactive widgets for external embeds is
+              not supported natively.</span></li>
         </ul>
       </div>
     </div>
@@ -803,18 +851,21 @@
           <tr>
             <td class="feature-title">Real-time Client-Side Rendering</td>
             <td class="cell-drako"><span class="badge-yes"><i class="bi bi-check-lg"></i> Yes</span></td>
-            <td><span class="badge-no"><i class="bi bi-x-lg"></i> No</span> <span style="font-size: 0.8rem; color: var(--text-muted);">(requires JVM/Server)</span></td>
+            <td><span class="badge-no"><i class="bi bi-x-lg"></i> No</span> <span
+                style="font-size: 0.8rem; color: var(--text-muted);">(requires JVM/Server)</span></td>
             <td><span class="badge-yes"><i class="bi bi-check-lg"></i> Yes</span></td>
           </tr>
           <tr>
             <td class="feature-title">Drag-and-Drop Positioning Overrides</td>
-            <td class="cell-drako"><span class="badge-yes"><i class="bi bi-check-lg"></i> Yes</span> <span style="font-size: 0.8rem; color: #a1a1aa;">(reconstructs DSL)</span></td>
+            <td class="cell-drako"><span class="badge-yes"><i class="bi bi-check-lg"></i> Yes</span> <span
+                style="font-size: 0.8rem; color: #a1a1aa;">(reconstructs DSL)</span></td>
             <td><span class="badge-no"><i class="bi bi-x-lg"></i> No</span></td>
             <td><span class="badge-no"><i class="bi bi-x-lg"></i> No</span></td>
           </tr>
           <tr>
             <td class="feature-title">Interactive HTML Export Player</td>
-            <td class="cell-drako"><span class="badge-yes"><i class="bi bi-check-lg"></i> Yes</span> <span style="font-size: 0.8rem; color: #a1a1aa;">(Self-contained file)</span></td>
+            <td class="cell-drako"><span class="badge-yes"><i class="bi bi-check-lg"></i> Yes</span> <span
+                style="font-size: 0.8rem; color: #a1a1aa;">(Self-contained file)</span></td>
             <td><span class="badge-no"><i class="bi bi-x-lg"></i> No</span></td>
             <td><span class="badge-no"><i class="bi bi-x-lg"></i> No</span></td>
           </tr>
@@ -832,32 +883,42 @@
           </tr>
           <tr>
             <td class="feature-title">Privacy (No Server Round-trips)</td>
-            <td class="cell-drako"><span class="badge-yes"><i class="bi bi-check-lg"></i> Yes</span> <span style="font-size: 0.8rem; color: #a1a1aa;">(100% private)</span></td>
-            <td><span class="badge-limited"><i class="bi bi-exclamation-triangle-fill"></i> Limited</span> <span style="font-size: 0.8rem; color: var(--text-muted);">(often uses public server)</span></td>
+            <td class="cell-drako"><span class="badge-yes"><i class="bi bi-check-lg"></i> Yes</span> <span
+                style="font-size: 0.8rem; color: #a1a1aa;">(100% private)</span></td>
+            <td><span class="badge-limited"><i class="bi bi-exclamation-triangle-fill"></i> Limited</span> <span
+                style="font-size: 0.8rem; color: var(--text-muted);">(often uses public server)</span></td>
             <td><span class="badge-yes"><i class="bi bi-check-lg"></i> Yes</span></td>
           </tr>
           <tr>
             <td class="feature-title">PlantUML Migration Utility</td>
-            <td class="cell-drako"><span class="badge-yes"><i class="bi bi-check-lg"></i> Yes</span> <span style="font-size: 0.8rem; color: #a1a1aa;">(Built-in Importer)</span></td>
+            <td class="cell-drako"><span class="badge-yes"><i class="bi bi-check-lg"></i> Yes</span> <span
+                style="font-size: 0.8rem; color: #a1a1aa;">(Built-in Importer)</span></td>
             <td>N/A</td>
             <td><span class="badge-no"><i class="bi bi-x-lg"></i> No</span></td>
           </tr>
           <tr>
             <td class="feature-title">Theme Overrides Per Component</td>
             <td class="cell-drako"><span class="badge-yes"><i class="bi bi-check-lg"></i> Yes</span></td>
-            <td><span class="badge-limited"><i class="bi bi-exclamation-triangle-fill"></i> Limited</span> <span style="font-size: 0.8rem; color: var(--text-muted);">(complex inline skinparam)</span></td>
-            <td><span class="badge-limited"><i class="bi bi-exclamation-triangle-fill"></i> Limited</span> <span style="font-size: 0.8rem; color: var(--text-muted);">(manual CSS setup)</span></td>
+            <td><span class="badge-limited"><i class="bi bi-exclamation-triangle-fill"></i> Limited</span> <span
+                style="font-size: 0.8rem; color: var(--text-muted);">(complex inline skinparam)</span></td>
+            <td><span class="badge-limited"><i class="bi bi-exclamation-triangle-fill"></i> Limited</span> <span
+                style="font-size: 0.8rem; color: var(--text-muted);">(manual CSS setup)</span></td>
           </tr>
           <tr>
             <td class="feature-title">Sharing via URL</td>
-            <td class="cell-drako"><span class="badge-yes"><i class="bi bi-check-lg"></i> Yes</span> <span style="font-size: 0.8rem; color: #a1a1aa;">(Serverless compressed state)</span></td>
-            <td><span class="badge-yes"><i class="bi bi-check-lg"></i> Yes</span> <span style="font-size: 0.8rem; color: var(--text-muted);">(requires server decoding)</span></td>
-            <td><span class="badge-yes"><i class="bi bi-check-lg"></i> Yes</span> <span style="font-size: 0.8rem; color: var(--text-muted);">(compressed hash link)</span></td>
+            <td class="cell-drako"><span class="badge-yes"><i class="bi bi-check-lg"></i> Yes</span> <span
+                style="font-size: 0.8rem; color: #a1a1aa;">(Serverless compressed state)</span></td>
+            <td><span class="badge-yes"><i class="bi bi-check-lg"></i> Yes</span> <span
+                style="font-size: 0.8rem; color: var(--text-muted);">(requires server decoding)</span></td>
+            <td><span class="badge-yes"><i class="bi bi-check-lg"></i> Yes</span> <span
+                style="font-size: 0.8rem; color: var(--text-muted);">(compressed hash link)</span></td>
           </tr>
           <tr>
             <td class="feature-title">SVG Vector Export</td>
-            <td class="cell-drako"><span class="badge-yes"><i class="bi bi-check-lg"></i> Yes</span> <span style="font-size: 0.8rem; color: #a1a1aa;">(Direct SVG copy)</span></td>
-            <td><span class="badge-yes"><i class="bi bi-check-lg"></i> Yes</span> <span style="font-size: 0.8rem; color: var(--text-muted);">(via local CLI or server)</span></td>
+            <td class="cell-drako"><span class="badge-yes"><i class="bi bi-check-lg"></i> Yes</span> <span
+                style="font-size: 0.8rem; color: #a1a1aa;">(Direct SVG copy)</span></td>
+            <td><span class="badge-yes"><i class="bi bi-check-lg"></i> Yes</span> <span
+                style="font-size: 0.8rem; color: var(--text-muted);">(via local CLI or server)</span></td>
             <td><span class="badge-yes"><i class="bi bi-check-lg"></i> Yes</span></td>
           </tr>
         </tbody>
@@ -977,19 +1038,29 @@ Client <span class="hl-operator">-&gt;</span> API : <span class="hl-string">"GET
     <div class="faq-grid">
       <div class="faq-item">
         <h3>Is DrakoFlow really fully serverless?</h3>
-        <p>Yes. DrakoFlow compiles diagram DSL code, computes component coordinates, routes orthogonal lines, and exports files entirely client-side inside your browser. No data is sent to external servers, protecting your system architectures from leak risks.</p>
+        <p>Yes. DrakoFlow compiles diagram DSL code, computes component coordinates, routes orthogonal lines, and
+          exports files entirely client-side inside your browser. No data is sent to external servers, protecting your
+          system architectures from leak risks.</p>
       </div>
       <div class="faq-item">
         <h3>How does the drag-and-drop layout integration work?</h3>
-        <p>Traditional tools like PlantUML or Mermaid rebuild the entire canvas automatically, often shifting shapes randomly when code changes. DrakoFlow computes a starting layout. If you drag any component to rearrange it, the tool automatically appends or updates coordinates (e.g. <code>x: 100, y: 150</code>) directly inside the DSL script editor. Your adjustments are saved persistently as code properties.</p>
+        <p>Traditional tools like PlantUML or Mermaid rebuild the entire canvas automatically, often shifting shapes
+          randomly when code changes. DrakoFlow computes a starting layout. If you drag any component to rearrange it,
+          the tool automatically appends or updates coordinates (e.g. <code>x: 100, y: 150</code>) directly inside the
+          DSL script editor. Your adjustments are saved persistently as code properties.</p>
       </div>
       <div class="faq-item">
         <h3>Can I migrate my existing PlantUML diagrams?</h3>
-        <p>Absolutely. DrakoFlow features a built-in **PlantUML Importer (Beta)**. You can paste standard PlantUML sequence, activity, or class diagrams, and the translator will instantly parse them into native, editable DrakoFlow DSL blocks.</p>
+        <p>Absolutely. DrakoFlow features a built-in **PlantUML Importer (Beta)**. You can paste standard PlantUML
+          sequence, activity, or class diagrams, and the translator will instantly parse them into native, editable
+          DrakoFlow DSL blocks.</p>
       </div>
       <div class="faq-item">
         <h3>Why is it a great alternative to Mermaid.js?</h3>
-        <p>Mermaid.js is perfect for static markdown pages but hard to manage for complex diagrams. In Mermaid, arrows cross randomly and overlap on large systems. DrakoFlow provides absolute local arrow routing overrides, nested structural UML packages, snap-to-grid, and interactive standalone HTML player exports equipped with tag-based filters.</p>
+        <p>Mermaid.js is perfect for static markdown pages but hard to manage for complex diagrams. In Mermaid, arrows
+          cross randomly and overlap on large systems. DrakoFlow provides absolute local arrow routing overrides, nested
+          structural UML packages, snap-to-grid, and interactive standalone HTML player exports equipped with tag-based
+          filters.</p>
       </div>
     </div>
   </section>
@@ -997,7 +1068,8 @@ Client <span class="hl-operator">-&gt;</span> API : <span class="hl-string">"GET
   <!-- Bottom CTA -->
   <section class="cta-banner">
     <h2>Ditch Rigid Diagramming Tools</h2>
-    <p>Get the automation of code-based diagramming combined with the layout flexibility of drag-and-drop design. No installations required.</p>
+    <p>Get the automation of code-based diagramming combined with the layout flexibility of drag-and-drop design. No
+      installations required.</p>
     <a href="./drako/index.html" class="btn-hero-primary">
       Open Interactive Editor <i class="bi bi-arrow-right"></i>
     </a>
