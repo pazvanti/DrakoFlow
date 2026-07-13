@@ -444,7 +444,7 @@ describe('ClassComponent – render', () => {
     const texts = Array.from(g.querySelectorAll('text'));
     const idText = texts.find(t => t.textContent === 'id: string');
     const statusText = texts.find(t => t.textContent === 'status: UserStatus');
-    const markerText = texts.find(t => t.textContent === '(M)');
+    const markerText = texts.find(t => t.textContent === 'M');
     
     expect(idText).toBeDefined();
     expect(statusText).toBeDefined();
@@ -453,5 +453,34 @@ describe('ClassComponent – render', () => {
     expect(statusText!.getAttribute('font-weight')).toBeNull();
     expect(markerText!.getAttribute('font-weight')).toBe('bold');
     expect(markerText!.getAttribute('font-size')).toBe('9');
+  });
+
+  it('renders a tooltip on the header type circle/letter icon', () => {
+    const comp = new ClassComponent(
+      metadata,
+      { label: 'TestTooltip', headerType: 'interface' },
+      {}
+    );
+    comp.bounds = comp.calculateMinDimensions(theme);
+    const g = comp.render(theme);
+
+    const titleElement = g.querySelector('g > title');
+    expect(titleElement).toBeDefined();
+    expect(titleElement!.textContent).toBe('interface');
+  });
+
+  it('automatically colorizes the header background depending on the header type when colorizeHeaderByType is true', () => {
+    const comp = new ClassComponent(
+      metadata,
+      { label: 'AutoColorClass', headerType: 'enum', colorizeHeaderByType: true },
+      {}
+    );
+    comp.bounds = comp.calculateMinDimensions(theme);
+    const g = comp.render(theme);
+
+    const rects = Array.from(g.querySelectorAll('rect'));
+    expect(rects).toHaveLength(3);
+    const headerRect = rects[1];
+    expect(headerRect.getAttribute('fill')).toBe('#8b765d'); // darkened peach color for enum
   });
 });

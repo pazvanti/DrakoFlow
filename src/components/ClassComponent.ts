@@ -22,6 +22,7 @@ const ACCESSOR_REGEX = /^([+\-#~])\s*/;
 export interface ClassProps {
   label?: string;
   headerType?: string;
+  colorizeHeaderByType?: boolean;
   /** Legacy semicolon-separated strings */
   attributes?: string;
   methods?: string;
@@ -44,7 +45,8 @@ const HEADER_TYPES: Record<string, { char: string; color: string }> = {
   'metaclass': { char: 'M', color: '#e2e8f0' },
   'protocol': { char: 'P', color: '#e2e8f0' },
   'record': { char: 'R', color: '#fed7aa' },
-  'stereotype': { char: 'S', color: '#fbcfe8' }
+  'stereotype': { char: 'S', color: '#fbcfe8' },
+  'json': { char: 'J', color: '#caff99ff' }
 };
 
 /** Parse a semicolon-separated legacy string into an array of trimmed, non-empty lines. */
@@ -106,22 +108,30 @@ export class ClassComponent extends BaseComponent<ClassProps> {
     // Height: 36px header, each compartment adds 12px spacing + 20px per line
     let height = 36;
     if (attributes.length > 0) height += 12 + attributes.length * 20;
-    if (methods.length > 0)    height += 12 + methods.length * 20;
-    if (items.length > 0)      height += 12 + items.length * 20;
+    if (methods.length > 0) height += 12 + methods.length * 20;
+    if (items.length > 0) height += 12 + items.length * 20;
 
     return { width, height };
   }
 
   render(theme: ThemeVariables): SVGElement {
     const background = this.resolveColor(this.themeOverride.backgroundColor, theme, theme.backgroundColor);
-    const textColor  = this.resolveColor(this.themeOverride.textColor, theme, theme.textColor);
-    const border     = this.resolveColor(this.themeOverride.borderColor, theme, theme.borderColor);
-    const font       = theme.fontFamily;
+    const textColor = this.resolveColor(this.themeOverride.textColor, theme, theme.textColor);
+    const border = this.resolveColor(this.themeOverride.borderColor, theme, theme.borderColor);
+    const font = theme.fontFamily;
     const strokeWidth = this.lineWidth !== undefined ? this.lineWidth.toString() : '1.5';
 
-    const headerBg = this.themeOverride.headerBackgroundColor
+    let headerBg = this.themeOverride.headerBackgroundColor
       ? this.resolveColor(this.themeOverride.headerBackgroundColor, theme, theme.backgroundColor)
       : null;
+
+    if (!headerBg && (this.props.colorizeHeaderByType === true || (this.props.colorizeHeaderByType as any) === 'true') && this.props.headerType) {
+      const headerTypeLower = this.props.headerType.trim().toLowerCase();
+      const typeInfo = HEADER_TYPES[headerTypeLower];
+      if (typeInfo) {
+        headerBg = darkenColor(typeInfo.color, 45);
+      }
+    }
     const headerText = this.themeOverride.headerTextColor
       ? this.resolveColor(this.themeOverride.headerTextColor, theme, textColor)
       : textColor;
@@ -171,7 +181,12 @@ export class ClassComponent extends BaseComponent<ClassProps> {
         const cx = width / 2 - 3 - textWidth / 2;
         titleX = width / 2 + 11;
 
-        // Draw header type circle
+        // Draw header type circle & letter inside a group with a tooltip
+        const typeGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        const tooltip = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+        tooltip.textContent = this.props.headerType;
+        typeGroup.appendChild(tooltip);
+
         const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
         circle.setAttribute('cx', cx.toString());
         circle.setAttribute('cy', '18');
@@ -179,7 +194,7 @@ export class ClassComponent extends BaseComponent<ClassProps> {
         circle.setAttribute('fill', typeColor);
         circle.setAttribute('stroke', border);
         circle.setAttribute('stroke-width', '1');
-        g.appendChild(circle);
+        typeGroup.appendChild(circle);
 
         const typeTextColor = this.themeOverride.headerTypeTextColor
           ? this.resolveColor(this.themeOverride.headerTypeTextColor, theme, '#111827')
@@ -196,7 +211,9 @@ export class ClassComponent extends BaseComponent<ClassProps> {
         charElem.setAttribute('text-anchor', 'middle');
         charElem.setAttribute('dominant-baseline', 'central');
         charElem.textContent = typeChar;
-        g.appendChild(charElem);
+        typeGroup.appendChild(charElem);
+
+        g.appendChild(typeGroup);
       }
 
       textElem.setAttribute('x', titleX.toString());
@@ -290,7 +307,7 @@ export class ClassComponent extends BaseComponent<ClassProps> {
         bodyElem.textContent = body;
         g.appendChild(bodyElem);
 
-        // Draw (M) markdown-like inline code block badge next to text
+        // Draw `M` markdown-like inline code block badge next to text
         if (isMandatory) {
           const charWidth = font.includes('monospace') || font.includes('Fira Code') ? 6.6 : 6.1;
           const textWidth = body.length * charWidth;
@@ -318,7 +335,7 @@ export class ClassComponent extends BaseComponent<ClassProps> {
           badgeText.setAttribute('font-weight', 'bold');
           badgeText.setAttribute('text-anchor', 'middle');
           badgeText.setAttribute('dominant-baseline', 'central');
-          badgeText.textContent = '(M)';
+          badgeText.textContent = 'M';
           g.appendChild(badgeText);
         }
 
@@ -329,8 +346,8 @@ export class ClassComponent extends BaseComponent<ClassProps> {
     };
 
     const attributes = resolveLines(this.props.attributeLines, this.props.attributes);
-    const methods    = resolveLines(this.props.methodLines, this.props.methods);
-    const items      = resolveLines(this.props.itemLines, this.props.items);
+    const methods = resolveLines(this.props.methodLines, this.props.methods);
+    const items = resolveLines(this.props.itemLines, this.props.items);
 
     addCompartment(attributes);
     addCompartment(methods);
@@ -356,6 +373,35 @@ function getAccessorColor(symbol: string, border: string, textColor: string): st
     case '-': return '#f87171'; // red   — private
     case '#': return '#fb923c'; // amber — protected
     case '~': return '#a78bfa'; // violet — package
-    default:  return textColor;
+    default: return textColor;
   }
+}
+
+/** Helper to darken a hex color code by a given percentage. */
+function darkenColor(hex: string, percent: number = 45): string {
+  let cleanHex = hex.replace(/^\s*#|\s*$/g, '');
+  if (cleanHex.length === 3) {
+    cleanHex = cleanHex.split('').map(c => c + c).join('');
+  }
+  let alpha = '';
+  if (cleanHex.length === 8) {
+    alpha = cleanHex.substring(6, 8);
+    cleanHex = cleanHex.substring(0, 6);
+  }
+  
+  const num = parseInt(cleanHex, 16);
+  let r = (num >> 16);
+  let g = ((num >> 8) & 0x00FF);
+  let b = (num & 0x0000FF);
+  
+  const factor = (100 - percent) / 100;
+  r = Math.floor(r * factor);
+  g = Math.floor(g * factor);
+  b = Math.floor(b * factor);
+  
+  const rHex = r.toString(16).padStart(2, '0');
+  const gHex = g.toString(16).padStart(2, '0');
+  const bHex = b.toString(16).padStart(2, '0');
+  
+  return `#${rHex}${gHex}${bHex}${alpha}`;
 }

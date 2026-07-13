@@ -153,6 +153,7 @@ function instantiateFromDefinition(
       const props: ClassProps = {
         label: node.properties.label as string | undefined,
         headerType: node.properties.headerType as string | undefined,
+        colorizeHeaderByType: node.properties.colorizeHeaderByType as boolean | undefined,
         // Legacy semicolon-string form (fallback)
         items: node.properties.items as string | undefined,
         attributes: node.properties.attributes as string | undefined,

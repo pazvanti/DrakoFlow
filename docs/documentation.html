@@ -836,7 +836,8 @@
           { name: "attributes", type: "String", desc: "Semicolon-separated attribute rows. Renders a second compartment below the header. Can be prefixed with access modifiers (+, -, #, ~) and optionally * to mark it mandatory (renders in bold)." },
           { name: "methods", type: "String", desc: "Semicolon-separated method rows. Renders a third compartment below attributes. Can be prefixed with access modifiers (+, -, #, ~) and optionally * to mark it abstract/mandatory (renders in bold)." },
           { name: "items", type: "String", desc: "Semicolon-separated list rows. Use this for a simple list without UML class structure." },
-          { name: "headerType", type: "String", desc: "UML class type marker. Renders a colored circle with the type initial (e.g. \"abstract\", \"interface\", \"enum\", \"struct\")." }
+          { name: "headerType", type: "String", desc: "UML class type marker. Renders a colored circle with the type initial. Accepted values are: `abstract`, `class`, `enum`, `interface`, `annotation`, `struct`, `entity`, `exception`, `metaclass`, `protocol`, `record`, `stereotype`, `json`." },
+          { name: "colorizeHeaderByType", type: "Boolean", desc: "If set to true, automatically colors the header compartment background to match the headerType." }
         ],
         themeOverrides: [
           { name: "backgroundColor", desc: "Fill color for all compartments." },
