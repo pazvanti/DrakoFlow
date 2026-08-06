@@ -1,6 +1,6 @@
 import { BaseComponent, ThemeVariables, Dimension, Point, BoundingBox, setCurrentLayoutAlgorithm } from '../components/BaseComponent';
 import { VerticalContainerComponent } from '../components/VerticalContainerComponent';
-import { ParsedRelationship } from './Relationship';
+import { ParsedRelationship, isExteriorEndpoint } from './Relationship';
 import { estimateTextWidth } from './routing';
 
 const ROOT_GAP = 40;
@@ -110,9 +110,10 @@ export function assignLayers(
 
   const seenPairs = new Set<string>();
 
-  // Filter out bidirectional and backward/cyclic relationship edges based on defined order
+  // Filter out bidirectional, exterior endpoints, and backward/cyclic relationship edges based on defined order
   const forwardRelations = relationships.filter(rel => {
     if (rel.bidirectional) return false;
+    if (isExteriorEndpoint(rel.sourceId) || isExteriorEndpoint(rel.targetId)) return false;
     const sourceRootId = getRootId(rel.sourceId);
     const targetRootId = getRootId(rel.targetId);
     if (sourceRootId === targetRootId) return false;
@@ -832,6 +833,121 @@ function layoutTopToBottomV1(
   });
 }
 
+export function calculateSequenceStepYMap(
+  components: BaseComponent[],
+  relationships: ParsedRelationship[],
+  y_first_relation: number,
+  REL_GAP: number
+): { relYMap: Map<number, number>; submoduleYMap: Map<string, number> } {
+  const relYMap = new Map<number, number>();
+  const submoduleYMap = new Map<string, number>();
+
+  const rootLifelines = components.filter(c => c.lifeline && Array.isArray(c.children) && c.children.length > 0);
+  const maxChildCount = Math.max(0, ...rootLifelines.map(p => p.children ? p.children.length : 0));
+
+  let currentSlot = 0;
+  const rowSlotMap = new Map<number, number>();
+  for (let r = 0; r < maxChildCount; r++) {
+    rowSlotMap.set(r, currentSlot);
+    currentSlot++;
+  }
+
+  rootLifelines.forEach(parent => {
+    if (parent.children) {
+      parent.children.forEach((child, childIdx) => {
+        const childKey = `${parent.id}.${child.id}`;
+        const slot = rowSlotMap.get(childIdx) ?? childIdx;
+        submoduleYMap.set(childKey, y_first_relation + slot * REL_GAP);
+      });
+    }
+  });
+
+  relationships.forEach((rel, relIdx) => {
+    let targetSubmoduleY: number | undefined = undefined;
+    for (const parent of rootLifelines) {
+      if (parent.children) {
+        for (const child of parent.children) {
+          if (rel.targetId === child.id || rel.targetId === `${parent.id}.${child.id}` ||
+              rel.sourceId === child.id || rel.sourceId === `${parent.id}.${child.id}`) {
+            const childKey = `${parent.id}.${child.id}`;
+            targetSubmoduleY = submoduleYMap.get(childKey);
+            break;
+          }
+        }
+      }
+      if (targetSubmoduleY !== undefined) break;
+    }
+
+    if (targetSubmoduleY !== undefined) {
+      relYMap.set(relIdx, targetSubmoduleY);
+    } else {
+      let relY: number;
+      if (relIdx === 0) {
+        relY = y_first_relation;
+      } else {
+        const prevY = relYMap.has(relIdx - 1) ? relYMap.get(relIdx - 1)! : y_first_relation;
+        relY = prevY + REL_GAP;
+      }
+      submoduleYMap.forEach(subY => {
+        if (Math.abs(relY - subY) < REL_GAP / 2) {
+          relY = subY + REL_GAP;
+        }
+      });
+      relYMap.set(relIdx, relY);
+
+      submoduleYMap.forEach((subY, key) => {
+        if (subY >= relY) {
+          submoduleYMap.set(key, subY + REL_GAP);
+        }
+      });
+    }
+  });
+
+  return { relYMap, submoduleYMap };
+}
+
+/**
+ * Positions nested sub-module child components directly along their parent's vertical lifeline axis.
+ */
+export function layoutLifelineSubModules(
+  components: BaseComponent[],
+  relationships: ParsedRelationship[],
+  theme: ThemeVariables
+): void {
+  const rootLifelines = components.filter(c => c.lifeline && Array.isArray(c.children) && c.children.length > 0);
+  if (rootLifelines.length === 0) return;
+
+  const maxComponentBottom = components.length > 0
+    ? Math.max(...components.map(c => c.bounds.y + c.bounds.height))
+    : 100;
+  const y_first_relation = maxComponentBottom + 60;
+  const REL_GAP = 60;
+
+  const { submoduleYMap } = calculateSequenceStepYMap(components, relationships, y_first_relation, REL_GAP);
+
+  rootLifelines.forEach(parent => {
+    // Reset parent header height to its min dimension so it remains a header box at the top
+    const parentMinDim = parent.calculateMinDimensions(theme);
+    parent.bounds.height = parentMinDim.height;
+
+    const children = parent.children;
+    const parentCenterX = parent.bounds.x + parent.bounds.width / 2;
+
+    children.forEach((child) => {
+      const childDim = child.calculateMinDimensions(theme);
+      child.bounds.width = Math.max(120, childDim.width);
+      child.bounds.height = 36; // Compact activation step box height
+
+      const childKey = `${parent.id}.${child.id}`;
+      const targetY = submoduleYMap.get(childKey) ?? (y_first_relation - child.bounds.height / 2);
+
+      const globalX = parentCenterX - child.bounds.width / 2;
+      child.bounds.x = globalX - parent.bounds.x;
+      child.bounds.y = targetY - parent.bounds.y;
+    });
+  });
+}
+
 /**
  * Position root components on the canvas.
  */
@@ -867,6 +983,7 @@ export function layoutRootComponents(
       });
     }
   }
+  layoutLifelineSubModules(components, relationships, theme);
 }
 
 function segmentsIntersect(

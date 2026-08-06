@@ -68,6 +68,8 @@ export class RectangleComponent extends BaseComponent<RectangleProps> {
       g.appendChild(textElem);
     }
 
+    this.renderChildren(g, theme);
+
     return g;
   }
 }

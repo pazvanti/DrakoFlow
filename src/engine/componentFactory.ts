@@ -488,6 +488,10 @@ function instantiateFromDefinition(
     component.manualY = node.properties.y;
   }
 
+  if (node.childEntries && node.childEntries.length > 0 && component.children.length === 0) {
+    component.children = resolveChildEntries(node.childEntries, registry);
+  }
+
   return component;
 }
 

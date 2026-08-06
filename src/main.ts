@@ -1,7 +1,7 @@
 import { BaseComponent, ThemeVariables } from './components/BaseComponent';
 import { downloadDSLFile, exportToPNG, ExportOptions } from './utils/FileHandlers';
 import { exportToHTML } from './utils/HTMLPlayerExporter';
-import { findSafeInsertIndex, updateDslComponentPosition, clearDslManualPositions, setDslLayoutDirective } from './utils/dslInsert';
+import { findSafeInsertIndex, updateDslComponentPosition, clearDslManualPositions, setDslLayoutDirective, updateDslRelationshipStartPos } from './utils/dslInsert';
 import { CatalogService } from './catalog/ComponentCatalog';
 import { parseDslDocument, ParsedNode, ParsedChildEntry } from './dsl/parser';
 import { createComponentsFromDsl } from './engine/componentFactory';
@@ -1162,7 +1162,11 @@ function renderDiagram(): void {
 
       // Step E: Filter relationships AST
       displayRelationships = dslDocument.relationships.filter(rel => {
-        return visibleIds.has(rel.sourceId) && visibleIds.has(rel.targetId);
+        const srcIsExterior = ['left', 'right', 'top', 'bottom'].includes(rel.sourceId.toLowerCase()) && !flatNodesMap.has(rel.sourceId);
+        const tgtIsExterior = ['left', 'right', 'top', 'bottom'].includes(rel.targetId.toLowerCase()) && !flatNodesMap.has(rel.targetId);
+        const srcVisible = srcIsExterior || visibleIds.has(rel.sourceId);
+        const tgtVisible = tgtIsExterior || visibleIds.has(rel.targetId);
+        return srcVisible && tgtVisible;
       });
     }
 
@@ -1293,7 +1297,9 @@ function renderDiagram(): void {
         displayRelationships,
         components,
         currentTheme,
-        diagramSvg
+        diagramSvg,
+        undefined,
+        isDiagramLocked
       );
       viewportG.appendChild(pathsLayer);
       viewportG.appendChild(labelsLayer);
@@ -1473,11 +1479,31 @@ function updateLockStateUI(): void {
     btnToggleLock.innerHTML = '<i class="bi bi-unlock"></i>';
     canvasContainer.classList.remove('canvas-locked');
   }
+  renderDiagram();
 }
+
+// Exterior line drag state
+let exteriorDragRelIndex: number | null = null;
+let exteriorDragStartPos = { x: 0, y: 0 };
 
 // Panning and Drag-and-Drop Handlers
 canvasContainer.addEventListener('mousedown', (e) => {
   if (e.button !== 0 && e.button !== 1) return; // Left or Middle mouse button
+
+  const extHandle = (e.target as HTMLElement).closest('.exterior-anchor-handle') as SVGCircleElement | null;
+  if (extHandle && !isDiagramLocked) {
+    e.stopPropagation();
+    e.preventDefault();
+    exteriorDragRelIndex = parseInt(extHandle.getAttribute('data-rel-index') || '-1', 10);
+    dragStartMouse = { x: e.clientX, y: e.clientY };
+    exteriorDragStartPos = {
+      x: parseFloat(extHandle.getAttribute('cx') || '0'),
+      y: parseFloat(extHandle.getAttribute('cy') || '0')
+    };
+    hasDragged = false;
+    canvasContainer.style.cursor = 'move';
+    return;
+  }
 
   // Check if we are clicking on a root component element
   const componentG = findRootComponentElement(e.target);
@@ -1501,6 +1527,45 @@ canvasContainer.addEventListener('mousedown', (e) => {
 });
 
 canvasContainer.addEventListener('mousemove', (e) => {
+  if (exteriorDragRelIndex !== null && !isDiagramLocked) {
+    hasDragged = true;
+    const dxSvg = (e.clientX - dragStartMouse.x) / zoomLevel;
+    const dySvg = (e.clientY - dragStartMouse.y) / zoomLevel;
+    let newX = exteriorDragStartPos.x + dxSvg;
+    let newY = exteriorDragStartPos.y + dySvg;
+    if (isSnapToGridEnabled) {
+      newX = Math.round(newX / snapGridSize) * snapGridSize;
+      newY = Math.round(newY / snapGridSize) * snapGridSize;
+    }
+    
+    if (currentDisplayRelationships[exteriorDragRelIndex]) {
+      if (!currentDisplayRelationships[exteriorDragRelIndex].style) {
+        currentDisplayRelationships[exteriorDragRelIndex].style = {};
+      }
+      currentDisplayRelationships[exteriorDragRelIndex].style!.startX = Math.round(newX);
+      currentDisplayRelationships[exteriorDragRelIndex].style!.startY = Math.round(newY);
+    }
+
+    const oldPaths = viewportG.querySelector('.relationship-paths');
+    const oldLabels = viewportG.querySelector('.relationship-labels');
+    if (oldPaths) oldPaths.remove();
+    if (oldLabels) oldLabels.remove();
+
+    if (currentDisplayRelationships.length > 0) {
+      const { pathsLayer, labelsLayer } = renderRelationships(
+        currentDisplayRelationships,
+        currentComponents,
+        currentTheme,
+        diagramSvg,
+        undefined,
+        isDiagramLocked
+      );
+      viewportG.appendChild(pathsLayer);
+      viewportG.appendChild(labelsLayer);
+    }
+    return;
+  }
+
   if (dragTarget) {
     hasDragged = true;
     const dx = e.clientX - dragStartMouse.x;
@@ -1539,7 +1604,9 @@ canvasContainer.addEventListener('mousemove', (e) => {
         currentDisplayRelationships,
         currentComponents,
         currentTheme,
-        diagramSvg
+        diagramSvg,
+        undefined,
+        isDiagramLocked
       );
       viewportG.appendChild(pathsLayer);
       viewportG.appendChild(labelsLayer);
@@ -1556,6 +1623,32 @@ canvasContainer.addEventListener('mousemove', (e) => {
 });
 
 window.addEventListener('mouseup', () => {
+  if (exteriorDragRelIndex !== null) {
+    const relIdx = exteriorDragRelIndex;
+    exteriorDragRelIndex = null;
+    canvasContainer.style.cursor = 'grab';
+
+    if (hasDragged) {
+      const rel = currentDisplayRelationships[relIdx];
+      if (rel && (rel.style?.startX !== undefined || rel.style?.startY !== undefined)) {
+        const code = editor.value;
+        const finalStartX = rel.style?.startX ?? exteriorDragStartPos.x;
+        const finalStartY = rel.style?.startY ?? exteriorDragStartPos.y;
+        const updatedCode = updateDslRelationshipStartPos(code, relIdx, finalStartX, finalStartY);
+        if (code !== updatedCode) {
+          const start = editor.selectionStart;
+          const end = editor.selectionEnd;
+          editor.value = updatedCode;
+          editor.selectionStart = start;
+          editor.selectionEnd = end;
+          updateEditorMetrics();
+          renderDiagram();
+        }
+      }
+    }
+    return;
+  }
+
   if (dragTarget) {
     const targetComp = dragTarget;
     dragTarget = null;

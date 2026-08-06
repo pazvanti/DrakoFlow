@@ -59,12 +59,26 @@ export abstract class BaseComponent<TProps = any, TStyle = Partial<ThemeVariable
   // Set to true if this component represents a sequence lifeline
   public lifeline: boolean = false;
 
+  // Nested child components if any
+  public children: BaseComponent[] = [];
+
   constructor(metadata: ComponentMetadata, props: TProps, themeOverride: TStyle) {
     this.id = metadata.id;
     this.type = metadata.type;
     this.tags = metadata.tags;
     this.props = props;
     this.themeOverride = themeOverride;
+  }
+
+  /**
+   * Appends rendered nested child components to the parent SVG group element.
+   */
+  protected renderChildren(g: SVGElement, theme: ThemeVariables): void {
+    if (this.children && this.children.length > 0) {
+      this.children.forEach(child => {
+        g.appendChild(child.render(theme));
+      });
+    }
   }
 
   /**

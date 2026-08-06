@@ -1632,17 +1632,24 @@ AuthService: Cube {
         </div>
         <div class="syntax-panel" id="panel-relationships">
           <div class="syntax-info">
-            <h3>Relationships</h3>
-            <p>Define routes linking elements. The engine automatically draws orthgonal arrow routes, avoiding overlaps.
+            <h3>Relationships & Exterior Endpoints</h3>
+            <p>Define routes linking elements or connecting canvas edges. The engine automatically routes arrows cleanly, avoiding overlaps.
             </p>
             <ul>
               <li><i class="bi bi-check-circle-fill"></i> Syntax: <code>SourceID -> TargetID: "Label"</code></li>
+              <li><i class="bi bi-check-circle-fill"></i> Exterior directions: <code>LEFT</code>, <code>RIGHT</code>, <code>TOP</code>, <code>BOTTOM</code></li>
               <li><i class="bi bi-check-circle-fill"></i> Arrow lines adjust in real time during drags</li>
             </ul>
           </div>
           <div class="syntax-code">
-            <pre><code>Gateway -> AuthService: "Token verification"
-Gateway -> RedisCache: "Check Session"</code></pre>
+            <pre><code>Client: Process {
+  label: "Client App"
+  lifeline: true
+}
+
+LEFT -> Client: "External Request"
+Client -> Gateway: "Token verification"
+Gateway -> RIGHT: "Log response"</code></pre>
           </div>
         </div>
       </div>

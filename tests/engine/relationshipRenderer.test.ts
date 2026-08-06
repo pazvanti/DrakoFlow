@@ -250,4 +250,45 @@ describe('relationshipRenderer overlap prevention', () => {
     const lCountStraight = (dStraight.match(/L/g) || []).length;
     expect(lCountStraight).toBe(1); // direct segment start -> end
   });
+
+  it('should render exterior relationships (LEFT -> Client and Client -> RIGHT)', () => {
+    const clientComp = new RectangleComponent({ id: 'client', type: 'Rectangle', tags: [] }, { label: 'Client' }, {});
+    clientComp.lifeline = true;
+    clientComp.bounds = { x: 100, y: 50, width: 100, height: 100 };
+
+    const relationships: ParsedRelationship[] = [
+      {
+        sourceId: 'LEFT',
+        targetId: 'client',
+        label: 'External call',
+        simple: false
+      },
+      {
+        sourceId: 'client',
+        targetId: 'RIGHT',
+        label: 'Response',
+        simple: false
+      }
+    ];
+
+    const svgRoot = document.createElementNS('http://www.w3.org/2000/svg', 'svg') as SVGSVGElement;
+    const layers = renderRelationships(relationships, [clientComp], defaultTheme, svgRoot);
+
+    const paths = layers.pathsLayer.querySelectorAll('path');
+    expect(paths.length).toBe(2);
+
+    // First path (LEFT -> client): starts at minX - 60 = 40, ends at client center = 150
+    const d1 = paths[0].getAttribute('d') || '';
+    expect(d1).toContain('M 40');
+    expect(d1).toContain('150');
+
+    // Second path (client -> RIGHT): starts at client center = 150, ends at maxX + 60 = 260
+    const d2 = paths[1].getAttribute('d') || '';
+    expect(d2).toContain('M 150');
+    expect(d2).toContain('260');
+
+    // Verify lifeline vertical line extends to include both relationships
+    const lifeline = layers.pathsLayer.querySelector('[data-lifeline-for="client"]');
+    expect(lifeline).not.toBeNull();
+  });
 });

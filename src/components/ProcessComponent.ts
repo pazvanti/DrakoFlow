@@ -98,6 +98,8 @@ export class ProcessComponent extends BaseComponent<ProcessProps> {
       g.appendChild(textElem);
     }
 
+    this.renderChildren(g, theme);
+
     return g;
   }
 }

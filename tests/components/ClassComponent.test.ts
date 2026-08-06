@@ -438,7 +438,7 @@ describe('ClassComponent – render', () => {
       },
       {}
     );
-    comp.bounds = comp.calculateMinDimensions(theme);
+    comp.bounds = { x: 0, y: 0, ...comp.calculateMinDimensions(theme) };
     const g = comp.render(theme);
     
     const texts = Array.from(g.querySelectorAll('text'));
@@ -461,7 +461,7 @@ describe('ClassComponent – render', () => {
       { label: 'TestTooltip', headerType: 'interface' },
       {}
     );
-    comp.bounds = comp.calculateMinDimensions(theme);
+    comp.bounds = { x: 0, y: 0, ...comp.calculateMinDimensions(theme) };
     const g = comp.render(theme);
 
     const titleElement = g.querySelector('g > title');
@@ -475,7 +475,7 @@ describe('ClassComponent – render', () => {
       { label: 'AutoColorClass', headerType: 'enum', colorizeHeaderByType: true },
       {}
     );
-    comp.bounds = comp.calculateMinDimensions(theme);
+    comp.bounds = { x: 0, y: 0, ...comp.calculateMinDimensions(theme) };
     const g = comp.render(theme);
 
     const rects = Array.from(g.querySelectorAll('rect'));

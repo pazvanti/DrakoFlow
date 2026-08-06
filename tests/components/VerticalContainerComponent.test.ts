@@ -96,10 +96,10 @@ describe('VerticalContainerComponent', () => {
     const comps = createComponentsFromDsl(doc.components);
     layoutRootComponents(comps, theme, doc.relationships, 'left-to-right');
 
-    const pkg = comps[0];
-    const controler = pkg.children.find(c => c.id === 'controler');
-    const secure = pkg.children.find(c => c.id === 'secure');
-    const security = pkg.children.find(c => c.id === 'security');
+    const pkg = comps[0] as any;
+    const controler = pkg.children.find((c: any) => c.id === 'controler');
+    const secure = pkg.children.find((c: any) => c.id === 'secure');
+    const security = pkg.children.find((c: any) => c.id === 'security');
 
     expect(controler).toBeDefined();
     expect(secure).toBeDefined();

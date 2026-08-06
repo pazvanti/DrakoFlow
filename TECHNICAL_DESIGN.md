@@ -321,6 +321,11 @@ export interface Relationship {
    * Solid line: `stroke-dasharray="none"`
    * Dashed line: `stroke-dasharray="5,5"`
 
+### Exterior Endpoints for Relationships
+Relationships can also originate from or terminate at diagram canvas boundaries using direction keywords (`LEFT`, `RIGHT`, `TOP`, `BOTTOM`).
+* Example syntax: `LEFT -> Client : "External call"`, `Client -> RIGHT : "Response"`.
+* Exterior endpoints route from outside component bounds (with default margin padding) directly to/from lifeline sequence steps or standard component border ports.
+
 ---
 
 ## 5. Themes Module

@@ -3,6 +3,8 @@ export interface RelationshipStyle {
   color?: string;
   thickness?: number;
   routeType?: 'orthogonal' | 'curved' | 'straight';
+  startY?: number;
+  startX?: number;
 }
 
 export type RelationshipArrow = 'forward' | 'reverse' | 'bidirectional';
@@ -55,4 +57,17 @@ export interface ParsedRelationship {
   /** True when rhombus appears at the target end: -<> */
   targetRhombus?: boolean;
   line?: number;
+}
+
+/**
+ * Check if a relationship endpoint ID represents an exterior direction (LEFT, RIGHT, TOP, BOTTOM).
+ * Returns true if the ID (case-insensitive) is one of 'left', 'right', 'top', 'bottom'
+ * AND is not a component ID registered in componentIndex (if provided).
+ */
+export function isExteriorEndpoint(id: string, componentIndex?: Map<string, any>): boolean {
+  if (componentIndex && componentIndex.has(id)) {
+    return false;
+  }
+  const lower = id.toLowerCase();
+  return lower === 'left' || lower === 'right' || lower === 'top' || lower === 'bottom';
 }

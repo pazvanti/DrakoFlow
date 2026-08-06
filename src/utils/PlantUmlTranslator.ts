@@ -425,7 +425,7 @@ export class PlantUmlTranslator {
       }
       
       // Relationship matching: Left [optional cardinality] [connector] [optional cardinality] Right [optional label]
-      const relRegex = /^([\p{L}\p{N}_"]+|"[^"]+")(?:\s+("[^"]+"))?\s*([<\-|o*.+>]+)\s*(?:("[^"]+")\s+)?([\p{L}\p{N}_"]+|"[^"]+")(?:\s*:\s*(.+))?$/u;
+      const relRegex = /^([\p{L}\p{N}_"]+|"[^"]+"|\[|\])(?:\s+("[^"]+"))?\s*([<\-|o*.+>]+)\s*(?:("[^"]+")\s+)?([\p{L}\p{N}_"]+|"[^"]+"|\[|\])(?:\s*:\s*(.+))?$/u;
       const relMatch = line.match(relRegex);
       if (relMatch) {
         const leftRaw = relMatch[1];
@@ -439,11 +439,15 @@ export class PlantUmlTranslator {
           continue;
         }
         
-        const leftId = toSafeId(leftRaw);
-        const rightId = toSafeId(rightRaw);
+        const leftId = leftRaw === '[' ? 'LEFT' : (leftRaw === ']' ? 'RIGHT' : toSafeId(leftRaw));
+        const rightId = rightRaw === ']' ? 'RIGHT' : (rightRaw === '[' ? 'LEFT' : toSafeId(rightRaw));
         
-        getOrCreateComponent(leftId, 'Rectangle', cleanLabel(leftRaw), false);
-        getOrCreateComponent(rightId, 'Rectangle', cleanLabel(rightRaw), false);
+        if (!['LEFT', 'RIGHT', 'TOP', 'BOTTOM'].includes(leftId)) {
+          getOrCreateComponent(leftId, 'Rectangle', cleanLabel(leftRaw), false);
+        }
+        if (!['LEFT', 'RIGHT', 'TOP', 'BOTTOM'].includes(rightId)) {
+          getOrCreateComponent(rightId, 'Rectangle', cleanLabel(rightRaw), false);
+        }
         
         let sourceId = leftId;
         let targetId = rightId;

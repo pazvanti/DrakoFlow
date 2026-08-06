@@ -879,7 +879,10 @@ export function exportToHTML(
         document.querySelectorAll('[data-source-id][data-target-id]').forEach(function(el) {
           const src = el.getAttribute('data-source-id');
           const tgt = el.getAttribute('data-target-id');
-          el.style.display = (visibleIds.has(src) && visibleIds.has(tgt)) ? '' : 'none';
+          const ext = ['left', 'right', 'top', 'bottom'];
+          const srcVis = (src && ext.includes(src.toLowerCase())) || visibleIds.has(src);
+          const tgtVis = (tgt && ext.includes(tgt.toLowerCase())) || visibleIds.has(tgt);
+          el.style.display = (srcVis && tgtVis) ? '' : 'none';
         });
         
         document.querySelectorAll('[data-lifeline-for]').forEach(function(el) {

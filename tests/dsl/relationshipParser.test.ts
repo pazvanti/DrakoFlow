@@ -67,4 +67,22 @@ B: Ellipse { label: "B" radius: 20 }`;
     expect(doc.components.map(c => c.id)).toEqual(['A', 'B']);
     expect(doc.relationships[0].targetId).toBe('B');
   });
+
+  it('parses exterior relationships (LEFT -> Client and Client -> RIGHT)', () => {
+    const code = `Client: Process { label: "Client App" lifeline: true }
+LEFT -> Client : "External call"
+Client -> RIGHT : "Response"`;
+    const doc = parseDslDocument(code);
+    expect(doc.relationships).toHaveLength(2);
+    expect(doc.relationships[0]).toMatchObject({
+      sourceId: 'LEFT',
+      targetId: 'Client',
+      label: 'External call'
+    });
+    expect(doc.relationships[1]).toMatchObject({
+      sourceId: 'Client',
+      targetId: 'RIGHT',
+      label: 'Response'
+    });
+  });
 });

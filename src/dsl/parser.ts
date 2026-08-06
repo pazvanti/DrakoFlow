@@ -47,7 +47,7 @@ export function parseDslDocument(code: string): DslDocument {
   // Tags from the most recent @tags directive, to be applied to the next component.
   let pendingTags: string[] | undefined;
 
-  const throwError = (msg: string, offset: number) => {
+  const throwError = (msg: string, offset: number): never => {
     const line = code.slice(0, offset).split('\n').length;
     const err = new Error(msg) as any;
     err.line = line;
@@ -87,9 +87,9 @@ export function parseDslDocument(code: string): DslDocument {
     }
 
     const componentLine = code.slice(0, i).split('\n').length;
-    const closeBrace = findMatchingBrace(stripped, decl.bodyStart, 0, code);
-    const body = stripped.slice(decl.bodyStart + 1, closeBrace);
-    const node = parseNode(decl.id, decl.type, body, decl.bodyStart + 1, code, componentLine);
+    const closeBrace = findMatchingBrace(stripped, decl!.bodyStart, 0, code);
+    const body = stripped.slice(decl!.bodyStart + 1, closeBrace);
+    const node = parseNode(decl!.id, decl!.type, body, decl!.bodyStart + 1, code, componentLine);
     if (pendingTags) {
       node.tags = pendingTags;
       pendingTags = undefined;
@@ -130,7 +130,7 @@ type ArrowMatch = {
 function matchRelationshipArrow(slice: string): ArrowMatch | null {
   // Capture: leftId [leftCard] CONNECTOR [rightCard] rightId
   // The CONNECTOR contains `<`, `>`, `o`, `-` and whitespace, having exactly one `-`
-  const regex = /^(\w+)\s*(?:\[([^\]]*)\])?\s*([<>o\s]*-[<>o\s]*)\s*(?:\[([^\]]*)\])?\s*(\w+)/;
+  const regex = /^([\w.]+)\s*(?:\[([^\]]*)\])?\s*([<>o\s]*-[<>o\s]*)\s*(?:\[([^\]]*)\])?\s*([\w.]+)/;
   const match = slice.match(regex);
   if (!match) return null;
 
@@ -276,6 +276,16 @@ function parseRelationshipStyleBlock(body: string): RelationshipStyle {
     if (value === 'orthogonal' || value === 'curved' || value === 'straight') {
       style.routeType = value as RelationshipStyle['routeType'];
     }
+  }
+
+  const startY = body.match(/startY\s*:\s*(?:"(-?\d+(?:\.\d+)?)"|(-?\d+(?:\.\d+)?))/);
+  if (startY) {
+    style.startY = parseFloat(startY[1] || startY[2]);
+  }
+
+  const startX = body.match(/startX\s*:\s*(?:"(-?\d+(?:\.\d+)?)"|(-?\d+(?:\.\d+)?))/);
+  if (startX) {
+    style.startX = parseFloat(startX[1] || startX[2]);
   }
 
   return style;

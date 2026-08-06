@@ -209,3 +209,48 @@ export function setDslLayoutDirective(code: string, layout: 'left-to-right' | 't
     return newValue + code;
   }
 }
+
+export function updateDslRelationshipStartPos(
+  code: string,
+  relIndex: number,
+  startX: number,
+  startY: number
+): string {
+  const relRegex = /^[ \t]*(?:LEFT|RIGHT|TOP|BOTTOM|[\w.]+)\s*(?:[<>o]*-[<>o]*)\s*(?:LEFT|RIGHT|TOP|BOTTOM|[\w.]+)[^\n]*/gm;
+  const matches: { text: string; index: number }[] = [];
+  let m: RegExpExecArray | null;
+
+  while ((m = relRegex.exec(code)) !== null) {
+    matches.push({ text: m[0], index: m.index });
+  }
+
+  if (relIndex < 0 || relIndex >= matches.length) {
+    return code;
+  }
+
+  const targetMatch = matches[relIndex];
+  let updatedRelText = targetMatch.text;
+  const rX = Math.round(startX);
+  const rY = Math.round(startY);
+
+  if (updatedRelText.includes('{')) {
+    const startXPattern = /(\b)(startX\s*:\s*)-?\d+(\.\d+)?\b/;
+    const startYPattern = /(\b)(startY\s*:\s*)-?\d+(\.\d+)?\b/;
+
+    if (startXPattern.test(updatedRelText)) {
+      updatedRelText = updatedRelText.replace(startXPattern, `$1$2${rX}`);
+    } else {
+      updatedRelText = updatedRelText.replace(/\{/, `{ startX: ${rX}, `);
+    }
+
+    if (startYPattern.test(updatedRelText)) {
+      updatedRelText = updatedRelText.replace(startYPattern, `$1$2${rY}`);
+    } else {
+      updatedRelText = updatedRelText.replace(/\{/, `{ startY: ${rY}, `);
+    }
+  } else {
+    updatedRelText = `${updatedRelText} { startX: ${rX}, startY: ${rY} }`;
+  }
+
+  return code.slice(0, targetMatch.index) + updatedRelText + code.slice(targetMatch.index + targetMatch.text.length);
+}

@@ -12,7 +12,7 @@ export interface IndexedComponent {
 export function indexComponentsById(components: BaseComponent[]): Map<string, IndexedComponent> {
   const index = new Map<string, IndexedComponent>();
 
-  const walk = (component: BaseComponent, offsetX: number, offsetY: number): void => {
+  const walk = (component: BaseComponent, offsetX: number, offsetY: number, parentPath?: string): void => {
     const globalBounds: BoundingBox = {
       x: offsetX + component.bounds.x,
       y: offsetY + component.bounds.y,
@@ -20,12 +20,18 @@ export function indexComponentsById(components: BaseComponent[]): Map<string, In
       height: component.bounds.height
     };
 
-    index.set(component.id, { component, globalBounds });
+    const indexed: IndexedComponent = { component, globalBounds };
+    index.set(component.id, indexed);
 
-    if (component instanceof VerticalContainerComponent) {
+    const currentPath = parentPath ? `${parentPath}.${component.id}` : component.id;
+    if (parentPath) {
+      index.set(currentPath, indexed);
+    }
+
+    if ('children' in component && Array.isArray((component as any).children)) {
       const originX = globalBounds.x;
       const originY = globalBounds.y;
-      component.children.forEach(child => walk(child, originX, originY));
+      ((component as any).children as BaseComponent[]).forEach(child => walk(child, originX, originY, currentPath));
     }
   };
 

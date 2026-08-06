@@ -1506,8 +1506,41 @@
               <tr><td><code>A - B</code></td><td>Straight line link without any arrow head indicators.</td></tr>
               <tr><td><code>A o-> B</code></td><td>Circle marker at source, directed arrow head at target.</td></tr>
               <tr><td><code>A <>- B</code></td><td>Diamond marker (aggregation/composition) at the source.</td></tr>
+              <tr><td><code>LEFT -> Client</code></td><td>Exterior connector originating from the left diagram border to a lifeline or component.</td></tr>
+              <tr><td><code>Client -> RIGHT</code></td><td>Exterior connector pointing from a lifeline or component to the right diagram border.</td></tr>
             </tbody>
           </table>
+
+          <div class="section-subtitle">Exterior Direction Endpoints</div>
+          <p class="doc-description">Connect lifelines or components to/from the outer diagram boundary using <code>LEFT</code>, <code>RIGHT</code>, <code>TOP</code>, or <code>BOTTOM</code> keywords as the source or target ID.</p>
+          <div class="doc-code-container mb-3">
+            <pre><code>ClientApp: Process {
+  label: "Client Application"
+  lifeline: true
+}
+
+LEFT -> ClientApp : "External HTTP Request"
+ClientApp -> RIGHT : "Forward to Cloud Logs"</code></pre>
+          </div>
+
+          <div class="section-subtitle">Sub-modules Directly on Lifelines</div>
+          <p class="doc-description">Nest sub-module shapes directly inside a parent lifeline component to render activation step boxes centered on the vertical lifeline axis. Target sub-modules directly or using dot notation (e.g. <code>ParentId.ChildId</code>).</p>
+          <div class="doc-code-container mb-3">
+            <pre><code>PaymentService: Process {
+  label: "Payment Microservice"
+  lifeline: true
+
+  AuthHandler: Rectangle {
+    label: "Auth Sub-module"
+  }
+  FraudCheck: Rectangle {
+    label: "Fraud Detector"
+  }
+}
+
+ClientApp -> PaymentService.AuthHandler : "1. Validate Token"
+PaymentService.AuthHandler -> PaymentService.FraudCheck : "2. Analyze Risk"</code></pre>
+          </div>
 
           <div class="section-subtitle">Connector Style Options</div>
           <table class="doc-table">

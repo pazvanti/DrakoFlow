@@ -628,6 +628,131 @@
             
             <!-- Right Tab Content -->
             <div class="tab-content p-4 flex-grow-1 overflow-y-auto" id="v-pills-tabContent" style="max-height: 100%;">
+              <!-- Relationships Tab -->
+              <div class="tab-pane fade show active" id="v-pills-relationship" role="tabpanel" aria-labelledby="v-pills-relationship-tab">
+                <h4 class="mb-1">Relationships & Connectors</h4>
+                <p class="text-muted small">Describe connection paths, arrows, and exterior directions between elements in DrakoFlow.</p>
+                
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Connector Notations</h6>
+                <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
+                  <thead>
+                    <tr>
+                      <th style="width: 25%;">Notation</th>
+                      <th>Connector Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr><td><code>A -&gt; B</code></td><td>Directed connector pointing from A to B.</td></tr>
+                    <tr><td><code>A &lt;- B</code></td><td>Directed connector pointing from B to A.</td></tr>
+                    <tr><td><code>A &lt;-&gt; B</code></td><td>Bidirectional arrow between elements.</td></tr>
+                    <tr><td><code>A - B</code></td><td>Straight line link without any arrow head indicators.</td></tr>
+                    <tr><td><code>A o-&gt; B</code></td><td>Circle marker at source, directed arrow head at target.</td></tr>
+                    <tr><td><code>A &lt;&gt;- B</code></td><td>Diamond marker (aggregation/composition) at the source.</td></tr>
+                    <tr><td><code>LEFT -&gt; Client</code></td><td>Exterior connector originating from the left diagram border to a lifeline or component.</td></tr>
+                    <tr><td><code>Client -&gt; RIGHT</code></td><td>Exterior connector pointing from a lifeline or component to the right diagram border.</td></tr>
+                  </tbody>
+                </table>
+
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Exterior Direction Endpoints (<code>LEFT</code>, <code>RIGHT</code>, <code>TOP</code>, <code>BOTTOM</code>)</h6>
+                <p class="text-muted small">Connect lifelines or components to/from the outer diagram boundary using <code>LEFT</code>, <code>RIGHT</code>, <code>TOP</code>, or <code>BOTTOM</code> keywords as the source or target ID.</p>
+                <pre class="bg-black p-3 rounded font-monospace text-success" style="font-size: 0.75rem;">ClientApp: Process {
+  label: "Client Application"
+  lifeline: true
+}
+
+LEFT -> ClientApp : "External HTTP Request"
+ClientApp -> RIGHT : "Forward to Cloud Logs"</pre>
+
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Sub-modules Directly on Lifelines</h6>
+                <p class="text-muted small">Nest sub-module shapes directly inside a parent lifeline component to render activation step boxes centered on the vertical lifeline axis. Target sub-modules directly or using dot notation (e.g. <code>ParentId.ChildId</code>).</p>
+                <pre class="bg-black p-3 rounded font-monospace text-success" style="font-size: 0.75rem;">PaymentService: Process {
+  label: "Payment Microservice"
+  lifeline: true
+
+  AuthHandler: Rectangle {
+    label: "Auth Sub-module"
+  }
+  FraudCheck: Rectangle {
+    label: "Fraud Detector"
+  }
+}
+
+ClientApp -> PaymentService.AuthHandler : "1. Validate Token"
+PaymentService.AuthHandler -> PaymentService.FraudCheck : "2. Analyze Risk"</pre>
+
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Connector Style Options (Inside <code>{ ... }</code> block)</h6>
+                <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
+                  <thead>
+                    <tr>
+                      <th style="width: 25%;">Property</th>
+                      <th style="width: 20%;">Type</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr><td><code>color</code></td><td>String</td><td>Stroke outline hex/rgb color of the connector.</td></tr>
+                    <tr><td><code>lineStyle</code></td><td>String</td><td>Dash type: <code>"solid"</code>, <code>"dashed"</code>, or <code>"dotted"</code>.</td></tr>
+                    <tr><td><code>thickness</code></td><td>Number</td><td>Line thickness in pixels (defaults to 2).</td></tr>
+                    <tr><td><code>routeType</code></td><td>String</td><td>Routing algorithm: <code>"straight"</code>, <code>"orthogonal"</code>, or <code>"curved"</code>.</td></tr>
+                  </tbody>
+                </table>
+
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Example Usage</h6>
+                <pre class="bg-black p-3 rounded font-monospace text-success mb-0" style="font-size: 0.75rem;">WebClient -> ApiGateway : "GET /v1/users" {
+  lineStyle: "dashed"
+  color: "#60a5fa"
+  routeType: "orthogonal"
+}</pre>
+              </div>
+
+              <!-- Common Attributes Tab -->
+              <div class="tab-pane fade" id="v-pills-common" role="tabpanel" aria-labelledby="v-pills-common-tab">
+                <h4 class="mb-1">Common Attributes</h4>
+                <p class="text-muted small">Shared properties and metadata supported across all DrakoFlow components.</p>
+                
+                <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
+                  <thead>
+                    <tr>
+                      <th style="width: 25%;">Attribute</th>
+                      <th style="width: 20%;">Type</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr><td><code>label</code></td><td>String</td><td>Main text label displayed inside or on the component.</td></tr>
+                    <tr><td><code>doc</code></td><td>String</td><td>Markdown-formatted documentation block attached to the component. Adds a clickable badge.</td></tr>
+                    <tr><td><code>url</code></td><td>String</td><td>Hyperlink URL attached to the component. Adds a clickable external link badge.</td></tr>
+                    <tr><td><code>shadow</code></td><td>Boolean</td><td>Enables a premium drop shadow filter effect on the component (default <code>false</code>).</td></tr>
+                    <tr><td><code>tags</code></td><td>Array</td><td>List of filter tags declared via <code>@tags: ["tag1", "tag2"]</code> before the component block.</td></tr>
+                    <tr><td><code>themeOverride</code></td><td>Object</td><td>Block containing custom color or style overrides for this specific component instance.</td></tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Keyboard Shortcuts Tab -->
+              <div class="tab-pane fade" id="v-pills-shortcuts" role="tabpanel" aria-labelledby="v-pills-shortcuts-tab">
+                <h4 class="mb-1">Keyboard Shortcuts</h4>
+                <p class="text-muted small">Work faster with built-in editor shortcuts.</p>
+                
+                <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
+                  <thead>
+                    <tr>
+                      <th style="width: 30%;">Shortcut</th>
+                      <th>Action Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr><td><code>Ctrl + S</code> / <code>Cmd + S</code></td><td>Save active diagram file to disk.</td></tr>
+                    <tr><td><code>Ctrl + O</code> / <code>Cmd + O</code></td><td>Open/load a diagram file from disk.</td></tr>
+                    <tr><td><code>Ctrl + Z</code> / <code>Cmd + Z</code></td><td>Undo last editor changes.</td></tr>
+                    <tr><td><code>Ctrl + Y</code> / <code>Cmd + Y</code></td><td>Redo last undone changes.</td></tr>
+                    <tr><td><code>Ctrl + F</code> / <code>Cmd + F</code></td><td>Search within the active editor text.</td></tr>
+                    <tr><td><code>Ctrl + /</code> / <code>Cmd + /</code></td><td>Toggle line comments (<code>//</code>).</td></tr>
+                    <tr><td><code>Alt + Shift + F</code></td><td>Format and clean up DSL code.</td></tr>
+                  </tbody>
+                </table>
+              </div>
+
               <!-- Rectangle Tab -->
               <div class="tab-pane fade" id="v-pills-rectangle" role="tabpanel" aria-labelledby="v-pills-rectangle-tab">
                 <h4 class="mb-1">Rectangle Component</h4>

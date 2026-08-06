@@ -55,4 +55,10 @@ describe('highlightDSL', () => {
     const result = highlightDSL(code, { start: 0, end: 15 });
     expect(result.html).toContain('class="hl-active-token"');
   });
+
+  it('highlights exterior direction keywords (LEFT, RIGHT, TOP, BOTTOM)', () => {
+    const code = 'LEFT -> Client : "External call"';
+    const result = highlightDSL(code);
+    expect(result.html).toContain('<span class="hl-keyword">LEFT</span>');
+  });
 });

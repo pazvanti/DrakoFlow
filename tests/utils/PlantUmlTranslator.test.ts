@@ -292,4 +292,14 @@ stop
     expect(boxIndex).toBeGreaterThan(-1);
     expect(formIndex).toBeGreaterThan(boxIndex);
   });
+
+  it('translates PlantUML exterior arrows ([-> and ->]) to DrakoFlow exterior endpoints', () => {
+    const input = `
+      [-> Client : "External call"
+      Client ->] : "Response"
+    `;
+    const result = translator.translate(input);
+    expect(result).toContain('LEFT -> client : "External call"');
+    expect(result).toContain('client -> RIGHT : "Response"');
+  });
 });

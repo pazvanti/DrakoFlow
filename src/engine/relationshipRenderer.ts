@@ -1,5 +1,5 @@
 import { Point, ThemeVariables, BoundingBox } from '../components/BaseComponent';
-import { ParsedRelationship } from './Relationship';
+import { ParsedRelationship, isExteriorEndpoint } from './Relationship';
 import { indexComponentsById, IndexedComponent } from './componentIndex';
 import { getCenter, getBorderPort } from './ports';
 import {
@@ -11,6 +11,7 @@ import {
   placeCardinalityNearPort
 } from './routing';
 import { BaseComponent } from '../components/BaseComponent';
+import { calculateSequenceStepYMap } from './layout';
 
 const RELATIONSHIP_LABEL_FONT_SIZE = 12;
 const CARDINALITY_FONT_SIZE = 11;
@@ -39,6 +40,51 @@ function getCurveControlPoint(pt: Point, face: 'top' | 'bottom' | 'left' | 'righ
     case 'bottom':
       return { x: pt.x, y: pt.y + distance };
   }
+}
+
+function createHorizontalPathWithBridgeArcs(
+  start: Point,
+  end: Point,
+  componentIndex: Map<string, IndexedComponent>
+): string {
+  const minX = Math.min(start.x, end.x);
+  const maxX = Math.max(start.x, end.x);
+  const y = start.y;
+
+  const lifelineXList: number[] = [];
+  componentIndex.forEach(indexedComp => {
+    if (indexedComp.component.lifeline && !indexedComp.component.parent) {
+      const centerX = indexedComp.globalBounds.x + indexedComp.globalBounds.width / 2;
+      if (centerX > minX + 15 && centerX < maxX - 15) {
+        lifelineXList.push(centerX);
+      }
+    }
+  });
+
+  if (lifelineXList.length === 0) {
+    return `M ${start.x} ${start.y} L ${end.x} ${end.y}`;
+  }
+
+  if (start.x < end.x) {
+    lifelineXList.sort((a, b) => a - b);
+  } else {
+    lifelineXList.sort((a, b) => b - a);
+  }
+
+  let d = `M ${start.x} ${y}`;
+  const isLeftToRight = start.x < end.x;
+  const radius = 8;
+
+  lifelineXList.forEach(lx => {
+    if (isLeftToRight) {
+      d += ` L ${lx - radius} ${y} A ${radius} ${radius} 0 0 1 ${lx + radius} ${y}`;
+    } else {
+      d += ` L ${lx + radius} ${y} A ${radius} ${radius} 0 0 1 ${lx - radius} ${y}`;
+    }
+  });
+
+  d += ` L ${end.x} ${y}`;
+  return d;
 }
 
 export interface RelationshipLayers {
@@ -202,9 +248,11 @@ export function renderRelationships(
   relationships: ParsedRelationship[],
   rootComponents: BaseComponent[],
   theme: ThemeVariables,
-  svgRoot: SVGSVGElement
+  svgRoot: SVGSVGElement,
+  existingIndex?: Map<string, IndexedComponent>,
+  isDiagramLocked: boolean = true
 ): RelationshipLayers {
-  const componentIndex = indexComponentsById(rootComponents);
+  const componentIndex = existingIndex || indexComponentsById(rootComponents);
 
   // Pass 1: Group anchor points on shape borders
   const anchorGroups = new Map<string, { relIndex: number; role: 'source' | 'target'; rawPt: Point; bounds: BoundingBox }[]>();
@@ -292,6 +340,8 @@ export function renderRelationships(
   const y_first_relation = maxComponentBottom + 60;
   const REL_GAP = 60;
 
+  const { relYMap } = calculateSequenceStepYMap(rootComponents, relationships, y_first_relation, REL_GAP);
+
   const y_max = y_first_relation + (relationships.length > 0 ? (relationships.length - 1) * REL_GAP : 0) + 40;
 
   // Step 2: Draw vertical lifelines selectively for components of type 'Lifeline'
@@ -302,16 +352,30 @@ export function renderRelationships(
       const x_center = bounds.x + bounds.width / 2;
       const y_start = bounds.y + bounds.height;
 
-      let max_idx = -1;
+      let maxChildBottom = y_start;
+      if (comp.children && comp.children.length > 0) {
+        comp.children.forEach(c => {
+          const childKey = `${comp.id}.${c.id}`;
+          const childIndexed = componentIndex.get(childKey) || componentIndex.get(c.id);
+          if (childIndexed) {
+            const b = childIndexed.globalBounds;
+            if (b.y + b.height > maxChildBottom) {
+              maxChildBottom = b.y + b.height;
+            }
+          }
+        });
+      }
+
+      let maxRelY = y_start;
       relationships.forEach((rel, idx) => {
-        if (rel.sourceId === comp.id || rel.targetId === comp.id) {
-          max_idx = idx;
+        const isSelfOrChild = (id: string) => id === comp.id || id.startsWith(`${comp.id}.`) || (comp.children && comp.children.some(c => c.id === id));
+        if (isSelfOrChild(rel.sourceId) || isSelfOrChild(rel.targetId)) {
+          const ry = relYMap.get(idx) ?? y_first_relation;
+          if (ry > maxRelY) maxRelY = ry;
         }
       });
 
-      const y_limit = max_idx >= 0
-        ? y_first_relation + max_idx * REL_GAP + 40
-        : y_start + 40;
+      const y_limit = Math.max(maxRelY + 50, maxChildBottom + 50);
 
       const lifeline = document.createElementNS('http://www.w3.org/2000/svg', 'line');
       lifeline.setAttribute('x1', x_center.toString());
@@ -326,14 +390,37 @@ export function renderRelationships(
     }
   });
 
+  // Compute diagram bounds across all components
+  let minX = Infinity;
+  let maxX = -Infinity;
+  let minY = Infinity;
+  let maxY = -Infinity;
+
+  componentIndex.forEach(item => {
+    const b = item.globalBounds;
+    if (b.x < minX) minX = b.x;
+    if (b.x + b.width > maxX) maxX = b.x + b.width;
+    if (b.y < minY) minY = b.y;
+    if (b.y + b.height > maxY) maxY = b.y + b.height;
+  });
+
+  if (minX === Infinity) {
+    minX = 0; maxX = 200; minY = 0; maxY = 200;
+  }
+  const EXTERIOR_MARGIN = 60;
+
   // Step 3: Draw each relationship sequentially or directly
   relationships.forEach((rel, index) => {
     const source = componentIndex.get(rel.sourceId);
     const target = componentIndex.get(rel.targetId);
 
-    if (!source || !target) {
+    const sourceIsExterior = isExteriorEndpoint(rel.sourceId, componentIndex);
+    const targetIsExterior = isExteriorEndpoint(rel.targetId, componentIndex);
+
+    if ((!source && !sourceIsExterior) || (!target && !targetIsExterior)) {
+      const unknownId = (!source && !sourceIsExterior) ? rel.sourceId : rel.targetId;
       const err = new Error(
-        `Relationship references unknown component: ${!source ? rel.sourceId : rel.targetId}`
+        `Relationship references unknown component: ${unknownId}`
       ) as any;
       if (rel.line) {
         err.line = rel.line;
@@ -341,9 +428,9 @@ export function renderRelationships(
       throw err;
     }
 
-    const sourceIsLifeline = source.component.lifeline;
-    const targetIsLifeline = target.component.lifeline;
-    const eitherIsLifeline = sourceIsLifeline || targetIsLifeline;
+    const sourceIsLifeline = source ? source.component.lifeline : false;
+    const targetIsLifeline = target ? target.component.lifeline : false;
+    const eitherIsLifeline = sourceIsLifeline || targetIsLifeline || (sourceIsExterior && targetIsLifeline) || (targetIsExterior && sourceIsLifeline);
 
     const rawColor = rel.style?.color || 'borderColor';
     const color = (rawColor in theme) ? theme[rawColor] : rawColor;
@@ -367,7 +454,7 @@ export function renderRelationships(
       let targetCardPos: Point;
 
       if (sourceIsLifeline) {
-        const start = getCenter(source.globalBounds);
+        const start = getCenter(source!.globalBounds);
         const y = y_first_relation + index * REL_GAP;
         points = [
           { x: start.x, y: y - 15 },
@@ -379,7 +466,7 @@ export function renderRelationships(
         sourceCardPos = { x: start.x + 12, y: y - 22 };
         targetCardPos = { x: start.x + 12, y: y + 25 };
       } else {
-        const bounds = source.globalBounds;
+        const bounds = source!.globalBounds;
         const x_right = bounds.x + bounds.width;
         const y_top = bounds.y + bounds.height * 0.25;
         const y_bot = bounds.y + bounds.height * 0.75;
@@ -467,159 +554,212 @@ export function renderRelationships(
       let targetCardPos: Point;
       let points: Point[];
 
-      if (eitherIsLifeline) {
-        const y = y_first_relation + index * REL_GAP;
-        const sourceCenter = getCenter(source.globalBounds);
-        const targetCenter = getCenter(target.globalBounds);
+      if (sourceIsExterior || targetIsExterior) {
+        const y = relYMap.get(index) ?? (y_first_relation + index * REL_GAP);
 
-        if (sourceIsLifeline && targetIsLifeline) {
-          start = { x: sourceCenter.x, y };
-          end = { x: targetCenter.x, y };
-        } else if (!sourceIsLifeline && targetIsLifeline) {
-          const sourceBottomY = source.globalBounds.y + source.globalBounds.height;
-          const rawStart = { x: sourceCenter.x, y: sourceBottomY };
-          const sourceOffset = offsetMap.get(`${index}|source`) || 0;
-          start = { x: rawStart.x + sourceOffset, y: rawStart.y };
-          end = { x: targetCenter.x, y };
-        } else if (sourceIsLifeline && !targetIsLifeline) {
-          const targetBottomY = target.globalBounds.y + target.globalBounds.height;
-          const rawEnd = { x: targetCenter.x, y: targetBottomY };
-          const targetOffset = offsetMap.get(`${index}|target`) || 0;
-          start = { x: sourceCenter.x, y };
-          end = { x: rawEnd.x + targetOffset, y: rawEnd.y };
+        const getExteriorPoint = (dirId: string, refPoint: Point): Point => {
+          const dir = dirId.toLowerCase();
+          if (dir === 'left') return { x: minX - EXTERIOR_MARGIN, y: refPoint.y };
+          if (dir === 'right') return { x: maxX + EXTERIOR_MARGIN, y: refPoint.y };
+          if (dir === 'top') return { x: refPoint.x, y: minY - EXTERIOR_MARGIN };
+          if (dir === 'bottom') return { x: refPoint.x, y: maxY + EXTERIOR_MARGIN };
+          return { x: minX - EXTERIOR_MARGIN, y: refPoint.y };
+        };
+
+        if (eitherIsLifeline) {
+          if (sourceIsExterior && target) {
+            const b = target.globalBounds;
+            const targetCenterX = b.x + b.width / 2;
+            const isSubModule = target.component.bounds.height <= 40 && target.component.bounds.y > 0;
+            const attachX = isSubModule ? b.x : targetCenterX;
+            const attachY = isSubModule ? b.y + b.height / 2 : y;
+            end = { x: attachX, y: attachY };
+            start = getExteriorPoint(rel.sourceId, end);
+          } else if (targetIsExterior && source) {
+            const b = source.globalBounds;
+            const sourceCenterX = b.x + b.width / 2;
+            const isSubModule = source.component.bounds.height <= 40 && source.component.bounds.y > 0;
+            const attachX = isSubModule ? b.x + b.width : sourceCenterX;
+            const attachY = isSubModule ? b.y + b.height / 2 : y;
+            start = { x: attachX, y: attachY };
+            end = getExteriorPoint(rel.targetId, start);
+          } else {
+            start = { x: minX - EXTERIOR_MARGIN, y };
+            end = { x: maxX + EXTERIOR_MARGIN, y };
+          }
         } else {
-          const sourceBottomY = source.globalBounds.y + source.globalBounds.height;
-          const targetBottomY = target.globalBounds.y + target.globalBounds.height;
-          const sourceOffset = offsetMap.get(`${index}|source`) || 0;
-          const targetOffset = offsetMap.get(`${index}|target`) || 0;
-          start = { x: sourceCenter.x + sourceOffset, y: sourceBottomY };
-          end = { x: targetCenter.x + targetOffset, y: targetBottomY };
+          if (sourceIsExterior && target) {
+            const targetCenter = getCenter(target.globalBounds);
+            const extPt = getExteriorPoint(rel.sourceId, targetCenter);
+            start = extPt;
+            end = getBorderPort(target.globalBounds, start);
+          } else if (targetIsExterior && source) {
+            const sourceCenter = getCenter(source.globalBounds);
+            const extPt = getExteriorPoint(rel.targetId, sourceCenter);
+            start = getBorderPort(source.globalBounds, extPt);
+            end = extPt;
+          } else {
+            start = { x: minX - EXTERIOR_MARGIN, y: 100 };
+            end = { x: maxX + EXTERIOR_MARGIN, y: 100 };
+          }
         }
 
-        const routeType = rel.style?.routeType || 'orthogonal';
+        if (rel.style?.startY !== undefined) {
+          start.y = rel.style.startY;
+          end.y = rel.style.startY;
+        }
+        if (rel.style?.startX !== undefined) {
+          start.x = rel.style.startX;
+        }
 
-        if (routeType === 'orthogonal') {
-          if (sourceIsLifeline && targetIsLifeline) {
+        points = [start, end];
+        pathD = createHorizontalPathWithBridgeArcs(start, end, componentIndex);
+
+        if (!isDiagramLocked && sourceIsExterior) {
+          const handle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+          handle.setAttribute('class', 'exterior-anchor-handle');
+          handle.setAttribute('data-rel-index', index.toString());
+          handle.setAttribute('cx', start.x.toString());
+          handle.setAttribute('cy', start.y.toString());
+          handle.setAttribute('r', '6');
+          handle.setAttribute('fill', theme.primaryColor || '#60a5fa');
+          handle.setAttribute('stroke', '#ffffff');
+          handle.setAttribute('stroke-width', '2');
+          handle.style.cursor = 'move';
+          pathsLayer.appendChild(handle);
+        }
+
+        const midX = (start.x + end.x) / 2;
+        const midY = (start.y + end.y) / 2;
+        labelPos = { x: midX, y: start.y - 8 };
+        labelBaseline = 'alphabetic';
+
+        const offsetDir = start.x < end.x ? 1 : -1;
+        sourceCardPos = { x: start.x + 15 * offsetDir, y: start.y - 8 };
+        sourceCardBaseline = 'alphabetic';
+        targetCardPos = { x: end.x - 15 * offsetDir, y: end.y - 8 };
+        targetCardBaseline = 'alphabetic';
+      } else if (eitherIsLifeline) {
+        const y = relYMap.get(index) ?? (y_first_relation + index * REL_GAP);
+        const sourceCenter = getCenter(source!.globalBounds);
+        const targetCenter = getCenter(target!.globalBounds);
+
+        const sourceIsLifeline = source ? (source.component.lifeline || (source.component.bounds.height <= 40 && source.component.bounds.y > 0)) : false;
+        const targetIsLifeline = target ? (target.component.lifeline || (target.component.bounds.height <= 40 && target.component.bounds.y > 0)) : false;
+
+        const getEndpoint = (comp: IndexedComponent, otherX: number): Point => {
+          const b = comp.globalBounds;
+          const centerX = b.x + b.width / 2;
+          const isSubModule = comp.component.bounds.height <= 40 && comp.component.bounds.y > 0;
+          if (isSubModule) {
+            const attachX = otherX < centerX ? b.x : b.x + b.width;
+            return { x: attachX, y: b.y + b.height / 2 };
+          }
+          return { x: centerX, y };
+        };
+
+        const isSameLifeline = Math.abs(sourceCenter.x - targetCenter.x) < 5;
+
+        if (isSameLifeline) {
+          // Vertical step call between sub-modules on the same lifeline
+          const sBounds = source!.globalBounds;
+          const tBounds = target!.globalBounds;
+          const isDownward = sBounds.y < tBounds.y;
+          start = { x: sourceCenter.x, y: isDownward ? sBounds.y + sBounds.height : sBounds.y };
+          end = { x: targetCenter.x, y: isDownward ? tBounds.y : tBounds.y + tBounds.height };
+          points = [start, end];
+          labelPos = { x: sourceCenter.x + 8 + estimateTextWidth(rel.label || '', RELATIONSHIP_LABEL_FONT_SIZE) / 2, y: (start.y + end.y) / 2 };
+          labelBaseline = 'central';
+          sourceCardPos = { x: start.x + 12, y: start.y };
+          targetCardPos = { x: end.x + 12, y: end.y };
+          pathD = pointsToSvgPath(points);
+        } else if (sourceIsLifeline && targetIsLifeline) {
+          start = getEndpoint(source!, targetCenter.x);
+          end = getEndpoint(target!, sourceCenter.x);
+
+          const routeType = rel.style?.routeType || 'orthogonal';
+          if (routeType === 'orthogonal') {
             points = [start, end];
             labelPos = { x: (start.x + end.x) / 2, y: y - 8 };
             const offsetDir = start.x < end.x ? 1 : -1;
             sourceCardPos = { x: start.x + 15 * offsetDir, y: y - 8 };
             targetCardPos = { x: end.x - 15 * offsetDir, y: y - 8 };
-          } else if (!sourceIsLifeline && targetIsLifeline) {
-            const elbow = { x: start.x, y };
-            points = [start, elbow, end];
-            labelPos = { x: (elbow.x + end.x) / 2, y: y - 8 };
-            const offsetDir = elbow.x < end.x ? 1 : -1;
-            sourceCardPos = { x: start.x - 12, y: start.y + 15 };
-            targetCardPos = { x: end.x - 15 * offsetDir, y: y - 8 };
-          } else if (sourceIsLifeline && !targetIsLifeline) {
-            const elbow = { x: end.x, y };
-            points = [start, elbow, end];
-            labelPos = { x: start.x + (elbow.x - start.x) / 2, y: y - 8 };
-            const offsetDir = start.x < elbow.x ? 1 : -1;
-            sourceCardPos = { x: start.x + 15 * offsetDir, y: y - 8 };
-            targetCardPos = { x: end.x - 12, y: end.y + 15 };
+            pathD = createHorizontalPathWithBridgeArcs(start, end, componentIndex);
+          } else if (routeType === 'curved') {
+            const dx = end.x - start.x;
+            const dy = end.y - start.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            const controlOffset = Math.max(30, Math.min(100, dist * 0.4));
+            const startSide = start.x < end.x ? 'right' : 'left';
+            const endSide = start.x < end.x ? 'left' : 'right';
+            const cp1 = getCurveControlPoint(start, startSide, controlOffset);
+            const cp2 = getCurveControlPoint(end, endSide, controlOffset);
+            pathD = `M ${start.x} ${start.y} C ${cp1.x} ${cp1.y}, ${cp2.x} ${cp2.y}, ${end.x} ${end.y}`;
+            points = [start, cp1, cp2, end];
+            labelPos = { x: (start.x + end.x) / 2, y: y - 8 };
           } else {
             points = [start, end];
-            labelPos = { x: (start.x + end.x) / 2, y: (start.y + end.y) / 2 - 8 };
-            sourceCardPos = { x: start.x, y: start.y + 15 };
-            targetCardPos = { x: end.x, y: end.y + 15 };
+            pathD = pointsToSvgPath(points);
+            labelPos = { x: (start.x + end.x) / 2, y: y - 8 };
           }
-          pathD = pointsToSvgPath(points);
-        } else if (routeType === 'curved') {
-          let startSide: 'top' | 'bottom' | 'left' | 'right';
-          let endSide: 'top' | 'bottom' | 'left' | 'right';
+        } else if (!sourceIsLifeline && targetIsLifeline) {
+          const sourceBottomY = source!.globalBounds.y + source!.globalBounds.height;
+          const rawStart = { x: sourceCenter.x, y: sourceBottomY };
+          const sourceOffset = offsetMap.get(`${index}|source`) || 0;
+          start = { x: rawStart.x + sourceOffset, y: rawStart.y };
+          end = getEndpoint(target!, start.x);
 
-          if (sourceIsLifeline && targetIsLifeline) {
-            startSide = sourceCenter.x < targetCenter.x ? 'right' : 'left';
-            endSide = sourceCenter.x < targetCenter.x ? 'left' : 'right';
-          } else if (!sourceIsLifeline && targetIsLifeline) {
-            startSide = 'bottom';
-            endSide = sourceCenter.x < targetCenter.x ? 'left' : 'right';
-          } else if (sourceIsLifeline && !targetIsLifeline) {
-            startSide = sourceCenter.x < targetCenter.x ? 'right' : 'left';
-            endSide = 'bottom';
+          const routeType = rel.style?.routeType || 'orthogonal';
+          if (routeType === 'curved') {
+            const cp1 = { x: start.x, y: y };
+            const cp2 = { x: (start.x + end.x) / 2, y: y };
+            pathD = `M ${start.x} ${start.y} C ${cp1.x} ${cp1.y}, ${cp2.x} ${cp2.y}, ${end.x} ${end.y}`;
+            points = [start, cp1, cp2, end];
+          } else if (routeType === 'straight') {
+            points = [start, end];
+            pathD = pointsToSvgPath(points);
           } else {
-            startSide = 'bottom';
-            endSide = 'top';
+            const elbow = { x: start.x, y };
+            points = [start, elbow, end];
+            pathD = pointsToSvgPath(points);
           }
+          labelPos = { x: (start.x + end.x) / 2, y: y - 8 };
+        } else if (sourceIsLifeline && !targetIsLifeline) {
+          const targetBottomY = target!.globalBounds.y + target!.globalBounds.height;
+          const rawEnd = { x: targetCenter.x, y: targetBottomY };
+          const targetOffset = offsetMap.get(`${index}|target`) || 0;
+          start = getEndpoint(source!, rawEnd.x);
+          end = { x: rawEnd.x + targetOffset, y: rawEnd.y };
 
-          const dx = end.x - start.x;
-          const dy = end.y - start.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          const controlOffset = Math.max(30, Math.min(100, dist * 0.4));
-
-          const cp1 = getCurveControlPoint(start, startSide, controlOffset);
-          const cp2 = getCurveControlPoint(end, endSide, controlOffset);
-
-          pathD = `M ${start.x} ${start.y} C ${cp1.x} ${cp1.y}, ${cp2.x} ${cp2.y}, ${end.x} ${end.y}`;
-          points = [start, cp1, cp2, end];
-
-          const midX = 0.125 * start.x + 0.375 * cp1.x + 0.375 * cp2.x + 0.125 * end.x;
-          const midY = 0.125 * start.y + 0.375 * cp1.y + 0.375 * cp2.y + 0.125 * end.y;
-          const tx = 0.75 * (cp1.x - start.x) + 1.5 * (cp2.x - cp1.x) + 0.75 * (end.x - cp2.x);
-          const ty = 0.75 * (cp1.y - start.y) + 1.5 * (cp2.y - cp1.y) + 0.75 * (end.y - cp2.y);
-          const isHorizontal = Math.abs(tx) > Math.abs(ty);
-
-          const placement = { anchor: { x: midX, y: midY }, segmentLength: dist, isHorizontal };
-          const labelDraw = placeLabelNearSegment(placement, rel.label || '', RELATIONSHIP_LABEL_FONT_SIZE);
-          labelPos = { x: labelDraw.x, y: labelDraw.y };
-          labelBaseline = labelDraw.baseline;
-
-          const sourceCardDraw = placeCardinalityNearPort(start, cp1, rel.sourceCardinality || '', CARDINALITY_FONT_SIZE);
-          sourceCardPos = { x: sourceCardDraw.x, y: sourceCardDraw.y };
-          sourceCardBaseline = sourceCardDraw.baseline;
-
-          const targetCardDraw = placeCardinalityNearPort(end, cp2, rel.targetCardinality || '', CARDINALITY_FONT_SIZE);
-          targetCardPos = { x: targetCardDraw.x, y: targetCardDraw.y };
-          targetCardBaseline = targetCardDraw.baseline;
+          const routeType = rel.style?.routeType || 'orthogonal';
+          if (routeType === 'curved') {
+            const cp1 = { x: (start.x + end.x) / 2, y: y };
+            const cp2 = { x: end.x, y: y };
+            pathD = `M ${start.x} ${start.y} C ${cp1.x} ${cp1.y}, ${cp2.x} ${cp2.y}, ${end.x} ${end.y}`;
+            points = [start, cp1, cp2, end];
+          } else if (routeType === 'straight') {
+            points = [start, end];
+            pathD = pointsToSvgPath(points);
+          } else {
+            const elbow = { x: end.x, y };
+            points = [start, elbow, end];
+            pathD = pointsToSvgPath(points);
+          }
+          labelPos = { x: (start.x + end.x) / 2, y: y - 8 };
         } else {
-          // straight
-          const dx = end.x - start.x;
-          const dy = end.y - start.y;
-          const len = Math.sqrt(dx * dx + dy * dy);
-
-          let nx = 0;
-          let ny = -1;
-          let ux = 1;
-          let uy = 0;
-
-          if (len > 0) {
-            ux = dx / len;
-            uy = dy / len;
-            nx = -uy;
-            ny = ux;
-            if (ny > 0 || (ny === 0 && nx > 0)) {
-              nx = -nx;
-              ny = -ny;
-            }
-          }
-
-          const textOffset = 10;
-          const midX = (start.x + end.x) / 2;
-          const midY = (start.y + end.y) / 2;
-
-          labelPos = { x: midX + nx * textOffset, y: midY + ny * textOffset };
-          labelBaseline = 'alphabetic';
-
-          const ox = len > 0 ? ux * 15 : 15;
-          const oy = len > 0 ? uy * 15 : 0;
-
-          sourceCardPos = { x: start.x + ox + nx * textOffset, y: start.y + oy + ny * textOffset };
-          sourceCardBaseline = 'alphabetic';
-          targetCardPos = { x: end.x - ox + nx * textOffset, y: end.y - oy + ny * textOffset };
-          targetCardBaseline = 'alphabetic';
-
+          start = getEndpoint(source!, targetCenter.x);
+          end = getEndpoint(target!, sourceCenter.x);
           points = [start, end];
+          labelPos = { x: (start.x + end.x) / 2, y: y - 8 };
           pathD = pointsToSvgPath(points);
         }
-      } else {
-        // Both are shapes (direct connection)
-        const sourceCenter = getCenter(source.globalBounds);
-        const targetCenter = getCenter(target.globalBounds);
+    } else {
+      // Both are shapes (direct connection)
+        const sourceCenter = getCenter(source!.globalBounds);
+        const targetCenter = getCenter(target!.globalBounds);
 
-        const rawStart = getBorderPort(source.globalBounds, targetCenter);
-        const rawEnd = getBorderPort(target.globalBounds, sourceCenter);
+        const rawStart = getBorderPort(source!.globalBounds, targetCenter);
+        const rawEnd = getBorderPort(target!.globalBounds, sourceCenter);
 
         const sourceOffset = offsetMap.get(`${index}|source`) || 0;
         const targetOffset = offsetMap.get(`${index}|target`) || 0;
@@ -628,7 +768,7 @@ export function renderRelationships(
         end = { ...rawEnd };
 
         if (sourceOffset !== 0) {
-          const face = getBorderFace(source.globalBounds, rawStart);
+          const face = getBorderFace(source!.globalBounds, rawStart);
           if (face === 'left' || face === 'right') {
             start.y += sourceOffset;
           } else {
@@ -637,7 +777,7 @@ export function renderRelationships(
         }
 
         if (targetOffset !== 0) {
-          const face = getBorderFace(target.globalBounds, rawEnd);
+          const face = getBorderFace(target!.globalBounds, rawEnd);
           if (face === 'left' || face === 'right') {
             end.y += targetOffset;
           } else {
@@ -648,8 +788,8 @@ export function renderRelationships(
         const routeType = rel.style?.routeType || 'straight';
 
         if (routeType === 'orthogonal') {
-          const startSide = getBorderFace(source.globalBounds, start);
-          const endSide = getBorderFace(target.globalBounds, end);
+          const startSide = getBorderFace(source!.globalBounds, start);
+          const endSide = getBorderFace(target!.globalBounds, end);
           points = routeOrthogonal(start, end, startSide, endSide, 0);
           pathD = pointsToSvgPath(points);
 
@@ -666,8 +806,8 @@ export function renderRelationships(
           targetCardPos = { x: targetCardDraw.x, y: targetCardDraw.y };
           targetCardBaseline = targetCardDraw.baseline;
         } else if (routeType === 'curved') {
-          const startSide = getBorderFace(source.globalBounds, start);
-          const endSide = getBorderFace(target.globalBounds, end);
+          const startSide = getBorderFace(source!.globalBounds, start);
+          const endSide = getBorderFace(target!.globalBounds, end);
 
           const dx = end.x - start.x;
           const dy = end.y - start.y;

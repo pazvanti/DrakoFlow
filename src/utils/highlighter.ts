@@ -19,6 +19,8 @@ const tokenRegex = new RegExp(
     '(?<boolean>\\b(true|false)\\b)',
     // Decorator keywords (e.g. @tags, @meta)
     '(?<decorator>@[a-zA-Z_][a-zA-Z0-9_]*)',
+    // Exterior direction keywords for relationships
+    '(?<exterior>\\b(LEFT|RIGHT|TOP|BOTTOM|left|right|top|bottom)\\b)',
     // Keywords/Types (all registered component types)
     '(?<keyword>\\b(Rectangle|Process|Ellipse|VerticalContainer|Cylinder|Cube|Diamond|Hexagon|Actor|Parallelogram|Class|Interface|UMLComponent|Module|Package|Text|Paragraph|SVGImage|RasterImage|Table)\\b)',
     // Properties (all known DSL property names)
@@ -29,8 +31,8 @@ const tokenRegex = new RegExp(
     '(?<accessor>(?:^|(?<=\\n))[^\\S\\n]*(?:\\*\\s*)?[+\\-#~](?=[^>\\s])|(?:^|(?<=\\n))[^\\S\\n]*\\*(?=\\s*[a-zA-Z_]))',
     // Operators: generic connector combinations followed by fallback chars
     '(?<operator>(?<![a-zA-Z0-9_])[<>o]+-[<>o]*(?![a-zA-Z0-9_])|(?<![a-zA-Z0-9_])[<>o]*-[<>o]+(?![a-zA-Z0-9_])|[-:{}\\[\\]\\.])',
-    // Identifiers/IDs (word followed by optional spaces then ':')
-    '(?<id>\\b[a-zA-Z_][a-zA-Z0-9_]*\\s*(?=:))',
+    // Identifiers/IDs (word with optional dots followed by optional spaces then ':')
+    '(?<id>\\b[a-zA-Z_][a-zA-Z0-9_.]*\\s*(?=:))',
     // Plain text/whitespace
     '(?<text>[\\s\\S])'
   ].join('|'),
@@ -68,6 +70,8 @@ export function highlightDSL(code: string, activeRange?: { start: number; end: n
       tokenHtml = `<span class="hl-color">${escapedValue}<span class="color-picker-trigger" data-start-pos="${startPos}" style="background-color: ${color};" title="Click to change color"></span></span>`;
     } else if (groups.decorator !== undefined) {
       tokenHtml = `<span class="hl-decorator">${escapedValue}</span>`;
+    } else if (groups.exterior !== undefined) {
+      tokenHtml = `<span class="hl-keyword">${escapedValue}</span>`;
     } else if (groups.blockComment !== undefined) {
       tokenHtml = `<span class="hl-comment">${escapedValue}</span>`;
     } else if (groups.comment !== undefined) {
