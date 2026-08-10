@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description"
+    content="Explore interactive DrakoFlow diagram examples. Learn how to build architecture flowcharts, sequence diagrams with sub-modules, and multi-tag container layouts using DrakoFlow DSL.">
+  <meta name="keywords"
+    content="DrakoFlow examples, architecture diagram examples, text to diagram examples, sequence diagram DSL, PlantUML alternative examples">
+  <meta name="author" content="pazvanti">
+  <meta name="robots" content="index, follow">
+  <title>DrakoFlow Diagram Examples & Gallery</title>
+
+  <link rel="canonical" href="https://pazvanti.github.io/DrakoFlow/examples.html" />
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://pazvanti.github.io/DrakoFlow/examples.html">
+  <meta property="og:title" content="DrakoFlow Diagram Examples & Gallery">
+  <meta property="og:description"
+    content="Explore interactive DrakoFlow diagram examples. Learn how to build architecture flowcharts, sequence diagrams with sub-modules, and multi-tag container layouts using DrakoFlow DSL.">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&family=Outfit:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+  <!-- LZString for live editor link generation -->
+  <script src="https://cdn.jsdelivr.net/npm/lz-string@1.5.0/libs/lz-string.min.js"></script>
+
+  <!-- Premium Dark Styling -->
+  <style>
+    :root {
+      --bg-dark: #09090b;
+      --bg-panel: #141416;
+      --bg-card: #18181b;
+      --bg-card-hover: #222226;
+      --border-color: #27272a;
+      --text-main: #f4f4f5;
+      --text-muted: #a1a1aa;
+      --accent-blue: #3b82f6;
+      --accent-purple: #8b5cf6;
+      --accent-green: #10b981;
+      --accent-gradient: linear-gradient(135deg, #60a5fa 0%, #3b82f6 50%, #8b5cf6 100%);
+      --glow-glow: rgba(59, 130, 246, 0.15);
+      --font-outfit: 'Outfit', sans-serif;
+      --font-fira: 'Fira Code', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: var(--font-outfit);
+      line-height: 1.6;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Ambient glow orbs */
+    .glow-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(150px);
+      opacity: 0.12;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .orb-1 {
+      width: 600px;
+      height: 600px;
+      background: var(--accent-blue);
+      top: -150px;
+      left: -150px;
+    }
+
+    .orb-2 {
+      width: 500px;
+      height: 500px;
+      background: var(--accent-purple);
+      top: 40%;
+      right: -150px;
+    }
+
+    .orb-3 {
+      width: 450px;
+      height: 450px;
+      background: var(--accent-green);
+      bottom: 10%;
+      left: -100px;
+    }
+
+    a {
+      color: var(--accent-blue);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    a:hover {
+      color: #60a5fa;
+    }
+
+    /* Navigation Header */
+    header.site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background-color: rgba(9, 9, 11, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .nav-container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      background: var(--accent-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .logo i {
+      background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+    }
+
+    .nav-links a {
+      color: var(--text-muted);
+      font-weight: 500;
+      font-size: 0.95rem;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover,
+    .nav-links a.active {
+      color: var(--text-main);
+    }
+
+    .btn-launch {
+      background: var(--accent-gradient);
+      color: white !important;
+      padding: 0.5rem 1.25rem;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+      transition: transform 0.2s, box-shadow 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-launch:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(59, 130, 246, 0.35);
+    }
+
+    /* Hero Banner */
+    section.hero-banner {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 4rem 2rem 2rem 2rem;
+      text-align: center;
+      position: relative;
+      z-index: 10;
+    }
+
+    .badge-gallery {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(59, 130, 246, 0.1);
+      border: 1px solid rgba(59, 130, 246, 0.25);
+      color: #60a5fa;
+      padding: 0.4rem 1rem;
+      border-radius: 9999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero-banner h1 {
+      font-size: 3.25rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.2;
+      margin-bottom: 1rem;
+    }
+
+    .hero-banner p.lead {
+      color: var(--text-muted);
+      font-size: 1.15rem;
+      max-width: 720px;
+      margin: 0 auto 2.5rem auto;
+    }
+
+    /* Category Filter Pills */
+    .filter-pills {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-bottom: 3rem;
+    }
+
+    .filter-pill {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      padding: 0.5rem 1.25rem;
+      border-radius: 9999px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .filter-pill:hover {
+      border-color: #52525b;
+      color: var(--text-main);
+    }
+
+    .filter-pill.active {
+      background: rgba(59, 130, 246, 0.15);
+      border-color: var(--accent-blue);
+      color: #60a5fa;
+    }
+
+    /* Main Examples Section */
+    section.examples-container {
+      max-width: 1280px;
+      margin: 0 auto 6rem auto;
+      padding: 0 2rem;
+      position: relative;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      gap: 4rem;
+    }
+
+    /* Example Card Component */
+    .example-card {
+      background-color: var(--bg-panel);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+
+    .example-card:hover {
+      border-color: #3f3f46;
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.6);
+    }
+
+    .example-card-header {
+      background-color: rgba(24, 24, 27, 0.8);
+      border-bottom: 1px solid var(--border-color);
+      padding: 1.5rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .example-title-area {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .example-title-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .example-card-header h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .tag-badge {
+      background: rgba(59, 130, 246, 0.1);
+      border: 1px solid rgba(59, 130, 246, 0.2);
+      color: #60a5fa;
+      padding: 0.2rem 0.6rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .tag-badge.purple {
+      background: rgba(139, 92, 246, 0.1);
+      border-color: rgba(139, 92, 246, 0.2);
+      color: #a78bfa;
+    }
+
+    .tag-badge.green {
+      background: rgba(16, 185, 129, 0.1);
+      border-color: rgba(16, 185, 129, 0.2);
+      color: #34d399;
+    }
+
+    .example-description {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    /* Example Full Width Player Frame */
+    .example-player-wrapper {
+      position: relative;
+      width: 100%;
+      height: 520px;
+      background-color: #18181b;
+    }
+
+    .preview-iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      background-color: #18181b;
+    }
+
+    /* Action Footer Bar */
+    .example-card-footer {
+      background-color: rgba(20, 20, 22, 0.9);
+      border-top: 1px solid var(--border-color);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .action-group {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-action-primary {
+      background: var(--accent-gradient);
+      color: white !important;
+      padding: 0.55rem 1.25rem;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.88rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .btn-action-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(59, 130, 246, 0.35);
+    }
+
+    .btn-action-secondary {
+      background-color: rgba(39, 39, 42, 0.6);
+      border: 1px solid var(--border-color);
+      color: var(--text-main) !important;
+      padding: 0.55rem 1.1rem;
+      border-radius: 6px;
+      font-weight: 500;
+      font-size: 0.88rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      transition: background-color 0.2s, border-color 0.2s;
+    }
+
+    .btn-action-secondary:hover {
+      background-color: rgba(52, 52, 58, 0.8);
+      border-color: #52525b;
+    }
+
+    /* Submit Card */
+    .submit-card {
+      background: radial-gradient(circle at center, rgba(139, 92, 246, 0.12) 0%, rgba(9, 9, 11, 0) 70%), var(--bg-panel);
+      border: 1px dashed var(--border-color);
+      border-radius: 16px;
+      padding: 3.5rem 2rem;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.25rem;
+    }
+
+    .submit-card h3 {
+      font-size: 1.75rem;
+      font-weight: 800;
+    }
+
+    .submit-card p {
+      color: var(--text-muted);
+      max-width: 600px;
+      font-size: 1rem;
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border-color);
+      background-color: #060608;
+      padding: 3rem 2rem;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      position: relative;
+      z-index: 10;
+    }
+
+    .footer-container {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+    }
+
+    .footer-brand {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .footer-links a {
+      color: var(--text-muted);
+    }
+
+    .footer-links a:hover {
+      color: var(--text-main);
+    }
+
+    @media (max-width: 768px) {
+      .nav-links {
+        display: none;
+      }
+
+      .hero-banner h1 {
+        font-size: 2.25rem;
+      }
+
+      .footer-container {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .footer-links {
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Ambient Glow Background Orbs -->
+  <div class="glow-orb orb-1"></div>
+  <div class="glow-orb orb-2"></div>
+  <div class="glow-orb orb-3"></div>
+
+  <!-- Navigation bar -->
+  <header class="site-header">
+    <div class="nav-container">
+      <a href="./index.html" class="logo">
+        <i class="bi bi-diagram-3-fill"></i> DrakoFlow
+      </a>
+      <div class="nav-links">
+        <a href="./index.html#features">Features</a>
+        <a href="./index.html#syntax">Syntax Guide</a>
+        <a href="./compare.html">PlantUML Alternative</a>
+        <a href="./documentation.html">Documentation</a>
+        <a href="./examples.html" class="active">Examples</a>
+        <a href="https://github.com/pazvanti/DrakoFlow" target="_blank" rel="noopener"><i class="bi bi-github"></i>
+          GitHub</a>
+      </div>
+      <div>
+        <a href="./drako/index.html" class="btn-launch"><i class="bi bi-play-fill"></i> Launch App</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero-banner">
+    <div class="badge-gallery">
+      <i class="bi bi-collection-play-fill"></i> Interactive Examples Gallery
+    </div>
+    <h1>DrakoFlow <span style="background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Examples</span></h1>
+    <p class="lead">Explore real-world architecture flowcharts, sequence diagrams with sub-modules, and multi-layer container setups. Open any example directly in the live interactive player or launch it in the editor.</p>
+
+    <!-- Filter Pills -->
+    <div class="filter-pills">
+      <button class="filter-pill active" onclick="filterExamples('all', this)"><i class="bi bi-grid-fill"></i> All Examples</button>
+      <button class="filter-pill" onclick="filterExamples('flowchart', this)"><i class="bi bi-diagram-2-fill"></i> Flowcharts</button>
+      <button class="filter-pill" onclick="filterExamples('sequence', this)"><i class="bi bi-arrow-down-up"></i> Sequence Diagrams</button>
+      <button class="filter-pill" onclick="filterExamples('architecture', this)"><i class="bi bi-layers-fill"></i> Architecture & Tags</button>
+    </div>
+  </section>
+
+  <!-- Main Examples Gallery -->
+  <section class="examples-container">
+
+    <!-- EXAMPLE 1: Simple Flowchart -->
+    <div class="example-card" data-category="flowchart">
+      <div class="example-card-header">
+        <div class="example-title-area">
+          <div class="example-title-row">
+            <h2>Simple Process Flowchart</h2>
+            <span class="tag-badge">Flowchart</span>
+            <span class="tag-badge green">Basic DSL</span>
+          </div>
+          <p class="example-description">Demonstrates basic shape declarations (Rectangle, Process) and simple directed (`->`) and bidirectional (`<->`) relationship connections.</p>
+        </div>
+        <a href="./examples/simple.html" target="_blank" class="btn-action-secondary">
+          <i class="bi bi-box-arrow-up-right"></i> Open Fullscreen Player
+        </a>
+      </div>
+
+      <!-- Full-Width Interactive HTML Player Container -->
+      <div class="example-player-wrapper">
+        <iframe src="./examples/simple.html" class="preview-iframe" title="Simple Flowchart Example Interactive Player"></iframe>
+      </div>
+
+      <div class="example-card-footer">
+        <div class="action-group">
+          <a href="./examples/simple.html" target="_blank" class="btn-action-primary">
+            <i class="bi bi-play-circle-fill"></i> Open Interactive Player
+          </a>
+          <button class="btn-action-secondary" onclick="openInEditor('code-simple')">
+            <i class="bi bi-box-arrow-up-right"></i> Open in Online Editor
+          </button>
+        </div>
+        <div class="action-group">
+          <a href="./examples/simple.drako" download="simple.drako" class="btn-action-secondary">
+            <i class="bi bi-download"></i> Download .drako
+          </a>
+        </div>
+      </div>
+
+      <!-- Hidden Source Script for Editor Link -->
+      <script id="code-simple" type="text/plain">// Simple Process Flowchart
+A : Rectangle {
+  label: "A"
+  rx: 8
+  ry: 8
+}
+
+B: Process {
+  label: "B"
+}
+
+C: Rectangle {
+  label: "C"
+  rx: 8
+  ry: 8
+}
+
+A -> B
+
+B -> C
+
+C <-> A</script>
+    </div>
+
+    <!-- EXAMPLE 2: Sequence with Tags & Containers -->
+    <div class="example-card" data-category="sequence">
+      <div class="example-card-header">
+        <div class="example-title-area">
+          <div class="example-title-row">
+            <h2>Multi-Layer Architecture with Tags & Containers</h2>
+            <span class="tag-badge purple">Sequence Diagram</span>
+            <span class="tag-badge green">Vertical Container</span>
+            <span class="tag-badge">@tags Metadata</span>
+          </div>
+          <p class="example-description">Demonstrates complex architecture layouts using `VerticalContainer` components, custom color theme overrides, styled connectors, and `@tags` decorator metadata for interactive layer filtering.</p>
+        </div>
+        <a href="./examples/sequence-with-tags.html" target="_blank" class="btn-action-secondary">
+          <i class="bi bi-box-arrow-up-right"></i> Open Fullscreen Player
+        </a>
+      </div>
+
+      <!-- Full-Width Interactive HTML Player Container -->
+      <div class="example-player-wrapper">
+        <iframe src="./examples/sequence-with-tags.html" class="preview-iframe" title="Tagged Architecture Example Interactive Player"></iframe>
+      </div>
+
+      <div class="example-card-footer">
+        <div class="action-group">
+          <a href="./examples/sequence-with-tags.html" target="_blank" class="btn-action-primary">
+            <i class="bi bi-play-circle-fill"></i> Open Interactive Player
+          </a>
+          <button class="btn-action-secondary" onclick="openInEditor('code-seq-tags')">
+            <i class="bi bi-box-arrow-up-right"></i> Open in Online Editor
+          </button>
+        </div>
+        <div class="action-group">
+          <a href="./examples/sequence-with-tags.drako" download="sequence-with-tags.drako" class="btn-action-secondary">
+            <i class="bi bi-download"></i> Download .drako
+          </a>
+        </div>
+      </div>
+
+      <!-- Hidden Source Script for Editor Link -->
+      <script id="code-seq-tags" type="text/plain">@tags:["test"]
+Client: Process {
+  label: "Client App"
+  lifeline: true
+  themeOverride: {
+    backgroundColor: "#4b2782"
+    borderColor: "#f59e0b"
+  }
+}
+
+Server: Process {
+  label: "API Server"
+  lifeline: true
+}
+
+Database: Rectangle {
+  label: "Database"
+  rx: 6
+  ry: 6
+}
+
+Client -> Server : "1. GET /users" {
+  lineStyle: "solid"
+  color: "#60a5fa"
+}
+
+Server -> Database : "2. Query Users" {
+  lineStyle: "dashed"
+  color: "#a1a1aa"
+}
+
+Database -> Server : "3. Return records" {
+  lineStyle: "dashed"
+  color: "#1d4ed8"
+}
+
+Server -> Client : "4. 200 OK (JSON)" {
+  lineStyle: "solid"
+  color: "#34d399"
+}
+
+Client -> Client : "5. Render UI" {
+  lineStyle: "solid"
+  color: "#f59e0b"
+}
+
+MyRectangle: Rectangle {
+  label: "Rectangle"
+  rx: 8
+  ry: 8
+}
+
+MyContainer: VerticalContainer {
+  label: "Container"
+  gap: 10
+  padding: 10
+
+  Step1: Process {
+    label: "Step 1"
+  }
+
+  @tags:["test2"]
+  Step2: MyRectangle
+}
+
+Server -> Step2
+
+Database -> MyContainer
+
+MyContainer2: VerticalContainer {
+  label: "Container2"
+  gap: 10
+  padding: 10
+
+  Step4: Process {
+    label: "Step 1"
+  }
+
+  Step3: MyRectangle
+  themeOverride: {
+    backgroundColor: "#10b981"
+    borderColor: "#b91c1c"
+    textColor: "#27272a"
+  }
+}
+
+MyContainer2 -> Client</script>
+    </div>
+
+    <!-- EXAMPLE 3: Sequence with Components & Lifelines -->
+    <div class="example-card" data-category="architecture">
+      <div class="example-card-header">
+        <div class="example-title-area">
+          <div class="example-title-row">
+            <h2>Lifeline Sequence with Activation Steps & Sub-Modules</h2>
+            <span class="tag-badge green">Architecture</span>
+            <span class="tag-badge purple">Sequence Diagram</span>
+            <span class="tag-badge">Sub-Modules</span>
+          </div>
+          <p class="example-description">Shows component headers with lifelines (`lifeline: true`), child version sub-modules attached to lifelines, bridge arcs over intermediate vertical lifelines, and exterior call events (`LEFT -> ...`).</p>
+        </div>
+        <a href="./examples/sequence-with-components.html" target="_blank" class="btn-action-secondary">
+          <i class="bi bi-box-arrow-up-right"></i> Open Fullscreen Player
+        </a>
+      </div>
+
+      <!-- Full-Width Interactive HTML Player Container -->
+      <div class="example-player-wrapper">
+        <iframe src="./examples/sequence-with-components.html" class="preview-iframe" title="Lifeline Sequence Example Interactive Player"></iframe>
+      </div>
+
+      <div class="example-card-footer">
+        <div class="action-group">
+          <a href="./examples/sequence-with-components.html" target="_blank" class="btn-action-primary">
+            <i class="bi bi-play-circle-fill"></i> Open Interactive Player
+          </a>
+          <button class="btn-action-secondary" onclick="openInEditor('code-seq-comp')">
+            <i class="bi bi-box-arrow-up-right"></i> Open in Online Editor
+          </button>
+        </div>
+        <div class="action-group">
+          <a href="./examples/sequence-with-components.drako" download="sequence-with-components.drako" class="btn-action-secondary">
+            <i class="bi bi-download"></i> Download .drako
+          </a>
+        </div>
+      </div>
+
+      <!-- Hidden Source Script for Editor Link -->
+      <script id="code-seq-comp" type="text/plain">ComponentA: Rectangle {
+  label: "Component A"
+  lifeline: true
+  rx: 12
+  ry: 12
+  themeOverride: {
+    backgroundColor: "#dbeafe"
+    borderColor: "#3b82f6"
+    textColor: "#1e3a8a"
+  }
+
+  V14_A: Process {
+    label: "Version 1.4"
+  }
+  V15_A: Process {
+    label: "Version 1.5"
+  }
+  V20_A: Process {
+    label: "Version 2.0"
+  }
+}
+
+ComponentB: Rectangle {
+  label: "Component B"
+  lifeline: true
+  rx: 12
+  ry: 12
+  themeOverride: {
+    backgroundColor: "#fee2e2"
+    borderColor: "#ef4444"
+    textColor: "#7f1d1d"
+  }
+
+  V14_B: Process {
+    label: "Version 1.4"
+  }
+}
+
+// Sequence calls & exterior events
+LEFT -> ComponentA.V15_A : "New field added" { startX: -80, startY: 277 }
+LEFT -> ComponentB : "Component B Sync" { startX: 266, startY: 309 }</script>
+    </div>
+
+    <!-- Submit / More Examples Card -->
+    <div class="submit-card">
+      <div style="font-size: 2.5rem; color: #a78bfa;"><i class="bi bi-journal-plus"></i></div>
+      <h3>More Examples Coming Soon!</h3>
+      <p>Have a diagram pattern or workflow to share? DrakoFlow is open-source and community-driven. Submit your `.drako` scripts on GitHub to feature them in the gallery.</p>
+      <a href="https://github.com/pazvanti/DrakoFlow" target="_blank" rel="noopener" class="btn-action-primary">
+        <i class="bi bi-github"></i> Submit Example on GitHub
+      </a>
+    </div>
+
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-container">
+      <div class="footer-brand">
+        <div class="logo">
+          <i class="bi bi-diagram-3-fill"></i> DrakoFlow
+        </div>
+        <p>Declarative text-to-diagram engine with drag-and-drop mechanics. 100% client-side & serverless.</p>
+      </div>
+      <div class="footer-links">
+        <a href="./index.html">Home</a>
+        <a href="./index.html#features">Features</a>
+        <a href="./index.html#syntax">Syntax Guide</a>
+        <a href="./compare.html">PlantUML Alternative</a>
+        <a href="./documentation.html">Documentation</a>
+        <a href="./examples.html" style="color: var(--text-main); font-weight: 600;">Examples</a>
+        <a href="https://github.com/pazvanti/DrakoFlow" target="_blank" rel="noopener">GitHub</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Interactive JavaScript -->
+  <script>
+    // Launch in Editor Helper
+    function openInEditor(elementId) {
+      const codeElement = document.getElementById(elementId);
+      if (!codeElement) return;
+
+      const codeText = codeElement.textContent;
+      let targetUrl = "./drako/index.html";
+
+      if (typeof LZString !== 'undefined') {
+        const compressed = LZString.compressToEncodedURIComponent(codeText);
+        targetUrl += "?diagram=" + compressed;
+      }
+
+      window.open(targetUrl, '_blank');
+    }
+
+    // Filter Examples Helper
+    function filterExamples(category, pillElement) {
+      const pills = document.querySelectorAll('.filter-pill');
+      pills.forEach(p => p.classList.remove('active'));
+      if (pillElement) pillElement.classList.add('active');
+
+      const cards = document.querySelectorAll('.example-card');
+      cards.forEach(card => {
+        if (category === 'all' || card.getAttribute('data-category') === category) {
+          card.style.display = 'block';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    }
+  </script>
+</body>
+
+</html>

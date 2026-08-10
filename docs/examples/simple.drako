@@ -1,0 +1,24 @@
+// Welcome to DrakoFlow!
+// Type below to build sequence/flow interactions.
+A : Rectangle {
+  label: "A"
+  rx: 8
+  ry: 8
+}
+
+
+B: Process {
+  label: "B"
+}
+
+C: Rectangle {
+  label: "C"
+  rx: 8
+  ry: 8
+}
+
+A -> B
+
+B -> C
+
+C <-> A

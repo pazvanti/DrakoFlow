@@ -1,0 +1,41 @@
+ComponentA: Rectangle {
+  label: "Component A"
+  lifeline: true
+  rx: 12
+  ry: 12
+  themeOverride: {
+    backgroundColor: "#dbeafe"
+    borderColor: "#3b82f6"
+    textColor: "#1e3a8a"
+  }
+
+  V14_A: Process {
+    label: "Version 1.4"
+  }
+  V15_A: Process {
+    label: "Version 1.5"
+  }
+  V20_A: Process {
+    label: "Version 2.0"
+  }
+}
+
+ComponentB: Rectangle {
+  label: "Component B"
+  lifeline: true
+  rx: 12
+  ry: 12
+  themeOverride: {
+    backgroundColor: "#fee2e2"
+    borderColor: "#ef4444"
+    textColor: "#7f1d1d"
+  }
+
+  V14_B: Process {
+    label: "Version 1.4"
+  }
+}
+
+// Sequence calls & exterior events
+LEFT -> ComponentA.V15_A : "New field added" { startX: -80, startY: 277 }
+LEFT -> ComponentB : "Component B Sync" { startX: 266, startY: 309 }

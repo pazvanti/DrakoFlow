@@ -1,0 +1,90 @@
+// Welcome to DrakoFlow!
+// Type below to build sequence/flow interactions.
+
+@tags:["test"]
+Client: Process {
+  label: "Client App"
+  lifeline: true
+  themeOverride: {
+    backgroundColor: "#4b2782"
+    borderColor: "#f59e0b"
+  }
+}
+
+Server: Process {
+  label: "API Server"
+  lifeline: true
+}
+
+Database: Rectangle {
+  label: "Database"
+  rx: 6
+  ry: 6
+}
+
+Client -> Server : "1. GET /users" {
+  lineStyle: "solid"
+  color: "#60a5fa"
+}
+
+Server -> Database : "2. Query Users" {
+  lineStyle: "dashed"
+  color: "#a1a1aa"
+}
+
+Database -> Server : "3. Return records" {
+  lineStyle: "dashed"
+  color: "#1d4ed8"
+}
+
+Server -> Client : "4. 200 OK (JSON)" {
+  lineStyle: "solid"
+  color: "#34d399"
+}
+
+Client -> Client : "5. Render UI" {
+  lineStyle: "solid"
+  color: "#f59e0b"
+}
+
+MyRectangle: Rectangle {
+  label: "Rectangle"
+  rx: 8
+  ry: 8
+}
+
+MyContainer: VerticalContainer {
+  label: "Container"
+  gap: 10
+  padding: 10
+
+  Step1: Process {
+    label: "Step 1"
+  }
+
+  @tags:["test2"]
+  Step2: MyRectangle
+}
+
+Server -> Step2
+
+Database -> MyContainer
+
+MyContainer2: VerticalContainer {
+  label: "Container2"
+  gap: 10
+  padding: 10
+
+  Step4: Process {
+    label: "Step 1"
+  }
+
+  Step3: MyRectangle
+  themeOverride: {
+    backgroundColor: "#10b981"
+    borderColor: "#b91c1c"
+    textColor: "#27272a"
+  }
+}
+
+MyContainer2 -> Client
