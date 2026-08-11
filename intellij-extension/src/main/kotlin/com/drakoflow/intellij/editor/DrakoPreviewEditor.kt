@@ -6,6 +6,8 @@ import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.event.DocumentEvent
 import com.intellij.openapi.editor.event.DocumentListener
+import com.intellij.openapi.fileChooser.FileChooserFactory
+import com.intellij.openapi.fileChooser.FileSaverDescriptor
 import com.intellij.openapi.fileEditor.FileEditor
 import com.intellij.openapi.fileEditor.FileEditorLocation
 import com.intellij.openapi.fileEditor.FileEditorState
@@ -20,13 +22,20 @@ import com.intellij.ui.jcef.JBCefBrowserBuilder
 import com.intellij.ui.jcef.JBCefJSQuery
 import org.cef.browser.CefBrowser
 import org.cef.browser.CefFrame
+import org.cef.callback.CefBeforeDownloadCallback
+import org.cef.callback.CefDownloadItem
+import org.cef.callback.CefDownloadItemCallback
+import org.cef.handler.CefDownloadHandlerAdapter
 import org.cef.handler.CefLoadHandlerAdapter
 import java.awt.BorderLayout
 import java.beans.PropertyChangeListener
+import java.util.Base64
 import javax.swing.JComponent
 import javax.swing.JLabel
 import javax.swing.JPanel
 import javax.swing.SwingConstants
+
+private data class DownloadPayload(val filename: String?, val dataUrl: String?)
 
 class DrakoPreviewEditor(
     private val project: Project,
@@ -37,6 +46,7 @@ class DrakoPreviewEditor(
     private val mainPanel = JPanel(BorderLayout())
     private var jbCefBrowser: JBCefBrowser? = null
     private var jsQuery: JBCefJSQuery? = null
+    private var downloadQuery: JBCefJSQuery? = null
     private var isUpdatingFromWebview = false
     private val gson = Gson()
 
@@ -75,13 +85,76 @@ class DrakoPreviewEditor(
             null
         }
 
-        val inlinedHtml = prepareInlinedHtml(query)
+        val dlQuery = JBCefJSQuery.create(browser as JBCefBrowserBase)
+        this.downloadQuery = dlQuery
+
+        dlQuery.addHandler { jsonPayload ->
+            try {
+                val dataObj = gson.fromJson(jsonPayload, DownloadPayload::class.java)
+                val rawName = dataObj.filename?.ifBlank { null } ?: "diagram.png"
+                val dataUrl = dataObj.dataUrl ?: ""
+                val ext = rawName.substringAfterLast('.', "png")
+
+                ApplicationManager.getApplication().invokeLater {
+                    val descriptor = FileSaverDescriptor("Export $rawName", "Select location to save exported file", ext)
+                    val saveFileDialog = FileChooserFactory.getInstance().createSaveFileDialog(descriptor, project)
+                    val parentDir = virtualFile.parent
+                    val fileWrapper = saveFileDialog.save(parentDir, rawName)
+
+                    if (fileWrapper != null) {
+                        val bytes = decodeDataUrl(dataUrl)
+                        if (bytes != null) {
+                            fileWrapper.file.writeBytes(bytes)
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+            null
+        }
+
+        val inlinedHtml = prepareInlinedHtml(query, dlQuery)
 
         browser.jbCefClient.addLoadHandler(object : CefLoadHandlerAdapter() {
             override fun onLoadEnd(cefBrowser: CefBrowser?, frame: CefFrame?, httpStatusCode: Int) {
                 if (frame?.isMain == true) {
                     sendDocumentTextToWebview(document.text)
                 }
+            }
+        }, browser.cefBrowser)
+
+        browser.jbCefClient.addDownloadHandler(object : CefDownloadHandlerAdapter() {
+            override fun onBeforeDownload(
+                cefBrowser: CefBrowser?,
+                downloadItem: CefDownloadItem?,
+                suggestedName: String?,
+                callback: CefBeforeDownloadCallback?
+            ) {
+                val rawName = suggestedName?.ifBlank { null }
+                    ?: downloadItem?.suggestedFileName?.ifBlank { null }
+                    ?: "diagram.png"
+                val ext = rawName.substringAfterLast('.', "png")
+
+                ApplicationManager.getApplication().invokeLater {
+                    val descriptor = FileSaverDescriptor("Export Diagram", "Save exported file", ext)
+                    val saveFileDialog = FileChooserFactory.getInstance().createSaveFileDialog(descriptor, project)
+                    val parentDir = virtualFile.parent
+                    val fileWrapper = saveFileDialog.save(parentDir, rawName)
+
+                    if (fileWrapper != null) {
+                        callback?.Continue(fileWrapper.file.absolutePath, false)
+                    } else {
+                        callback?.Continue(null, false)
+                    }
+                }
+            }
+
+            override fun onDownloadUpdated(
+                cefBrowser: CefBrowser?,
+                downloadItem: CefDownloadItem?,
+                callback: CefDownloadItemCallback?
+            ) {
             }
         }, browser.cefBrowser)
 
@@ -95,6 +168,13 @@ class DrakoPreviewEditor(
         }, this)
     }
 
+    private fun decodeDataUrl(dataUrl: String): ByteArray? {
+        val commaIdx = dataUrl.indexOf(',')
+        if (commaIdx == -1) return null
+        val base64Data = dataUrl.substring(commaIdx + 1)
+        return Base64.getDecoder().decode(base64Data)
+    }
+
     private fun sendDocumentTextToWebview(text: String) {
         val browser = jbCefBrowser ?: return
         val jsonText = gson.toJson(text)
@@ -102,7 +182,7 @@ class DrakoPreviewEditor(
         browser.cefBrowser.executeJavaScript(js, browser.cefBrowser.url, 0)
     }
 
-    private fun prepareInlinedHtml(query: JBCefJSQuery): String {
+    private fun prepareInlinedHtml(query: JBCefJSQuery, dlQuery: JBCefJSQuery): String {
         val indexHtmlStream = javaClass.getResourceAsStream("/webview-dist/index.html")
             ?: throw IllegalStateException("Resource /webview-dist/index.html not found")
         val indexJsStream = javaClass.getResourceAsStream("/webview-dist/assets/index.js")
@@ -136,6 +216,34 @@ class DrakoPreviewEditor(
         val injectedScript = """
             <script>
               (function() {
+                const originalClick = HTMLAnchorElement.prototype.click;
+                HTMLAnchorElement.prototype.click = function() {
+                  if (this.download && this.href && window._postDownloadToIde) {
+                    const filename = this.download;
+                    const href = this.href;
+                    fetch(href)
+                      .then(res => res.blob())
+                      .then(blob => {
+                        const reader = new FileReader();
+                        reader.onloadend = function() {
+                          window._postDownloadToIde(JSON.stringify({
+                            filename: filename,
+                            dataUrl: reader.result
+                          }));
+                        };
+                        reader.readAsDataURL(blob);
+                      })
+                      .catch(err => {
+                        console.error('Failed to process download blob:', err);
+                      });
+                  }
+                  return originalClick.apply(this, arguments);
+                };
+
+                window._postDownloadToIde = function(payload) {
+                  ${dlQuery.inject("payload")}
+                };
+
                 window.updateDrakoText = function(newText) {
                   const editor = document.getElementById('editor');
                   if (editor) {
@@ -223,6 +331,7 @@ class DrakoPreviewEditor(
     override fun getFile(): VirtualFile = virtualFile
 
     override fun dispose() {
+        downloadQuery?.let { Disposer.dispose(it) }
         jsQuery?.let { Disposer.dispose(it) }
         jbCefBrowser?.let { Disposer.dispose(it) }
     }
