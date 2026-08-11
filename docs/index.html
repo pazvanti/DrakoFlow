@@ -1261,9 +1261,185 @@
       box-shadow: 0 6px 20px rgba(2, 132, 199, 0.4);
     }
 
-    .vscode-version-tag {
-      font-size: 0.8rem;
+    /* IDE Extensions Section Styles */
+    section.extensions-section {
+      max-width: 1150px;
+      margin: 5rem auto 6rem auto;
+      padding: 0 2rem;
+      position: relative;
+      z-index: 10;
+    }
+
+    .extensions-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 2rem;
+      margin-top: 3rem;
+    }
+
+    .extension-card {
+      background: linear-gradient(135deg, rgba(24, 24, 27, 0.7) 0%, rgba(15, 15, 18, 0.85) 100%);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 2.5rem 2rem;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.4);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 1.75rem;
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease, box-shadow 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .extension-card:hover {
+      transform: translateY(-6px);
+    }
+
+    .extension-card.card-vscode:hover {
+      border-color: rgba(56, 189, 248, 0.5);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 25px rgba(2, 132, 199, 0.2);
+    }
+
+    .extension-card.card-intellij:hover {
+      border-color: rgba(167, 139, 250, 0.5);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 25px rgba(139, 92, 246, 0.2);
+    }
+
+    .extension-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .extension-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+    }
+
+    .card-vscode .extension-icon {
+      background: rgba(2, 132, 199, 0.15);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      color: #38bdf8;
+    }
+
+    .card-intellij .extension-icon {
+      background: rgba(139, 92, 246, 0.15);
+      border: 1px solid rgba(167, 139, 250, 0.3);
+      color: #c084fc;
+    }
+
+    .extension-title-wrap h3 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 0.2rem;
+    }
+
+    .extension-badge {
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.2rem 0.55rem;
+      border-radius: 9999px;
+      font-family: var(--font-fira);
+    }
+
+    .card-vscode .extension-badge {
+      background: rgba(2, 132, 199, 0.2);
+      color: #38bdf8;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+    }
+
+    .card-intellij .extension-badge {
+      background: rgba(139, 92, 246, 0.2);
+      color: #c084fc;
+      border: 1px solid rgba(167, 139, 250, 0.3);
+    }
+
+    .extension-body p {
       color: var(--text-muted);
+      font-size: 0.95rem;
+      line-height: 1.5;
+      margin-bottom: 1.25rem;
+    }
+
+    .extension-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    .extension-list li {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: 0.9rem;
+      color: var(--text-main);
+    }
+
+    .btn-extension-download {
+      width: 100%;
+      padding: 0.85rem 1.25rem;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      margin-top: 1rem;
+    }
+
+    .btn-vscode {
+      background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+      color: white;
+      box-shadow: 0 4px 15px rgba(2, 132, 199, 0.3);
+    }
+
+    .btn-vscode:hover {
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(2, 132, 199, 0.45);
+    }
+
+    .btn-intellij {
+      background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+      color: white;
+      box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
+    }
+
+    .btn-intellij:hover {
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(124, 58, 237, 0.45);
+    }
+
+    .install-hint {
+      font-family: var(--font-fira);
+      font-size: 0.8rem;
+      background: #09090b;
+      border: 1px solid #27272a;
+      color: #a1a1aa;
+      padding: 0.5rem 0.75rem;
+      border-radius: 6px;
+      margin-top: 0.75rem;
+      text-align: center;
+      word-break: break-all;
+    }
+
+    .text-purple {
+      color: #c084fc !important;
     }
   </style>
 </head>
@@ -1283,9 +1459,7 @@
       </a>
       <div class="nav-links">
         <a href="#features">Features</a>
-        <a href="#vscode">VS Code Extension</a>
-        <a href="#syntax">Syntax Guide</a>
-        <a href="./compare.html">PlantUML Alternative</a>
+        <a href="#extensions">IDE Extensions</a>
         <a href="./documentation.html">Documentation</a>
         <a href="./examples.html">Examples</a>
         <a href="https://github.com/pazvanti/DrakoFlow" target="_blank" rel="noopener"><i class="bi bi-github"></i>
@@ -1309,8 +1483,8 @@
       <a href="./drako/index.html" class="btn-hero-primary">
         Launch Interactive Editor <i class="bi bi-arrow-right"></i>
       </a>
-      <a href="#vscode" class="btn-hero-secondary">
-        <i class="bi bi-code-square text-info"></i> VS Code Extension
+      <a href="#extensions" class="btn-hero-secondary">
+        <i class="bi bi-boxes text-info"></i> IDE Extensions
       </a>
       <a href="https://github.com/pazvanti/DrakoFlow" target="_blank" rel="noopener" class="btn-hero-secondary">
         <i class="bi bi-github"></i> View GitHub Project
@@ -1531,6 +1705,78 @@
         <h3>Snap to Grid Alignment</h3>
         <p>Enforce clean layout alignment and pixel-perfect rendering by locking element positions to grid cells with
           customizable sizing.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- IDE Extensions Section -->
+  <section id="extensions" class="extensions-section fade-in">
+    <div class="section-header">
+      <h2>Native IDE Extensions</h2>
+      <p>Edit <code>.drako</code> DSL files seamlessly in your favorite editor with live split-view diagram previews.</p>
+    </div>
+
+    <div class="extensions-grid">
+      <!-- VS Code Extension Card -->
+      <div class="extension-card card-vscode">
+        <div>
+          <div class="extension-header">
+            <div class="extension-icon">
+              <i class="bi bi-code-square"></i>
+            </div>
+            <div class="extension-title-wrap">
+              <h3>VS Code Extension</h3>
+              <span class="extension-badge">v1.0.0 • VSIX</span>
+            </div>
+          </div>
+          <div class="extension-body mt-3">
+            <p>Live split-view preview, syntax highlighting, and auto-sync inside Visual Studio Code.</p>
+            <ul class="extension-list">
+              <li><i class="bi bi-check-circle-fill text-info"></i> Side-by-side live diagram preview panel</li>
+              <li><i class="bi bi-check-circle-fill text-info"></i> Auto-opens preview when opening <code>.drako</code> files</li>
+              <li><i class="bi bi-check-circle-fill text-info"></i> Two-way code & visual position sync</li>
+            </ul>
+          </div>
+        </div>
+        <div>
+          <a href="./downloads/drakoflow-vscode-1.0.0.vsix" download class="btn-extension-download btn-vscode">
+            <i class="bi bi-download"></i> Download VSIX Extension
+          </a>
+          <div class="install-hint">
+            <code>code --install-extension drakoflow-vscode-1.0.0.vsix</code>
+          </div>
+        </div>
+      </div>
+
+      <!-- IntelliJ Plugin Card -->
+      <div class="extension-card card-intellij">
+        <div>
+          <div class="extension-header">
+            <div class="extension-icon">
+              <i class="bi bi-layers-fill"></i>
+            </div>
+            <div class="extension-title-wrap">
+              <h3>IntelliJ IDEA Plugin</h3>
+              <span class="extension-badge">v1.0.0 • ZIP</span>
+            </div>
+          </div>
+          <div class="extension-body mt-3">
+            <p>Native split-view diagram engine for JetBrains IDEs (IntelliJ, WebStorm, PyCharm, CLion, PhpStorm).</p>
+            <ul class="extension-list">
+              <li><i class="bi bi-check-circle-fill text-purple"></i> Native split view (Editor | Split | Preview)</li>
+              <li><i class="bi bi-check-circle-fill text-purple"></i> Embedded JBCef Chromium preview engine</li>
+              <li><i class="bi bi-check-circle-fill text-purple"></i> Zero setup, instant two-way document sync</li>
+            </ul>
+          </div>
+        </div>
+        <div>
+          <a href="./downloads/drakoflow-intellij-1.0.0.zip" download class="btn-extension-download btn-intellij">
+            <i class="bi bi-download"></i> Download IntelliJ Plugin
+          </a>
+          <div class="install-hint">
+            <code>Settings -> Plugins -> ⚙️ -> Install Plugin from Disk...</code>
+          </div>
+        </div>
       </div>
     </div>
   </section>

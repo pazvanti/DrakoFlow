@@ -10,10 +10,14 @@ try {
   // 2. Prepare docs directory
   const docsDir = path.join(__dirname, '../docs');
   const drakoDir = path.join(docsDir, 'drako');
+  const downloadsDir = path.join(docsDir, 'downloads');
 
   console.log('Preparing target directories...');
   if (!fs.existsSync(docsDir)) {
     fs.mkdirSync(docsDir, { recursive: true });
+  }
+  if (!fs.existsSync(downloadsDir)) {
+    fs.mkdirSync(downloadsDir, { recursive: true });
   }
 
   // Clear old drako files if they exist
@@ -46,6 +50,17 @@ try {
 
   console.log('Copying application assets to docs/drako/ directory...');
   copyFolderRecursiveSync(distDir, drakoDir);
+
+  // Sync extension download packages
+  const vsixSrc = path.join(__dirname, '../vscode-extension/drakoflow-vscode-1.0.0.vsix');
+  if (fs.existsSync(vsixSrc)) {
+    fs.copyFileSync(vsixSrc, path.join(downloadsDir, 'drakoflow-vscode-1.0.0.vsix'));
+  }
+
+  const zipSrc = path.join(__dirname, '../intellij-extension/build/distributions/drakoflow-intellij-1.0.0.zip');
+  if (fs.existsSync(zipSrc)) {
+    fs.copyFileSync(zipSrc, path.join(downloadsDir, 'drakoflow-intellij-1.0.0.zip'));
+  }
 
   // 4. Inject tracking script into docs/drako/index.html (GitHub Pages version)
   const targetIndexHtml = path.join(drakoDir, 'index.html');

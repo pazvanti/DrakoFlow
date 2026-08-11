@@ -1,0 +1,22 @@
+<idea-plugin>
+    <id>com.drakoflow.intellij</id>
+    <name>DrakoFlow Diagram Engine</name>
+    <vendor url="https://github.com/pazvanti/DrakoFlow">DrakoFlow</vendor>
+
+    <description><![CDATA[
+    Live split-view preview and diagram engine for DrakoFlow (<code>.drako</code>) files inside IntelliJ IDEA.<br>
+    Features DSL code editing on the left and real-time visual diagram rendering on the right via embedded web renderer.
+    ]]></description>
+
+    <depends>com.intellij.modules.platform</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <fileType name="DrakoFlow"
+                  implementationClass="com.drakoflow.intellij.DrakoFileType"
+                  fieldName="INSTANCE"
+                  language="DrakoFlow"
+                  extensions="drako"/>
+                  
+        <fileEditorProvider implementation="com.drakoflow.intellij.editor.DrakoSplitEditorProvider"/>
+    </extensions>
+</idea-plugin>

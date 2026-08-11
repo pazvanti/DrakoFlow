@@ -8,7 +8,8 @@
     "build": "tsc",
     "test": "vitest run",
     "dev": "vite",
-    "build:pages": "node scripts/build-gh-pages.js"
+    "build:pages": "node scripts/build-gh-pages.js",
+    "build:intellij": "vite build && node scripts/copy-intellij-dist.js"
   },
   "devDependencies": {
     "@types/lz-string": "^1.5.0",
