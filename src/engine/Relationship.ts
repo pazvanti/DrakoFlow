@@ -5,6 +5,7 @@ export interface RelationshipStyle {
   routeType?: 'orthogonal' | 'curved' | 'straight';
   startY?: number;
   startX?: number;
+  animated?: boolean;
 }
 
 export type RelationshipArrow = 'forward' | 'reverse' | 'bidirectional';

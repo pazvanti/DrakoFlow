@@ -649,6 +649,21 @@ body {
   color: var(--app-text-muted) !important;
 }
 
+/* Directional Line Flow Animations */
+@keyframes drakoflow-dash-flow {
+  from {
+    stroke-dashoffset: 16;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.drakoflow-animated-flow {
+  stroke-dasharray: 8 8 !important;
+  animation: drakoflow-dash-flow 0.6s linear infinite !important;
+}
+
 /* Help modal tab styling overrides */
 #help-modal .nav-pills .nav-link {
   color: var(--app-text-muted);

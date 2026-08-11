@@ -85,4 +85,16 @@ Client -> RIGHT : "Response"`;
       label: 'Response'
     });
   });
+
+  it('parses animated property in relationship style block', () => {
+    const code = `A: Rectangle { label: "A" }
+B: Rectangle { label: "B" }
+A -> B : "Flowing data" {
+  animated: true
+}`;
+    const doc = parseDslDocument(code);
+    expect(doc.relationships[0].style).toMatchObject({
+      animated: true
+    });
+  });
 });

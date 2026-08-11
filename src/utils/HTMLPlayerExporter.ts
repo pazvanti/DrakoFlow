@@ -330,6 +330,16 @@ export function exportToHTML(
     .hl-decorator { color: #f7768e; font-style: italic; }
     .hl-accessor { color: #4ade80; font-weight: bold; }
     
+    /* Directional Line Flow Animations */
+    @keyframes drakoflow-dash-flow {
+      from { stroke-dashoffset: 16; }
+      to { stroke-dashoffset: 0; }
+    }
+    .drakoflow-animated-flow {
+      stroke-dasharray: 8 8 !important;
+      animation: drakoflow-dash-flow 0.6s linear infinite !important;
+    }
+
     /* SVG Elements styles */
     .diagram-component {
       transition: filter 0.2s cubic-bezier(0.4, 0, 0.2, 1);

@@ -288,7 +288,49 @@ describe('relationshipRenderer overlap prevention', () => {
     expect(d2).toContain('260');
 
     // Verify lifeline vertical line extends to include both relationships
-    const lifeline = layers.pathsLayer.querySelector('[data-lifeline-for="client"]');
+    const lifeline = layers.lifelinesLayer.querySelector('[data-lifeline-for="client"]');
     expect(lifeline).not.toBeNull();
+  });
+
+  it('renders animated flow overlay path when animated is true', () => {
+    const comp1 = new RectangleComponent({ id: 'A', type: 'Rectangle', tags: [] }, { label: 'A' }, {});
+    comp1.bounds = { x: 0, y: 0, width: 100, height: 100 };
+    const comp2 = new RectangleComponent({ id: 'B', type: 'Rectangle', tags: [] }, { label: 'B' }, {});
+    comp2.bounds = { x: 200, y: 0, width: 100, height: 100 };
+
+    const relationships: ParsedRelationship[] = [
+      {
+        sourceId: 'A',
+        targetId: 'B',
+        label: 'Flow',
+        style: { animated: true }
+      }
+    ];
+
+    const svgRoot = document.createElementNS('http://www.w3.org/2000/svg', 'svg') as SVGSVGElement;
+    const layers = renderRelationships(relationships, [comp1, comp2], defaultTheme, svgRoot);
+
+    const animFlow = layers.pathsLayer.querySelector('.drakoflow-animated-flow');
+    expect(animFlow).not.toBeNull();
+  });
+
+  it('renders animated flow overlay path for self-loop relationships (Client -> Client)', () => {
+    const comp = new RectangleComponent({ id: 'Client', type: 'Rectangle', tags: [] }, { label: 'Client' }, {});
+    comp.bounds = { x: 0, y: 0, width: 100, height: 100 };
+
+    const relationships: ParsedRelationship[] = [
+      {
+        sourceId: 'Client',
+        targetId: 'Client',
+        label: 'Render UI',
+        style: { animated: true }
+      }
+    ];
+
+    const svgRoot = document.createElementNS('http://www.w3.org/2000/svg', 'svg') as SVGSVGElement;
+    const layers = renderRelationships(relationships, [comp], defaultTheme, svgRoot);
+
+    const animFlow = layers.pathsLayer.querySelector('.drakoflow-animated-flow');
+    expect(animFlow).not.toBeNull();
   });
 });

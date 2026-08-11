@@ -1173,7 +1173,23 @@ function renderDiagram(): void {
     const components = createComponentsFromDsl(displayComponents);
     layoutRootComponents(components, currentTheme, displayRelationships, parsedLayout);
 
+    let relLayers: { pathsLayer: SVGGElement; labelsLayer: SVGGElement; lifelinesLayer: SVGGElement } | null = null;
+    if (displayRelationships.length > 0) {
+      relLayers = renderRelationships(
+        displayRelationships,
+        components,
+        currentTheme,
+        diagramSvg,
+        undefined,
+        isDiagramLocked
+      );
+    }
+
     viewportG.innerHTML = '';
+
+    if (relLayers && relLayers.lifelinesLayer) {
+      viewportG.appendChild(relLayers.lifelinesLayer);
+    }
 
     components.forEach((component: BaseComponent) => {
       const g = component.render(currentTheme);
@@ -1292,17 +1308,9 @@ function renderDiagram(): void {
       viewportG.appendChild(g);
     });
 
-    if (displayRelationships.length > 0) {
-      const { pathsLayer, labelsLayer } = renderRelationships(
-        displayRelationships,
-        components,
-        currentTheme,
-        diagramSvg,
-        undefined,
-        isDiagramLocked
-      );
-      viewportG.appendChild(pathsLayer);
-      viewportG.appendChild(labelsLayer);
+    if (relLayers) {
+      viewportG.appendChild(relLayers.pathsLayer);
+      viewportG.appendChild(relLayers.labelsLayer);
     }
 
     // Save rendering state globally for drag & drop
@@ -1594,13 +1602,15 @@ canvasContainer.addEventListener('mousemove', (e) => {
     }
     
     // Update relationship lines dynamically in real-time
+    const oldLifelines = viewportG.querySelector('.relationship-lifelines');
     const oldPaths = viewportG.querySelector('.relationship-paths');
     const oldLabels = viewportG.querySelector('.relationship-labels');
+    if (oldLifelines) oldLifelines.remove();
     if (oldPaths) oldPaths.remove();
     if (oldLabels) oldLabels.remove();
     
     if (currentDisplayRelationships.length > 0) {
-      const { pathsLayer, labelsLayer } = renderRelationships(
+      const { pathsLayer, labelsLayer, lifelinesLayer } = renderRelationships(
         currentDisplayRelationships,
         currentComponents,
         currentTheme,
@@ -1608,6 +1618,7 @@ canvasContainer.addEventListener('mousemove', (e) => {
         undefined,
         isDiagramLocked
       );
+      viewportG.insertBefore(lifelinesLayer, viewportG.firstChild);
       viewportG.appendChild(pathsLayer);
       viewportG.appendChild(labelsLayer);
     }

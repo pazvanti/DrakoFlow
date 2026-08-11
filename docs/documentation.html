@@ -1557,12 +1557,20 @@ PaymentService.AuthHandler -> PaymentService.FraudCheck : "2. Analyze Risk"</cod
               <tr><td><code>lineStyle</code></td><td>String</td><td>Dash type: <code>"solid"</code>, <code>"dashed"</code>, or <code>"dotted"</code>.</td></tr>
               <tr><td><code>thickness</code></td><td>Number</td><td>Line thickness in pixels (defaults to 2).</td></tr>
               <tr><td><code>routeType</code></td><td>String</td><td>Routing algorithm: <code>"straight"</code>, <code>"orthogonal"</code>, or <code>"curved"</code>.</td></tr>
+              <tr><td><code>animated</code></td><td>Boolean</td><td>Enables continuous flowing directional animation along the line path (<code>true</code> or <code>false</code>).</td></tr>
+              <tr><td><code>startX</code></td><td>Number</td><td>Horizontal coordinate override for exterior relationship start anchor.</td></tr>
+              <tr><td><code>startY</code></td><td>Number</td><td>Vertical coordinate override for exterior relationship start anchor.</td></tr>
             </tbody>
           </table>
 
           <div class="section-subtitle">Example Usage</div>
           <div class="doc-code-container">
-            <pre><code>WebClient -> ApiGateway : "GET /v1/users" {\n  lineStyle: "dashed"\n  color: "#60a5fa"\n  routeType: "orthogonal"\n}</code></pre>
+            <pre><code>WebClient -> ApiGateway : "GET /v1/users" {
+  lineStyle: "dashed"
+  color: "#60a5fa"
+  routeType: "orthogonal"
+  animated: true
+}</code></pre>
           </div>
         </article>
       `;
@@ -1650,9 +1658,12 @@ PaymentService.AuthHandler -> PaymentService.FraudCheck : "2. Analyze Risk"</cod
       md += `| \`color\` | String | Stroke outline hex/rgb color of the connector. |\n`;
       md += `| \`lineStyle\` | String | Dash type: "solid", "dashed", or "dotted". |\n`;
       md += `| \`thickness\` | Number | Line thickness in pixels (defaults to 2). |\n`;
-      md += `| \`routeType\` | String | Routing algorithm: "straight", "orthogonal", or "curved". |\n\n`;
+      md += `| \`routeType\` | String | Routing algorithm: "straight", "orthogonal", or "curved". |\n`;
+      md += `| \`animated\` | Boolean | Enables continuous flowing directional animation along the line path (\`true\` or \`false\`). |\n`;
+      md += `| \`startX\` | Number | Horizontal coordinate override for exterior relationship start anchor. |\n`;
+      md += `| \`startY\` | Number | Vertical coordinate override for exterior relationship start anchor. |\n\n`;
 
-      md += `### Example Usage\n\n\`\`\`scss\nWebClient -> ApiGateway : "GET /v1/users" {\n  lineStyle: "dashed"\n  color: "#60a5fa"\n  routeType: "orthogonal"\n}\n\`\`\`\n`;
+      md += `### Example Usage\n\n\`\`\`scss\nWebClient -> ApiGateway : "GET /v1/users" {\n  lineStyle: "dashed"\n  color: "#60a5fa"\n  routeType: "orthogonal"\n  animated: true\n}\n\`\`\`\n`;
 
       // Download trigger
       const blob = new Blob([md], { type: 'text/markdown;charset=utf-8;' });

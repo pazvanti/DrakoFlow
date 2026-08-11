@@ -61,4 +61,13 @@ describe('highlightDSL', () => {
     const result = highlightDSL(code);
     expect(result.html).toContain('<span class="hl-keyword">LEFT</span>');
   });
+
+  it('highlights animated, startX, and startY as properties', () => {
+    const code = 'A -> B : "Call" {\n  animated: true\n  startX: 10\n  startY: 20\n}';
+    const result = highlightDSL(code);
+    expect(result.html).toContain('<span class="hl-property">animated</span>');
+    expect(result.html).toContain('<span class="hl-property">startX</span>');
+    expect(result.html).toContain('<span class="hl-property">startY</span>');
+    expect(result.html).toContain('<span class="hl-boolean">true</span>');
+  });
 });

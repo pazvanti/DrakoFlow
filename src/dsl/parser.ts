@@ -288,6 +288,12 @@ function parseRelationshipStyleBlock(body: string): RelationshipStyle {
     style.startX = parseFloat(startX[1] || startX[2]);
   }
 
+  const animated = body.match(/animated\s*:\s*(?:"(true|false)"|(true|false))/i);
+  if (animated) {
+    const val = (animated[1] || animated[2]).toLowerCase();
+    style.animated = val === 'true';
+  }
+
   return style;
 }
 

@@ -244,6 +244,60 @@ function renderCardinalityLabel(
   );
 }
 
+function applyAnimationIfNeeded(
+  path: SVGPathElement,
+  rel: ParsedRelationship,
+  color: string,
+  thickness: number,
+  svgRoot: SVGSVGElement,
+  pathsLayer: SVGGElement,
+  tagEl: <T extends SVGElement>(el: T) => T
+): void {
+  if (!rel.style?.animated) return;
+
+  let animStyle = svgRoot.querySelector('#drakoflow-flow-animation-styles');
+  if (!animStyle) {
+    animStyle = document.createElementNS('http://www.w3.org/2000/svg', 'style');
+    animStyle.id = 'drakoflow-flow-animation-styles';
+    animStyle.textContent = `
+      @keyframes drakoflow-dash-flow {
+        from { stroke-dashoffset: 16; }
+        to { stroke-dashoffset: 0; }
+      }
+      .drakoflow-animated-flow {
+        stroke-dasharray: 8 8 !important;
+        animation: drakoflow-dash-flow 0.6s linear infinite !important;
+      }
+    `;
+    let defs = svgRoot.querySelector('defs');
+    if (!defs) {
+      defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+      svgRoot.insertBefore(defs, svgRoot.firstChild);
+    }
+    defs.appendChild(animStyle);
+  }
+
+  if (rel.style?.lineStyle === 'dashed' || rel.style?.lineStyle === 'dotted') {
+    path.classList.add('drakoflow-animated-flow');
+  } else {
+    const flowOverlay = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    flowOverlay.setAttribute('d', path.getAttribute('d') || '');
+    flowOverlay.setAttribute('fill', 'none');
+    flowOverlay.setAttribute('stroke', color);
+    flowOverlay.setAttribute('stroke-width', (thickness + 0.5).toString());
+    flowOverlay.setAttribute('class', 'drakoflow-animated-flow');
+    flowOverlay.setAttribute('pointer-events', 'none');
+    tagEl(flowOverlay);
+    pathsLayer.appendChild(flowOverlay);
+  }
+}
+
+export interface RelationshipLayers {
+  pathsLayer: SVGGElement;
+  labelsLayer: SVGGElement;
+  lifelinesLayer: SVGGElement;
+}
+
 export function renderRelationships(
   relationships: ParsedRelationship[],
   rootComponents: BaseComponent[],
@@ -328,6 +382,8 @@ export function renderRelationships(
     });
   });
 
+  const lifelinesLayer = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+  lifelinesLayer.setAttribute('class', 'relationship-lifelines');
   const pathsLayer = document.createElementNS('http://www.w3.org/2000/svg', 'g');
   pathsLayer.setAttribute('class', 'relationship-paths');
   const labelsLayer = document.createElementNS('http://www.w3.org/2000/svg', 'g');
@@ -386,7 +442,7 @@ export function renderRelationships(
       lifeline.setAttribute('stroke-width', '1.5');
       lifeline.setAttribute('stroke-dasharray', '4,4');
       lifeline.setAttribute('data-lifeline-for', comp.id);
-      pathsLayer.appendChild(lifeline);
+      lifelinesLayer.appendChild(lifeline);
     }
   });
 
@@ -534,6 +590,8 @@ export function renderRelationships(
       const dash = strokeDashArray(rel.style?.lineStyle);
       if (dash) path.setAttribute('stroke-dasharray', dash);
       pathsLayer.appendChild(path);
+
+      applyAnimationIfNeeded(path, rel, color, thickness, svgRoot, pathsLayer, tagEl);
 
       if (rel.label) {
         tagEl(renderPlainText(labelsLayer, rel.label, labelPos, theme, RELATIONSHIP_LABEL_FONT_SIZE, 'central'));
@@ -943,6 +1001,8 @@ export function renderRelationships(
       if (dash) path.setAttribute('stroke-dasharray', dash);
       pathsLayer.appendChild(path);
 
+      applyAnimationIfNeeded(path, rel, color, thickness, svgRoot, pathsLayer, tagEl);
+
       if (rel.label) {
         tagEl(renderPlainText(labelsLayer, rel.label, labelPos, theme, RELATIONSHIP_LABEL_FONT_SIZE, labelBaseline));
       }
@@ -956,5 +1016,5 @@ export function renderRelationships(
     }
   });
 
-  return { pathsLayer, labelsLayer };
+  return { pathsLayer, labelsLayer, lifelinesLayer };
 }
