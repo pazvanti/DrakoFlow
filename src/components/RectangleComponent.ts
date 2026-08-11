@@ -1,7 +1,9 @@
-import { BaseComponent, ComponentMetadata, ThemeVariables, Dimension } from './BaseComponent';
+import { BaseComponent, ThemeVariables, Dimension } from './BaseComponent';
+import { getIconSpacing } from '../utils/IconRegistry';
 
 export interface RectangleProps {
   label?: string;
+  icon?: string;
   rx?: number;
   ry?: number;
 }
@@ -10,6 +12,9 @@ export class RectangleComponent extends BaseComponent<RectangleProps> {
   validateProps(): void {
     if (this.props.label !== undefined && typeof this.props.label !== 'string') {
       throw new Error(`Component [${this.id}]: 'label' must be a string.`);
+    }
+    if (this.props.icon !== undefined && typeof this.props.icon !== 'string') {
+      throw new Error(`Component [${this.id}]: 'icon' must be a string.`);
     }
     if (this.props.rx !== undefined && typeof this.props.rx !== 'number') {
       throw new Error(`Component [${this.id}]: 'rx' must be a number.`);
@@ -21,9 +26,10 @@ export class RectangleComponent extends BaseComponent<RectangleProps> {
 
   calculateMinDimensions(theme: ThemeVariables): Dimension {
     const labelLength = this.props.label ? this.props.label.length : 0;
+    const iconSpacing = getIconSpacing(this.icon || this.props.icon);
     
-    // Heuristic: ~8px per character + padding, minimum 100 width, 60 height
-    const calculatedWidth = Math.max(100, labelLength * 8 + 30);
+    // Heuristic: ~8px per character + icon spacing + padding, minimum 100 width, 60 height
+    const calculatedWidth = Math.max(100, labelLength * 8 + iconSpacing + 30);
     const calculatedHeight = 60;
     
     return { width: calculatedWidth, height: calculatedHeight };
@@ -55,18 +61,16 @@ export class RectangleComponent extends BaseComponent<RectangleProps> {
     if (ry > 0) rect.setAttribute("ry", ry.toString());
     g.appendChild(rect);
 
-    // Draw centered label
-    if (this.props.label) {
-      const textElem = document.createElementNS("http://www.w3.org/2000/svg", "text");
-      textElem.setAttribute("x", (this.bounds.width / 2).toString());
-      textElem.setAttribute("y", (this.bounds.height / 2).toString());
-      textElem.setAttribute("fill", text);
-      textElem.setAttribute("font-family", font);
-      textElem.setAttribute("text-anchor", "middle");
-      textElem.setAttribute("dominant-baseline", "central");
-      textElem.textContent = this.props.label;
-      g.appendChild(textElem);
-    }
+    // Draw centered label & icon
+    this.renderLabelWithIcon(
+      g,
+      this.props.label,
+      this.bounds.width / 2,
+      this.bounds.height / 2,
+      text,
+      font,
+      this.icon || this.props.icon
+    );
 
     this.renderChildren(g, theme);
 

@@ -496,6 +496,9 @@
                 <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-common-tab" data-bs-toggle="pill" data-bs-target="#v-pills-common" type="button" role="tab" aria-controls="v-pills-common" aria-selected="false">
                   <i class="bi bi-gear me-2"></i> Common Attributes
                 </button>
+                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-icons-tab" data-bs-toggle="pill" data-bs-target="#v-pills-icons" type="button" role="tab" aria-controls="v-pills-icons" aria-selected="false">
+                  <i class="bi bi-star me-2"></i> Vector Icons
+                </button>
                 <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-shortcuts-tab" data-bs-toggle="pill" data-bs-target="#v-pills-shortcuts" type="button" role="tab" aria-controls="v-pills-shortcuts" aria-selected="false">
                   <i class="bi bi-keyboard me-2"></i> Keyboard Shortcuts
                 </button>
@@ -722,6 +725,7 @@ PaymentService.AuthHandler -> PaymentService.FraudCheck : "2. Analyze Risk"</pre
                   </thead>
                   <tbody>
                     <tr><td><code>label</code></td><td>String</td><td>Main text label displayed inside or on the component.</td></tr>
+                    <tr><td><code>icon</code></td><td>String</td><td>Vector icon rendered alongside label (e.g. <code>icon: "docker"</code>). Supported: <code>docker</code>, <code>aws</code>, <code>postgres</code>, <code>redis</code>, <code>react</code>, <code>node</code>, <code>python</code>, <code>kubernetes</code>, <code>web-service</code>, <code>gear</code>, <code>database</code>, <code>lock</code>, <code>user</code>, <code>api</code>, <code>queue</code>, <code>storage</code>, <code>cpu</code>.</td></tr>
                     <tr><td><code>doc</code></td><td>String</td><td>Markdown-formatted documentation block attached to the component. Adds a clickable badge.</td></tr>
                     <tr><td><code>url</code></td><td>String</td><td>Hyperlink URL attached to the component. Adds a clickable external link badge.</td></tr>
                     <tr><td><code>shadow</code></td><td>Boolean</td><td>Enables a premium drop shadow filter effect on the component (default <code>false</code>).</td></tr>
@@ -729,6 +733,68 @@ PaymentService.AuthHandler -> PaymentService.FraudCheck : "2. Analyze Risk"</pre
                     <tr><td><code>themeOverride</code></td><td>Object</td><td>Block containing custom color or style overrides for this specific component instance.</td></tr>
                   </tbody>
                 </table>
+              </div>
+
+              <!-- Vector Icons Tab -->
+              <div class="tab-pane fade" id="v-pills-icons" role="tabpanel" aria-labelledby="v-pills-icons-tab">
+                <h4 class="mb-1">Vector Icons & Extensibility</h4>
+                <p class="text-muted small">Attach clean vector logos to any component label using the <code>icon</code> property. Icons automatically adapt to component text colors and themes.</p>
+                
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Supported Built-in Icons</h6>
+                <div class="table-responsive">
+                  <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
+                    <thead>
+                      <tr>
+                        <th style="width: 30%;">Icon Keyword</th>
+                        <th style="width: 25%;">Aliases</th>
+                        <th>Description</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr><td><code>docker</code></td><td>-</td><td>Official Docker whale & cargo container grid logo</td></tr>
+                      <tr><td><code>aws</code></td><td><code>cloud</code></td><td>AWS / Cloud infrastructure cloud logo</td></tr>
+                      <tr><td><code>postgres</code></td><td><code>postgresql</code></td><td>Official PostgreSQL Elephant (Slonik) logo</td></tr>
+                      <tr><td><code>redis</code></td><td>-</td><td>Official Redis 3D stacked memory layers logo</td></tr>
+                      <tr><td><code>react</code></td><td>-</td><td>Official React atom framework logo</td></tr>
+                      <tr><td><code>node</code></td><td>-</td><td>Node.js runtime logo</td></tr>
+                      <tr><td><code>python</code></td><td>-</td><td>Official Python intertwined dual-snake logo</td></tr>
+                      <tr><td><code>kubernetes</code></td><td><code>k8s</code></td><td>Kubernetes cluster logo</td></tr>
+                      <tr><td><code>web-service</code></td><td><code>globe</code>, <code>server</code></td><td>REST Web Service / HTTP server node logo</td></tr>
+                      <tr><td><code>gear</code></td><td><code>cog</code></td><td>Settings / process gear icon</td></tr>
+                      <tr><td><code>database</code></td><td><code>db</code></td><td>Cylinder database storage icon</td></tr>
+                      <tr><td><code>lock</code></td><td><code>security</code></td><td>Lock & security badge icon</td></tr>
+                      <tr><td><code>user</code></td><td>-</td><td>User & avatar profile icon</td></tr>
+                      <tr><td><code>api</code></td><td><code>code</code></td><td>REST API & code brackets icon</td></tr>
+                      <tr><td><code>queue</code></td><td>-</td><td>Message Queue / Kafka icon</td></tr>
+                      <tr><td><code>storage</code></td><td><code>s3</code></td><td>Storage Bucket / S3 icon</td></tr>
+                      <tr><td><code>cpu</code></td><td>-</td><td>CPU / Microservice chip icon</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">How to Add New Icons</h6>
+                <p class="text-muted small mb-2">To add custom vector icons to the DrakoFlow engine:</p>
+                <ol class="text-muted small ps-3 mb-3">
+                  <li class="mb-1">Open <code>src/utils/IconRegistry.ts</code> in the codebase.</li>
+                  <li class="mb-1">Add a new entry to the <code>ICON_PATH_MAP</code> object mapping your icon keyword to its SVG inner XML.</li>
+                  <li>Ensure the SVG path uses <code>fill="currentColor"</code> or <code>fill-rule="evenodd"</code> so it automatically inherits component colors across all dark and light themes.</li>
+                </ol>
+
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Example DSL Usage</h6>
+                <pre class="bg-black p-3 rounded font-monospace text-success mb-0" style="font-size: 0.75rem;">AuthService: Cube {
+  label: "Auth API"
+  icon: "docker"
+}
+
+UserDB: Cylinder {
+  label: "User Store"
+  icon: "postgres"
+}
+
+CloudInfra: Cloud {
+  label: "AWS Cloud"
+  icon: "aws"
+}</pre>
               </div>
 
               <!-- Keyboard Shortcuts Tab -->

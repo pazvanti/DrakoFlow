@@ -1,24 +1,20 @@
 import { BaseComponent, ThemeVariables, Dimension } from './BaseComponent';
+import { getIconSpacing } from '../utils/IconRegistry';
 
 export interface ProcessProps {
   label?: string;
+  icon?: string;
   /** Width of each side tab as a fraction of total width (0–0.3). */
   tabWidthRatio?: number;
 }
 
-/**
- * Flowchart process step — full-height left/right tabs with a wide center panel.
- *
- * ```text
- * |---|----------------------|---|
- * |   |      MyComponent     |   |
- * |---|----------------------|---|
- * ```
- */
 export class ProcessComponent extends BaseComponent<ProcessProps> {
   validateProps(): void {
     if (this.props.label !== undefined && typeof this.props.label !== 'string') {
       throw new Error(`Component [${this.id}]: 'label' must be a string.`);
+    }
+    if (this.props.icon !== undefined && typeof this.props.icon !== 'string') {
+      throw new Error(`Component [${this.id}]: 'icon' must be a string.`);
     }
     if (this.props.tabWidthRatio !== undefined) {
       const ratio = this.props.tabWidthRatio;
@@ -35,8 +31,9 @@ export class ProcessComponent extends BaseComponent<ProcessProps> {
 
   calculateMinDimensions(_theme: ThemeVariables): Dimension {
     const labelLength = this.props.label ? this.props.label.length : 0;
+    const iconSpacing = getIconSpacing(this.icon || this.props.icon);
     return {
-      width: Math.max(160, labelLength * 8 + 80),
+      width: Math.max(160, labelLength * 8 + iconSpacing + 80),
       height: 56
     };
   }
@@ -47,7 +44,6 @@ export class ProcessComponent extends BaseComponent<ProcessProps> {
   }
 
   render(theme: ThemeVariables): SVGElement {
-    // Resolve styling hierarchy: Global Theme -> Component Local Override -> Default Fallback
     const background = this.resolveColor(this.themeOverride.backgroundColor, theme, theme.backgroundColor);
     const text = this.resolveColor(this.themeOverride.textColor, theme, theme.textColor);
     const border = this.resolveColor(this.themeOverride.borderColor, theme, theme.borderColor);
@@ -86,17 +82,15 @@ export class ProcessComponent extends BaseComponent<ProcessProps> {
     addDivider(centerLeft);
     addDivider(centerRight);
 
-    if (this.props.label) {
-      const textElem = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-      textElem.setAttribute('x', centerMidX.toString());
-      textElem.setAttribute('y', (height / 2).toString());
-      textElem.setAttribute('fill', text);
-      textElem.setAttribute('font-family', font);
-      textElem.setAttribute('text-anchor', 'middle');
-      textElem.setAttribute('dominant-baseline', 'central');
-      textElem.textContent = this.props.label;
-      g.appendChild(textElem);
-    }
+    this.renderLabelWithIcon(
+      g,
+      this.props.label,
+      centerMidX,
+      height / 2,
+      text,
+      font,
+      this.icon || this.props.icon
+    );
 
     this.renderChildren(g, theme);
 

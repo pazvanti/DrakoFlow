@@ -22,12 +22,10 @@ const tokenRegex = new RegExp(
     // Exterior direction keywords for relationships
     '(?<exterior>\\b(LEFT|RIGHT|TOP|BOTTOM|left|right|top|bottom)\\b)',
     // Keywords/Types (all registered component types)
-    '(?<keyword>\\b(Rectangle|Process|Ellipse|VerticalContainer|Cylinder|Cube|Diamond|Hexagon|Actor|Parallelogram|Class|Interface|UMLComponent|Module|Package|Text|Paragraph|SVGImage|RasterImage|Table)\\b)',
+    '(?<keyword>\\b(Rectangle|Process|Ellipse|VerticalContainer|Cylinder|Cube|Diamond|Hexagon|Actor|Parallelogram|Class|Interface|UMLComponent|Module|Package|Text|Paragraph|SVGImage|RasterImage|Cloud|Node|Artifact|Folder|Frame|Storage|Stack|File|Card|Usecase|Boundary|Control|Entity|Queue|Collections|Agent|Enum|Abstract|Annotation|Struct|Object|Table)\\b)',
     // Properties (all known DSL property names)
-    '(?<property>\\b(label|rx|ry|lifeline|url|lineWidth|shadow|themeOverride|lineStyle|color|thickness|routeType|startX|startY|animated|gap|padding|tabWidthRatio|radius|backgroundColor|borderColor|textColor|headerBackgroundColor|headerTextColor|headerType|headerTypeColor|headerTypeTextColor|colorizeHeaderByType|attributes|methods|items|align|text|content|scale|width|height|header|rows|headerAtTop|headerAtBottom)\\b)',
+    '(?<property>\\b(label|icon|rx|ry|lifeline|url|lineWidth|shadow|themeOverride|lineStyle|color|thickness|routeType|startX|startY|animated|gap|padding|tabWidthRatio|radius|backgroundColor|borderColor|textColor|headerBackgroundColor|headerTextColor|headerType|headerTypeColor|headerTypeTextColor|colorizeHeaderByType|attributes|methods|items|align|text|content|scale|width|height|header|rows|headerAtTop|headerAtBottom)\\b)',
     // Accessor modifiers at the start of a line (after optional leading whitespace)
-    // These are +, -, #, ~ when they appear as the first non-space token on a line
-    // inside a class sub-block. We match them as a line-leading token.
     '(?<accessor>(?:^|(?<=\\n))[^\\S\\n]*(?:\\*\\s*)?[+\\-#~](?=[^>\\s])|(?:^|(?<=\\n))[^\\S\\n]*\\*(?=\\s*[a-zA-Z_]))',
     // Operators: generic connector combinations followed by fallback chars
     '(?<operator>(?<![a-zA-Z0-9_])[<>o]+-[<>o]*(?![a-zA-Z0-9_])|(?<![a-zA-Z0-9_])[<>o]*-[<>o]+(?![a-zA-Z0-9_])|[-:{}\\[\\]\\.])',
@@ -58,53 +56,51 @@ export function highlightDSL(code: string, activeRange?: { start: number; end: n
   while ((match = tokenRegex.exec(code)) !== null) {
     const groups = match.groups as Record<string, string | undefined>;
     const value = match[0];
-    const escapedValue = escapeHtml(value);
+    const matchIndex = match.index;
     
-    let tokenHtml = '';
-    
-    if (groups.hexColor !== undefined) {
-      const hasQuotes = value.startsWith('"');
-      const startPos = match.index + (hasQuotes ? 1 : 0);
-      const color = hasQuotes ? value.slice(1, -1) : value;
-      colorTriggers.push({ startPos, color });
-      tokenHtml = `<span class="hl-color">${escapedValue}<span class="color-picker-trigger" data-start-pos="${startPos}" style="background-color: ${color};" title="Click to change color"></span></span>`;
-    } else if (groups.decorator !== undefined) {
-      tokenHtml = `<span class="hl-decorator">${escapedValue}</span>`;
-    } else if (groups.exterior !== undefined) {
-      tokenHtml = `<span class="hl-keyword">${escapedValue}</span>`;
-    } else if (groups.blockComment !== undefined) {
-      tokenHtml = `<span class="hl-comment">${escapedValue}</span>`;
-    } else if (groups.comment !== undefined) {
-      tokenHtml = `<span class="hl-comment">${escapedValue}</span>`;
-    } else if (groups.string !== undefined) {
-      tokenHtml = `<span class="hl-string">${escapedValue}</span>`;
-    } else if (groups.accessor !== undefined) {
-      // Split leading whitespace from the symbol so we don't colour the indent
-      const trimmed = value.trimStart();
-      const indent = value.slice(0, value.length - trimmed.length);
-      tokenHtml = escapeHtml(indent) + `<span class="hl-accessor">${escapeHtml(trimmed)}</span>`;
-    } else if (groups.keyword !== undefined) {
-      tokenHtml = `<span class="hl-keyword">${escapedValue}</span>`;
-    } else if (groups.id !== undefined) {
-      tokenHtml = `<span class="hl-id">${escapedValue}</span>`;
-    } else if (groups.property !== undefined) {
-      tokenHtml = `<span class="hl-property">${escapedValue}</span>`;
-    } else if (groups.number !== undefined) {
-      tokenHtml = `<span class="hl-number">${escapedValue}</span>`;
-    } else if (groups.boolean !== undefined) {
-      tokenHtml = `<span class="hl-boolean">${escapedValue}</span>`;
-    } else if (groups.operator !== undefined) {
-      tokenHtml = `<span class="hl-operator">${escapedValue}</span>`;
-    } else {
-      tokenHtml = escapedValue;
-    }
+    // Check if token falls inside the active highlight range
+    const isTokenHighlighted = activeRange !== undefined &&
+      matchIndex >= activeRange.start &&
+      (matchIndex + value.length) <= activeRange.end;
 
-    if (activeRange && match.index >= activeRange.start && match.index + value.length <= activeRange.end) {
-      html += `<span class="hl-active-token">${tokenHtml}</span>`;
+    const wrapTag = (cls: string, content: string): string => {
+      const activeAttr = isTokenHighlighted ? ' class="hl-active-token"' : '';
+      return `<span class="hl-${cls}"${activeAttr}>${escapeHtml(content)}</span>`;
+    };
+
+    if (groups.hexColor) {
+      const colorVal = value.replace(/"/g, '');
+      colorTriggers.push({ startPos: matchIndex, color: colorVal });
+      const activeAttr = isTokenHighlighted ? ' class="hl-active-token"' : '';
+      html += `<span class="hl-color"${activeAttr}><span class="color-picker-trigger" style="background-color: ${colorVal}"></span>${escapeHtml(value)}</span>`;
+    } else if (groups.blockComment) {
+      html += wrapTag('comment', value);
+    } else if (groups.comment) {
+      html += wrapTag('comment', value);
+    } else if (groups.string) {
+      html += wrapTag('string', value);
+    } else if (groups.number) {
+      html += wrapTag('number', value);
+    } else if (groups.boolean) {
+      html += wrapTag('boolean', value);
+    } else if (groups.decorator) {
+      html += wrapTag('decorator', value);
+    } else if (groups.exterior) {
+      html += wrapTag('keyword', value);
+    } else if (groups.keyword) {
+      html += wrapTag('keyword', value);
+    } else if (groups.property) {
+      html += wrapTag('property', value);
+    } else if (groups.accessor) {
+      html += wrapTag('accessor', value);
+    } else if (groups.operator) {
+      html += wrapTag('operator', value);
+    } else if (groups.id) {
+      html += wrapTag('id', value);
     } else {
-      html += tokenHtml;
+      html += escapeHtml(value);
     }
   }
-  
+
   return { html, colorTriggers };
 }

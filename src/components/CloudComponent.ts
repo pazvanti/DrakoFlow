@@ -1,13 +1,17 @@
 import { BaseComponent, ThemeVariables, Dimension } from './BaseComponent';
 import { VerticalContainerComponent, VerticalContainerProps } from './VerticalContainerComponent';
+import { getIconSpacing } from '../utils/IconRegistry';
 
-export interface CloudProps extends VerticalContainerProps {}
+export interface CloudProps extends VerticalContainerProps {
+  icon?: string;
+}
 
 export class CloudComponent extends VerticalContainerComponent {
   calculateMinDimensions(theme: ThemeVariables): Dimension {
     const labelLength = this.props.label ? this.props.label.length : 0;
-    const labelWidth = Math.max(80, labelLength * 8 + 30);
-    const labelHeight = this.props.label ? 28 : 0;
+    const iconSpacing = getIconSpacing(this.icon || (this.props as any).icon);
+    const labelWidth = Math.max(80, labelLength * 8 + iconSpacing + 30);
+    const labelHeight = (this.props.label || this.icon || (this.props as any).icon) ? 28 : 0;
 
     if (this.children.length === 0) {
       return { width: Math.max(labelWidth, 160), height: 100 };
@@ -46,7 +50,7 @@ export class CloudComponent extends VerticalContainerComponent {
   layoutChildren(theme: ThemeVariables): void {
     const padding = this.props.padding ?? 24;
     const gap = this.props.gap ?? 12;
-    const labelHeight = this.props.label ? 28 : 0;
+    const labelHeight = (this.props.label || this.icon || (this.props as any).icon) ? 28 : 0;
 
     if (this.isHorizontalLayout()) {
       let x = padding;
@@ -112,19 +116,18 @@ export class CloudComponent extends VerticalContainerComponent {
     cloud.setAttribute('stroke-width', strokeWidth);
     g.appendChild(cloud);
 
-    if (this.props.label) {
-      const title = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-      title.setAttribute('x', (W / 2).toString());
+    if (this.props.label || this.icon || (this.props as any).icon) {
       const labelY = this.children.length === 0 ? (H / 2) : 32;
-      title.setAttribute('y', labelY.toString());
-      title.setAttribute('fill', text);
-      title.setAttribute('font-family', font);
-      title.setAttribute('font-size', '12');
-      title.setAttribute('font-weight', 'bold');
-      title.setAttribute('text-anchor', 'middle');
-      title.setAttribute('dominant-baseline', 'central');
-      title.textContent = this.props.label;
-      g.appendChild(title);
+      this.renderLabelWithIcon(
+        g,
+        this.props.label,
+        W / 2,
+        labelY,
+        text,
+        font,
+        this.icon || (this.props as any).icon,
+        { fontPx: 12 }
+      );
     }
 
     this.children.forEach(child => {

@@ -1,7 +1,9 @@
 import { BaseComponent, ThemeVariables, Dimension } from './BaseComponent';
+import { getIconSpacing } from '../utils/IconRegistry';
 
 export interface EllipseProps {
   label?: string;
+  icon?: string;
   /** Equal horizontal and vertical radius (circle). */
   radius?: number;
   rx?: number;
@@ -9,12 +11,15 @@ export interface EllipseProps {
 }
 
 /**
- * Circle or ellipse shape with optional centered label.
+ * Circle or ellipse shape with optional centered label and vector icon.
  */
 export class EllipseComponent extends BaseComponent<EllipseProps> {
   validateProps(): void {
     if (this.props.label !== undefined && typeof this.props.label !== 'string') {
       throw new Error(`Component [${this.id}]: 'label' must be a string.`);
+    }
+    if (this.props.icon !== undefined && typeof this.props.icon !== 'string') {
+      throw new Error(`Component [${this.id}]: 'icon' must be a string.`);
     }
     for (const key of ['radius', 'rx', 'ry'] as const) {
       const value = this.props[key];
@@ -26,7 +31,8 @@ export class EllipseComponent extends BaseComponent<EllipseProps> {
 
   calculateMinDimensions(_theme: ThemeVariables): Dimension {
     const labelLength = this.props.label ? this.props.label.length : 0;
-    const textPadding = Math.max(0, labelLength * 4);
+    const iconSpacing = getIconSpacing(this.icon || this.props.icon);
+    const textPadding = Math.max(0, labelLength * 4 + iconSpacing);
     const diameter = (this.props.radius ?? Math.max(this.props.rx ?? 40, this.props.ry ?? 40)) * 2;
     const size = Math.max(80, diameter + textPadding);
     return { width: size, height: size };
@@ -42,7 +48,6 @@ export class EllipseComponent extends BaseComponent<EllipseProps> {
   }
 
   render(theme: ThemeVariables): SVGElement {
-    // Resolve styling hierarchy: Global Theme -> Component Local Override -> Default Fallback
     const background = this.resolveColor(this.themeOverride.backgroundColor, theme, theme.backgroundColor);
     const text = this.resolveColor(this.themeOverride.textColor, theme, theme.textColor);
     const border = this.resolveColor(this.themeOverride.borderColor, theme, theme.borderColor);
@@ -67,17 +72,15 @@ export class EllipseComponent extends BaseComponent<EllipseProps> {
     ellipse.setAttribute('stroke-width', strokeWidth);
     g.appendChild(ellipse);
 
-    if (this.props.label) {
-      const textElem = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-      textElem.setAttribute('x', cx.toString());
-      textElem.setAttribute('y', cy.toString());
-      textElem.setAttribute('fill', text);
-      textElem.setAttribute('font-family', font);
-      textElem.setAttribute('text-anchor', 'middle');
-      textElem.setAttribute('dominant-baseline', 'central');
-      textElem.textContent = this.props.label;
-      g.appendChild(textElem);
-    }
+    this.renderLabelWithIcon(
+      g,
+      this.props.label,
+      cx,
+      cy,
+      text,
+      font,
+      this.icon || this.props.icon
+    );
 
     return g;
   }

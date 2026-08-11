@@ -2992,6 +2992,8 @@ function openDocumentationModal(componentType?: string): void {
     const tabMap: Record<string, string> = {
       'common': 'v-pills-common-tab',
       'general': 'v-pills-common-tab',
+      'icons': 'v-pills-icons-tab',
+      'icon': 'v-pills-icons-tab',
       'rectangle': 'v-pills-rectangle-tab',
       'process': 'v-pills-process-tab',
       'ellipse': 'v-pills-ellipse-tab',

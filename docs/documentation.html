@@ -541,6 +541,7 @@
       <div class="sidebar-section-title">Common Attributes</div>
       <ul class="sidebar-menu">
         <li class="sidebar-item"><a href="#common-attrs"><i class="bi bi-sliders"></i> General Options</a></li>
+        <li class="sidebar-item"><a href="#vector-icons"><i class="bi bi-star"></i> Vector Icons</a></li>
         <li class="sidebar-item"><a href="#theme-overrides"><i class="bi bi-palette"></i> Style Overrides</a></li>
       </ul>
 
@@ -636,6 +637,7 @@
         description: "These general attributes are supported by all diagram elements inside DrakoFlow to customize positions, add documentation, or change borders.",
         icon: "bi-sliders",
         properties: [
+          { name: "icon", type: "String", desc: "Vector icon rendered alongside the label (e.g. icon: \"docker\"). Automatically inherits label text color across light and dark themes." },
           { name: "doc", type: "String", desc: "Embedded Markdown documentation. Adds a document badge on the element that displays the rendered markdown in a reader modal when clicked." },
           { name: "url", type: "String", desc: "External link URL. Adds a link badge on the element that opens the URL in a new tab when clicked." },
           { name: "x", type: "Number", desc: "Explicit horizontal position override (in pixels). Useful for manual grid arrangements." },
@@ -646,10 +648,55 @@
         ],
         example: `Database: Rectangle {
   label: "User Store"
+  icon: "postgres"
   doc: "Stores critical user records."
   url: "https://db-monitor.example.com"
   x: 250
   y: 120
+}`
+      },
+      {
+        id: "vector-icons",
+        name: "Vector Icons & Custom Icons",
+        group: "Common Attributes",
+        description: "DrakoFlow includes a crisp SVG vector icon engine. Attach recognizable tech logos to any component label using the icon property, and extend the engine by adding custom vector icons to IconRegistry.ts.",
+        icon: "bi-star",
+        properties: [
+          { name: "docker", type: "Keyword", desc: "Official Docker whale & cargo container grid logo." },
+          { name: "aws / cloud", type: "Keyword", desc: "AWS / Cloud infrastructure cloud logo." },
+          { name: "postgres / postgresql", type: "Keyword", desc: "Official PostgreSQL Elephant (Slonik) logo." },
+          { name: "redis", type: "Keyword", desc: "Official Redis 3D stacked memory layers logo." },
+          { name: "react", type: "Keyword", desc: "Official React atom framework logo." },
+          { name: "node", type: "Keyword", desc: "Node.js runtime logo." },
+          { name: "python", type: "Keyword", desc: "Official Python intertwined dual-snake logo." },
+          { name: "kubernetes / k8s", type: "Keyword", desc: "Kubernetes cluster logo." },
+          { name: "web-service / globe / server", type: "Keyword", desc: "REST Web Service / HTTP server node logo." },
+          { name: "gear / cog", type: "Keyword", desc: "Settings / process gear icon." },
+          { name: "database / db", type: "Keyword", desc: "Cylinder database storage icon." },
+          { name: "lock / security", type: "Keyword", desc: "Security lock badge icon." },
+          { name: "user", type: "Keyword", desc: "User / Avatar profile icon." },
+          { name: "api / code", type: "Keyword", desc: "REST API / Code brackets icon." },
+          { name: "queue", type: "Keyword", desc: "Message Queue / Kafka icon." },
+          { name: "storage / s3", type: "Keyword", desc: "Storage Bucket / S3 icon." },
+          { name: "cpu", type: "Keyword", desc: "CPU / Microservice chip icon." }
+        ],
+        notes: [
+          "<b>Color Synchronization:</b> Icons use <code>fill=\"currentColor\"</code> or <code>fill-rule=\"evenodd\"</code>, so they automatically inherit text colors, custom themes, and <code>themeOverride</code> settings.",
+          "<b>Adding Custom Icons:</b> To add new icons to DrakoFlow, open <code>src/utils/IconRegistry.ts</code> and add a new entry to the <code>ICON_PATH_MAP</code> object mapping your keyword to SVG path XML."
+        ],
+        example: `AuthService: Cube {
+  label: "Auth API"
+  icon: "docker"
+}
+
+UserDB: Cylinder {
+  label: "User Store"
+  icon: "postgres"
+}
+
+CloudInfra: Cloud {
+  label: "AWS Cloud"
+  icon: "aws"
 }`
       },
       {

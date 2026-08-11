@@ -481,6 +481,10 @@ function instantiateFromDefinition(
     component.shadow = node.properties.shadow;
   }
 
+  if (typeof node.properties.icon === 'string') {
+    component.icon = node.properties.icon;
+  }
+
   if (typeof node.properties.x === 'number') {
     component.manualX = node.properties.x;
   }

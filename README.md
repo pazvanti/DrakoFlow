@@ -56,6 +56,7 @@ CoreDomain: Package {
 
   AuthService: Cube {
     label: "Auth Service"
+    icon: "docker"
     themeOverride: {
       backgroundColor: "#1e1e2e"
       borderColor: "#8b5cf6"
@@ -65,6 +66,7 @@ CoreDomain: Package {
 
   PaymentService: UMLComponent {
     label: "Payment API"
+    icon: "aws"
   }
 }
 
@@ -72,6 +74,7 @@ CoreDomain: Package {
 @tags: ["storage"]
 UserDB: Cylinder {
   label: "User Store"
+  icon: "postgres"
   x: 340
   y: 220
 }
@@ -81,6 +84,16 @@ Gateway -> AuthService: "Validate token"
 Gateway o-> PaymentService: "Process transaction"
 AuthService <-> UserDB: "Read/Write credentials"
 ```
+
+### Element Vector Icons
+Add vector icons alongside label text using the `icon` attribute:
+```scss
+AuthService: Cube {
+  label: "Auth API"
+  icon: "docker" // Automatically renders the Docker vector logo
+}
+```
+Built-in icons include `docker`, `aws`, `postgres`, `gear`, `database`, `web-service`, `redis`, `react`, `node`, `python`, `kubernetes`, `lock`, `user`, `api`, `queue`, `storage`, and `cpu`. Icons automatically adapt to the component's label text color across all themes.
 
 ### Component types
 

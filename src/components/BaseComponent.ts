@@ -1,3 +1,5 @@
+import { createIconSvgElement, hasIcon } from '../utils/IconRegistry';
+
 export interface Point {
   x: number;
   y: number;
@@ -42,6 +44,9 @@ export abstract class BaseComponent<TProps = any, TStyle = Partial<ThemeVariable
 
   // Optional drop shadow toggle
   public shadow?: boolean;
+
+  // Optional vector icon name (e.g. "docker", "aws", "postgres", "gear", "database", "web-service")
+  public icon?: string;
   
   // Properties unique to the component type (e.g., rows, content)
   public props: TProps;
@@ -68,6 +73,9 @@ export abstract class BaseComponent<TProps = any, TStyle = Partial<ThemeVariable
     this.tags = metadata.tags;
     this.props = props;
     this.themeOverride = themeOverride;
+    if (props && typeof (props as any).icon === 'string') {
+      this.icon = (props as any).icon;
+    }
   }
 
   /**
@@ -78,6 +86,61 @@ export abstract class BaseComponent<TProps = any, TStyle = Partial<ThemeVariable
       this.children.forEach(child => {
         g.appendChild(child.render(theme));
       });
+    }
+  }
+
+  /**
+   * Helper method to render a centered or aligned label text with an optional vector icon.
+   */
+  protected renderLabelWithIcon(
+    g: SVGElement,
+    label: string | undefined,
+    centerX: number,
+    centerY: number,
+    textColor: string,
+    fontFamily: string,
+    iconName?: string,
+    options: { iconSize?: number; gap?: number; fontPx?: number } = {}
+  ): void {
+    const activeIcon = iconName || this.icon || (this.props && (this.props as any).icon);
+    const hasText = Boolean(label && label.length > 0);
+    const hasIconSvg = hasIcon(activeIcon);
+
+    if (!hasText && !hasIconSvg) return;
+
+    const iconSize = options.iconSize ?? 16;
+    const gap = options.gap ?? 6;
+    const fontPx = options.fontPx ?? 14;
+
+    const textWidth = hasText ? label!.length * (fontPx * 0.55) : 0;
+    const iconWidth = hasIconSvg ? iconSize + gap : 0;
+    const totalWidth = iconWidth + textWidth;
+
+    const startX = centerX - totalWidth / 2;
+
+    if (hasIconSvg) {
+      const iconX = startX;
+      const iconY = centerY - iconSize / 2;
+      const iconElem = createIconSvgElement(activeIcon, { size: iconSize, color: textColor });
+      if (iconElem) {
+        const iconG = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        iconG.setAttribute("transform", `translate(${iconX}, ${iconY})`);
+        iconG.appendChild(iconElem);
+        g.appendChild(iconG);
+      }
+    }
+
+    if (hasText) {
+      const textX = hasIconSvg ? startX + iconWidth : centerX;
+      const textElem = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      textElem.setAttribute("x", textX.toString());
+      textElem.setAttribute("y", centerY.toString());
+      textElem.setAttribute("fill", textColor);
+      textElem.setAttribute("font-family", fontFamily);
+      textElem.setAttribute("text-anchor", hasIconSvg ? "start" : "middle");
+      textElem.setAttribute("dominant-baseline", "central");
+      textElem.textContent = label!;
+      g.appendChild(textElem);
     }
   }
 
@@ -116,4 +179,3 @@ export abstract class BaseComponent<TProps = any, TStyle = Partial<ThemeVariable
 export function setCurrentLayoutAlgorithm(alg: 'left-to-right' | 'top-to-bottom'): void {
   BaseComponent.currentLayoutAlgorithm = alg;
 }
-

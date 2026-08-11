@@ -1,7 +1,9 @@
 import { BaseComponent, ComponentMetadata, ThemeVariables, Dimension } from './BaseComponent';
+import { getIconSpacing } from '../utils/IconRegistry';
 
 export interface CubeProps {
   label?: string;
+  icon?: string;
 }
 
 export class CubeComponent extends BaseComponent<CubeProps> {
@@ -9,11 +11,15 @@ export class CubeComponent extends BaseComponent<CubeProps> {
     if (this.props.label !== undefined && typeof this.props.label !== 'string') {
       throw new Error(`Component [${this.id}]: 'label' must be a string.`);
     }
+    if (this.props.icon !== undefined && typeof this.props.icon !== 'string') {
+      throw new Error(`Component [${this.id}]: 'icon' must be a string.`);
+    }
   }
 
   calculateMinDimensions(theme: ThemeVariables): Dimension {
     const labelLength = this.props.label ? this.props.label.length : 0;
-    const calculatedWidth = Math.max(110, labelLength * 8 + 40);
+    const iconSpacing = getIconSpacing(this.icon || this.props.icon);
+    const calculatedWidth = Math.max(110, labelLength * 8 + iconSpacing + 40);
     const calculatedHeight = 70;
     return { width: calculatedWidth, height: calculatedHeight };
   }
@@ -76,18 +82,16 @@ export class CubeComponent extends BaseComponent<CubeProps> {
     frontFace.setAttribute("stroke-width", strokeWidth);
     g.appendChild(frontFace);
 
-    // Draw centered label on the front face
-    if (this.props.label) {
-      const textElem = document.createElementNS("http://www.w3.org/2000/svg", "text");
-      textElem.setAttribute("x", ((W - d) / 2).toString());
-      textElem.setAttribute("y", (d + (H - d) / 2).toString());
-      textElem.setAttribute("fill", text);
-      textElem.setAttribute("font-family", font);
-      textElem.setAttribute("text-anchor", "middle");
-      textElem.setAttribute("dominant-baseline", "central");
-      textElem.textContent = this.props.label;
-      g.appendChild(textElem);
-    }
+    // Draw centered label & icon on the front face
+    this.renderLabelWithIcon(
+      g,
+      this.props.label,
+      (W - d) / 2,
+      d + (H - d) / 2,
+      text,
+      font,
+      this.icon || this.props.icon
+    );
 
     return g;
   }

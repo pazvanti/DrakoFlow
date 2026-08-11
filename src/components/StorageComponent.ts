@@ -1,7 +1,9 @@
 import { BaseComponent, ThemeVariables, Dimension } from './BaseComponent';
+import { getIconSpacing } from '../utils/IconRegistry';
 
 export interface StorageProps {
   label?: string;
+  icon?: string;
 }
 
 export class StorageComponent extends BaseComponent<StorageProps> {
@@ -9,11 +11,15 @@ export class StorageComponent extends BaseComponent<StorageProps> {
     if (this.props.label !== undefined && typeof this.props.label !== 'string') {
       throw new Error(`Component [${this.id}]: 'label' must be a string.`);
     }
+    if (this.props.icon !== undefined && typeof this.props.icon !== 'string') {
+      throw new Error(`Component [${this.id}]: 'icon' must be a string.`);
+    }
   }
 
   calculateMinDimensions(theme: ThemeVariables): Dimension {
     const labelLength = this.props.label ? this.props.label.length : 0;
-    const calculatedWidth = Math.max(120, labelLength * 8 + 40);
+    const iconSpacing = getIconSpacing(this.icon || this.props.icon);
+    const calculatedWidth = Math.max(120, labelLength * 8 + iconSpacing + 40);
     const calculatedHeight = 65;
     return { width: calculatedWidth, height: calculatedHeight };
   }
@@ -34,7 +40,6 @@ export class StorageComponent extends BaseComponent<StorageProps> {
     g.setAttribute("transform", `translate(${this.bounds.x}, ${this.bounds.y})`);
 
     // Storage is a horizontal cylinder/drum
-    // Main body path (curved left cap and closed right cap)
     const body = document.createElementNS('http://www.w3.org/2000/svg', 'path');
     const pathD = `M ${d} 0 ` +
                   `L ${W - d} 0 ` +
@@ -59,18 +64,16 @@ export class StorageComponent extends BaseComponent<StorageProps> {
     capLine.setAttribute('stroke-width', strokeWidth);
     g.appendChild(capLine);
 
-    // Label text centered inside the horizontal cylinder
-    if (this.props.label) {
-      const textElem = document.createElementNS("http://www.w3.org/2000/svg", "text");
-      textElem.setAttribute("x", (W / 2).toString());
-      textElem.setAttribute("y", (H / 2).toString());
-      textElem.setAttribute("fill", text);
-      textElem.setAttribute("font-family", font);
-      textElem.setAttribute("text-anchor", "middle");
-      textElem.setAttribute("dominant-baseline", "central");
-      textElem.textContent = this.props.label;
-      g.appendChild(textElem);
-    }
+    // Label text & icon centered inside the horizontal cylinder
+    this.renderLabelWithIcon(
+      g,
+      this.props.label,
+      W / 2,
+      H / 2,
+      text,
+      font,
+      this.icon || this.props.icon
+    );
 
     return g;
   }

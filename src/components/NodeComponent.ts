@@ -1,15 +1,19 @@
 import { BaseComponent, ThemeVariables, Dimension } from './BaseComponent';
 import { VerticalContainerComponent, VerticalContainerProps } from './VerticalContainerComponent';
+import { getIconSpacing } from '../utils/IconRegistry';
 
-export interface NodeProps extends VerticalContainerProps {}
+export interface NodeProps extends VerticalContainerProps {
+  icon?: string;
+}
 
 export class NodeComponent extends VerticalContainerComponent {
   private readonly depthOffset = 12;
 
   calculateMinDimensions(theme: ThemeVariables): Dimension {
     const labelLength = this.props.label ? this.props.label.length : 0;
-    const labelWidth = Math.max(80, labelLength * 8 + 30);
-    const labelHeight = this.props.label ? 28 : 0;
+    const iconSpacing = getIconSpacing(this.icon || (this.props as any).icon);
+    const labelWidth = Math.max(80, labelLength * 8 + iconSpacing + 30);
+    const labelHeight = (this.props.label || this.icon || (this.props as any).icon) ? 28 : 0;
 
     if (this.children.length === 0) {
       return { width: Math.max(labelWidth, 140) + this.depthOffset, height: 80 + this.depthOffset };
@@ -48,7 +52,7 @@ export class NodeComponent extends VerticalContainerComponent {
   layoutChildren(theme: ThemeVariables): void {
     const padding = this.props.padding ?? 16;
     const gap = this.props.gap ?? 12;
-    const labelHeight = this.props.label ? 28 : 0;
+    const labelHeight = (this.props.label || this.icon || (this.props as any).icon) ? 28 : 0;
 
     if (this.isHorizontalLayout()) {
       let x = padding;
@@ -67,9 +71,7 @@ export class NodeComponent extends VerticalContainerComponent {
         x += childWidth + (index < this.children.length - 1 ? gap : 0);
       });
     } else {
-      // Children are offset inside the front face (which starts at y = depthOffset)
       let y = this.depthOffset + padding + labelHeight;
-
       this.children.forEach((child, index) => {
         const childDim = child.calculateMinDimensions(theme);
         const childWidth = Math.max(childDim.width, this.bounds.width - this.depthOffset - padding * 2);
@@ -92,15 +94,15 @@ export class NodeComponent extends VerticalContainerComponent {
     const text = this.resolveColor(this.themeOverride.textColor, theme, theme.textColor);
     const border = this.resolveColor(this.themeOverride.borderColor, theme, theme.borderColor);
     const font = theme.fontFamily;
-    const strokeWidth = this.lineWidth !== undefined ? this.lineWidth.toString() : '1.5';
+    const strokeWidth = this.lineWidth !== undefined ? this.lineWidth.toString() : '2';
 
     const W = this.bounds.width;
     const H = this.bounds.height;
     const d = this.depthOffset;
 
-    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-    g.setAttribute('id', this.id);
-    g.setAttribute('transform', `translate(${this.bounds.x}, ${this.bounds.y})`);
+    const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    g.setAttribute("id", this.id);
+    g.setAttribute("transform", `translate(${this.bounds.x}, ${this.bounds.y})`);
 
     // 1. Top face (parallelogram)
     const topFace = document.createElementNS("http://www.w3.org/2000/svg", "path");
@@ -145,18 +147,19 @@ export class NodeComponent extends VerticalContainerComponent {
     frontFace.setAttribute("stroke-width", strokeWidth);
     g.appendChild(frontFace);
 
-    // Draw title label on the front face (near the top)
-    if (this.props.label) {
-      const title = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-      title.setAttribute('x', ((W - d) / 2).toString());
-      title.setAttribute('y', (d + 20).toString());
-      title.setAttribute('fill', text);
-      title.setAttribute('font-family', font);
-      title.setAttribute('font-size', '13');
-      title.setAttribute('font-weight', '600');
-      title.setAttribute('text-anchor', 'middle');
-      title.textContent = this.props.label;
-      g.appendChild(title);
+    // Draw title label & icon on the front face
+    if (this.props.label || this.icon || (this.props as any).icon) {
+      const labelY = this.children.length === 0 ? (d + (H - d) / 2) : (d + 20);
+      this.renderLabelWithIcon(
+        g,
+        this.props.label,
+        (W - d) / 2,
+        labelY,
+        text,
+        font,
+        this.icon || (this.props as any).icon,
+        { fontPx: 13 }
+      );
     }
 
     // Render nested children

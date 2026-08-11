@@ -1,12 +1,16 @@
 import { BaseComponent, ThemeVariables, Dimension } from './BaseComponent';
 import { VerticalContainerComponent, VerticalContainerProps } from './VerticalContainerComponent';
+import { getIconSpacing } from '../utils/IconRegistry';
 
-export interface FolderProps extends VerticalContainerProps {}
+export interface FolderProps extends VerticalContainerProps {
+  icon?: string;
+}
 
 export class FolderComponent extends VerticalContainerComponent {
   calculateMinDimensions(theme: ThemeVariables): Dimension {
     const labelLength = this.props.label ? this.props.label.length : 0;
-    const tabMinWidth = Math.max(60, labelLength * 7 + 20);
+    const iconSpacing = getIconSpacing(this.icon || (this.props as any).icon, 12, 4);
+    const tabMinWidth = Math.max(60, labelLength * 7 + iconSpacing + 20);
     const tabH = 20;
 
     if (this.children.length === 0) {
@@ -93,14 +97,15 @@ export class FolderComponent extends VerticalContainerComponent {
 
     const { width, height } = this.bounds;
     const labelLength = this.props.label ? this.props.label.length : 0;
-    const tabW = Math.max(60, labelLength * 7 + 20);
+    const iconSpacing = getIconSpacing(this.icon || (this.props as any).icon, 12, 4);
+    const tabW = Math.max(60, labelLength * 7 + iconSpacing + 20);
     const tabH = 20;
 
     const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
     g.setAttribute('id', this.id);
     g.setAttribute('transform', `translate(${this.bounds.x}, ${this.bounds.y})`);
 
-    // Folder tab (top-left) with angled slope (folder tab look)
+    // Folder tab (top-left) with angled slope
     const tab = document.createElementNS('http://www.w3.org/2000/svg', 'path');
     tab.setAttribute('d', `M 0 ${tabH} L 0 0 L ${tabW} 0 L ${tabW + 8} ${tabH} Z`);
     tab.setAttribute('fill', background);
@@ -109,19 +114,18 @@ export class FolderComponent extends VerticalContainerComponent {
     tab.setAttribute('stroke-linejoin', 'round');
     g.appendChild(tab);
 
-    // Tab label
-    if (this.props.label) {
-      const tabLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-      tabLabel.setAttribute('x', (tabW / 2).toString());
-      tabLabel.setAttribute('y', (tabH / 2).toString());
-      tabLabel.setAttribute('fill', textColor);
-      tabLabel.setAttribute('font-family', font);
-      tabLabel.setAttribute('font-size', '11');
-      tabLabel.setAttribute('font-weight', 'bold');
-      tabLabel.setAttribute('text-anchor', 'middle');
-      tabLabel.setAttribute('dominant-baseline', 'central');
-      tabLabel.textContent = this.props.label;
-      g.appendChild(tabLabel);
+    // Tab label & icon
+    if (this.props.label || this.icon || (this.props as any).icon) {
+      this.renderLabelWithIcon(
+        g,
+        this.props.label,
+        tabW / 2,
+        tabH / 2,
+        textColor,
+        font,
+        this.icon || (this.props as any).icon,
+        { fontPx: 11, iconSize: 12 }
+      );
     }
 
     // Main body (starts at tabH, full width)
