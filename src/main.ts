@@ -7,7 +7,7 @@ import { parseDslDocument, ParsedNode, ParsedChildEntry } from './dsl/parser';
 import { createComponentsFromDsl } from './engine/componentFactory';
 import { layoutRootComponents } from './engine/layout';
 import { renderRelationships } from './engine/relationshipRenderer';
-import { highlightDSL } from './utils/highlighter';
+import { highlightDSL, ColorTrigger } from './utils/highlighter';
 import { ParsedRelationship } from './engine/Relationship';
 import { MarkdownParser } from './utils/MarkdownParser';
 import { MarkdownRenderer } from './utils/MarkdownRenderer';
@@ -780,8 +780,8 @@ function insertBoilerplate(template: string): void {
   renderDiagram();
 }
 
-let activeColorStartPos: number | null = null;
-let lastColorTriggers: { startPos: number; color: string }[] = [];
+let activeColorTrigger: ColorTrigger | null = null;
+let lastColorTriggers: ColorTrigger[] = [];
 
 const PRESET_COLORS = [
   '#60a5fa', '#3b82f6', '#1d4ed8', '#34d399', '#10b981',
@@ -848,16 +848,22 @@ function hideColorPickerPopup(): void {
 }
 
 function applyNewColor(newColor: string): void {
-  if (activeColorStartPos !== null) {
+  if (activeColorTrigger) {
     const oldText = editor.value;
+    const { startPos, length, isQuoted } = activeColorTrigger;
 
-    const before = oldText.substring(0, activeColorStartPos);
-    const after = oldText.substring(activeColorStartPos + 7);
+    const replacement = isQuoted ? `"${newColor}"` : newColor;
+    const before = oldText.substring(0, startPos);
+    const after = oldText.substring(startPos + length);
 
-    editor.value = before + newColor + after;
+    editor.value = before + replacement + after;
 
-    const currentCursor = activeColorStartPos + 7;
-    editor.selectionStart = editor.selectionEnd = currentCursor;
+    const newCursorPos = startPos + replacement.length;
+    editor.selectionStart = editor.selectionEnd = newCursorPos;
+
+    // Update active trigger properties for smooth continuous updates
+    activeColorTrigger.length = replacement.length;
+    activeColorTrigger.color = newColor;
 
     updateEditorMetrics();
     renderDiagram();
@@ -871,10 +877,10 @@ function attachColorPickerListeners(): void {}
 editor.addEventListener('click', (e: MouseEvent) => {
   const cursorPos = editor.selectionStart;
   const hit = lastColorTriggers.find(
-    t => cursorPos >= t.startPos && cursorPos <= t.startPos + 7
+    t => cursorPos >= t.startPos && cursorPos <= t.startPos + t.length
   );
   if (hit) {
-    activeColorStartPos = hit.startPos;
+    activeColorTrigger = hit;
     showColorPickerPopup(e.clientX, e.clientY, hit.color);
     // Stop propagation so the window-level dismiss handler doesn't
     // immediately close the popup we just opened on this same click.

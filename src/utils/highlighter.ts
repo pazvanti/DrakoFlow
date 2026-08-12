@@ -1,6 +1,13 @@
+export interface ColorTrigger {
+  startPos: number;
+  length: number;
+  color: string;
+  isQuoted: boolean;
+}
+
 export interface HighlightResult {
   html: string;
-  colorTriggers: { startPos: number; color: string }[];
+  colorTriggers: ColorTrigger[];
 }
 
 const tokenRegex = new RegExp(
@@ -47,7 +54,7 @@ function escapeHtml(text: string): string {
 }
 
 export function highlightDSL(code: string, activeRange?: { start: number; end: number }): HighlightResult {
-  const colorTriggers: { startPos: number; color: string }[] = [];
+  const colorTriggers: ColorTrigger[] = [];
   tokenRegex.lastIndex = 0;
   
   let html = '';
@@ -69,10 +76,16 @@ export function highlightDSL(code: string, activeRange?: { start: number; end: n
     };
 
     if (groups.hexColor) {
+      const isQuoted = value.startsWith('"') && value.endsWith('"');
       const colorVal = value.replace(/"/g, '');
-      colorTriggers.push({ startPos: matchIndex, color: colorVal });
+      colorTriggers.push({
+        startPos: matchIndex,
+        length: value.length,
+        color: colorVal,
+        isQuoted
+      });
       const activeAttr = isTokenHighlighted ? ' class="hl-active-token"' : '';
-      html += `<span class="hl-color"${activeAttr}><span class="color-picker-trigger" style="background-color: ${colorVal}"></span>${escapeHtml(value)}</span>`;
+      html += `<span class="hl-color"${activeAttr}>${escapeHtml(value)}<span class="color-picker-trigger" style="background-color: ${colorVal}"></span></span>`;
     } else if (groups.blockComment) {
       html += wrapTag('comment', value);
     } else if (groups.comment) {
