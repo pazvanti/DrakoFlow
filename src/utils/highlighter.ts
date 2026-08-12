@@ -1,3 +1,5 @@
+import { createIconSvgElement } from './IconRegistry';
+
 export interface ColorTrigger {
   startPos: number;
   length: number;
@@ -5,9 +7,17 @@ export interface ColorTrigger {
   isQuoted: boolean;
 }
 
+export interface IconTrigger {
+  startPos: number;
+  length: number;
+  icon: string;
+  isQuoted: boolean;
+}
+
 export interface HighlightResult {
   html: string;
   colorTriggers: ColorTrigger[];
+  iconTriggers: IconTrigger[];
 }
 
 const tokenRegex = new RegExp(
@@ -55,10 +65,12 @@ function escapeHtml(text: string): string {
 
 export function highlightDSL(code: string, activeRange?: { start: number; end: number }): HighlightResult {
   const colorTriggers: ColorTrigger[] = [];
+  const iconTriggers: IconTrigger[] = [];
   tokenRegex.lastIndex = 0;
   
   let html = '';
   let match;
+  let expectingIconValue = false;
   
   while ((match = tokenRegex.exec(code)) !== null) {
     const groups = match.groups as Record<string, string | undefined>;
@@ -86,34 +98,66 @@ export function highlightDSL(code: string, activeRange?: { start: number; end: n
       });
       const activeAttr = isTokenHighlighted ? ' class="hl-active-token"' : '';
       html += `<span class="hl-color"${activeAttr}>${escapeHtml(value)}<span class="color-picker-trigger" style="background-color: ${colorVal}"></span></span>`;
+      expectingIconValue = false;
     } else if (groups.blockComment) {
       html += wrapTag('comment', value);
+      expectingIconValue = false;
     } else if (groups.comment) {
       html += wrapTag('comment', value);
+      expectingIconValue = false;
+    } else if (groups.property) {
+      html += wrapTag('property', value);
+      if (value === 'icon') {
+        expectingIconValue = true;
+      } else {
+        expectingIconValue = false;
+      }
+    } else if (expectingIconValue && (groups.string || groups.id || groups.keyword)) {
+      const isQuoted = value.startsWith('"') && value.endsWith('"');
+      const iconVal = value.replace(/['"]/g, '').trim();
+      iconTriggers.push({
+        startPos: matchIndex,
+        length: value.length,
+        icon: iconVal,
+        isQuoted
+      });
+      const activeAttr = isTokenHighlighted ? ' class="hl-active-token"' : '';
+      const iconSvg = createIconSvgElement(iconVal, { size: 13 })?.outerHTML || '';
+      html += `<span class="hl-${groups.string ? 'string' : 'keyword'}"${activeAttr}>${escapeHtml(value)}<span class="icon-picker-trigger" title="Change icon (${escapeHtml(iconVal)})">${iconSvg}</span></span>`;
+      expectingIconValue = false;
     } else if (groups.string) {
       html += wrapTag('string', value);
     } else if (groups.number) {
       html += wrapTag('number', value);
+      expectingIconValue = false;
     } else if (groups.boolean) {
       html += wrapTag('boolean', value);
+      expectingIconValue = false;
     } else if (groups.decorator) {
       html += wrapTag('decorator', value);
+      expectingIconValue = false;
     } else if (groups.exterior) {
       html += wrapTag('keyword', value);
+      expectingIconValue = false;
     } else if (groups.keyword) {
       html += wrapTag('keyword', value);
-    } else if (groups.property) {
-      html += wrapTag('property', value);
     } else if (groups.accessor) {
       html += wrapTag('accessor', value);
+      expectingIconValue = false;
     } else if (groups.operator) {
       html += wrapTag('operator', value);
+      if (value !== ':') {
+        expectingIconValue = false;
+      }
     } else if (groups.id) {
       html += wrapTag('id', value);
     } else {
       html += escapeHtml(value);
+      if (value.trim().length > 0 && value !== ':') {
+        expectingIconValue = false;
+      }
     }
   }
 
-  return { html, colorTriggers };
+  return { html, colorTriggers, iconTriggers };
 }

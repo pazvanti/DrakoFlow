@@ -736,6 +736,150 @@ body {
   width: 176px;
 }
 
+/* Custom Floating Icon Picker Popup */
+.icon-picker-popup {
+  position: fixed;
+  z-index: 1050;
+  background-color: rgba(24, 24, 27, 0.95);
+  border: 1px solid var(--app-border-color);
+  backdrop-filter: blur(8px);
+  border-radius: 10px;
+  padding: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+  width: 270px;
+  max-height: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: var(--app-text-main);
+}
+
+.icon-picker-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 4px;
+}
+
+.icon-picker-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--app-text-main);
+}
+
+.icon-picker-search-wrap input {
+  background-color: #121214 !important;
+  border: 1px solid var(--app-border-color) !important;
+  color: var(--app-text-main) !important;
+  font-size: 0.75rem !important;
+  padding: 0.25rem 0.5rem !important;
+  border-radius: 6px !important;
+}
+
+.icon-picker-search-wrap input:focus {
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.25) !important;
+}
+
+.icon-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+  max-height: 220px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 4px;
+  box-sizing: border-box;
+}
+
+.icon-picker-grid::-webkit-scrollbar {
+  width: 5px;
+  height: 0px;
+}
+.icon-picker-grid::-webkit-scrollbar-track {
+  background: transparent;
+}
+.icon-picker-grid::-webkit-scrollbar-thumb {
+  background: #3f3f46;
+  border-radius: 3px;
+}
+.icon-picker-grid::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+.icon-picker-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 2px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: center;
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+.icon-picker-cell:hover, .icon-picker-cell.active {
+  background: #3b82f6;
+  border-color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(59, 130, 246, 0.4);
+}
+
+.icon-picker-cell svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+  margin-bottom: 2px;
+}
+
+.icon-picker-cell span {
+  font-size: 0.62rem;
+  line-height: 1;
+  color: var(--app-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.icon-picker-cell:hover span, .icon-picker-cell.active span {
+  color: #ffffff;
+}
+
+.icon-picker-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 15px;
+  height: 15px;
+  margin-left: 6px;
+  vertical-align: middle;
+  cursor: pointer;
+  pointer-events: auto;
+  position: relative;
+  z-index: 10;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.12);
+  transition: transform 0.15s ease, background-color 0.15s ease;
+}
+
+.icon-picker-trigger:hover {
+  transform: scale(1.25);
+  background: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+}
+
+.icon-picker-trigger svg {
+  width: 11px;
+  height: 11px;
+  fill: currentColor;
+}
+
 .color-grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);

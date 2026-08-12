@@ -723,7 +723,7 @@ PaymentService.AuthHandler -> PaymentService.FraudCheck : "2. Analyze Risk"</pre
                   </thead>
                   <tbody>
                     <tr><td><code>label</code></td><td>String</td><td>Main text label displayed inside or on the component.</td></tr>
-                    <tr><td><code>icon</code></td><td>String</td><td>Vector icon rendered alongside label (e.g. <code>icon: "docker"</code>). Supported: <code>docker</code>, <code>aws</code>, <code>postgres</code>, <code>redis</code>, <code>react</code>, <code>node</code>, <code>python</code>, <code>kubernetes</code>, <code>web-service</code>, <code>gear</code>, <code>database</code>, <code>lock</code>, <code>user</code>, <code>api</code>, <code>queue</code>, <code>storage</code>, <code>cpu</code>.</td></tr>
+                    <tr><td><code>icon</code></td><td>String</td><td>Vector icon rendered alongside label (e.g. <code>icon: "docker"</code>). Supports 50+ tech & infrastructure icons including <code>docker</code>, <code>aws</code>, <code>postgres</code>, <code>mongodb</code>, <code>mysql</code>, <code>redis</code>, <code>typescript</code>, <code>react</code>, <code>node</code>, <code>python</code>, <code>kubernetes</code>, <code>azure</code>, <code>gcp</code>, <code>terraform</code>, <code>github</code>, <code>lock</code>, <code>api</code>, and more.</td></tr>
                     <tr><td><code>doc</code></td><td>String</td><td>Markdown-formatted documentation block attached to the component. Adds a clickable badge.</td></tr>
                     <tr><td><code>url</code></td><td>String</td><td>Hyperlink URL attached to the component. Adds a clickable external link badge.</td></tr>
                     <tr><td><code>shadow</code></td><td>Boolean</td><td>Enables a premium drop shadow filter effect on the component (default <code>false</code>).</td></tr>
@@ -750,21 +750,55 @@ PaymentService.AuthHandler -> PaymentService.FraudCheck : "2. Analyze Risk"</pre
                     </thead>
                     <tbody>
                       <tr><td><code>docker</code></td><td>-</td><td>Official Docker whale & cargo container grid logo</td></tr>
-                      <tr><td><code>aws</code></td><td><code>cloud</code></td><td>AWS / Cloud infrastructure cloud logo</td></tr>
-                      <tr><td><code>postgres</code></td><td><code>postgresql</code></td><td>Official PostgreSQL Elephant (Slonik) logo</td></tr>
-                      <tr><td><code>redis</code></td><td>-</td><td>Official Redis 3D stacked memory layers logo</td></tr>
-                      <tr><td><code>react</code></td><td>-</td><td>Official React atom framework logo</td></tr>
-                      <tr><td><code>node</code></td><td>-</td><td>Node.js runtime logo</td></tr>
-                      <tr><td><code>python</code></td><td>-</td><td>Official Python intertwined dual-snake logo</td></tr>
                       <tr><td><code>kubernetes</code></td><td><code>k8s</code></td><td>Kubernetes cluster logo</td></tr>
-                      <tr><td><code>web-service</code></td><td><code>globe</code>, <code>server</code></td><td>REST Web Service / HTTP server node logo</td></tr>
-                      <tr><td><code>gear</code></td><td><code>cog</code></td><td>Settings / process gear icon</td></tr>
+                      <tr><td><code>terraform</code></td><td>-</td><td>HashiCorp Terraform stacked blocks logo</td></tr>
+                      <tr><td><code>nginx</code></td><td>-</td><td>NGINX engine logo</td></tr>
+                      <tr><td><code>linux</code></td><td><code>tux</code></td><td>Linux Tux penguin logo</td></tr>
+                      <tr><td><code>terminal</code></td><td><code>cli</code>, <code>bash</code></td><td>Terminal command prompt icon</td></tr>
+                      <tr><td><code>aws</code></td><td><code>cloud</code></td><td>AWS / Cloud infrastructure logo</td></tr>
+                      <tr><td><code>azure</code></td><td>-</td><td>Microsoft Azure cloud emblem</td></tr>
+                      <tr><td><code>gcp</code></td><td><code>google-cloud</code></td><td>Google Cloud Platform logo</td></tr>
+                      <tr><td><code>postgres</code></td><td><code>postgresql</code></td><td>Official PostgreSQL Elephant (Slonik) logo</td></tr>
+                      <tr><td><code>mongodb</code></td><td><code>mongo</code></td><td>MongoDB Leaf emblem</td></tr>
+                      <tr><td><code>mysql</code></td><td>-</td><td>MySQL Dolphin database logo</td></tr>
+                      <tr><td><code>sqlite</code></td><td>-</td><td>SQLite database file emblem</td></tr>
+                      <tr><td><code>redis</code></td><td>-</td><td>Official Redis stacked memory layers logo</td></tr>
+                      <tr><td><code>elasticsearch</code></td><td><code>elastic</code></td><td>Elasticsearch search cluster logo</td></tr>
+                      <tr><td><code>graphql</code></td><td>-</td><td>GraphQL nodes & hexagon emblem</td></tr>
+                      <tr><td><code>rabbitmq</code></td><td><code>amqp</code></td><td>RabbitMQ message queue broker logo</td></tr>
                       <tr><td><code>database</code></td><td><code>db</code></td><td>Cylinder database storage icon</td></tr>
-                      <tr><td><code>lock</code></td><td><code>security</code></td><td>Lock & security badge icon</td></tr>
-                      <tr><td><code>user</code></td><td>-</td><td>User & avatar profile icon</td></tr>
-                      <tr><td><code>api</code></td><td><code>code</code></td><td>REST API & code brackets icon</td></tr>
-                      <tr><td><code>queue</code></td><td>-</td><td>Message Queue / Kafka icon</td></tr>
                       <tr><td><code>storage</code></td><td><code>s3</code></td><td>Storage Bucket / S3 icon</td></tr>
+                      <tr><td><code>typescript</code></td><td><code>ts</code></td><td>TypeScript TS emblem</td></tr>
+                      <tr><td><code>javascript</code></td><td><code>js</code></td><td>JavaScript JS emblem</td></tr>
+                      <tr><td><code>python</code></td><td>-</td><td>Official Python intertwined dual-snake logo</td></tr>
+                      <tr><td><code>node</code></td><td>-</td><td>Node.js runtime logo</td></tr>
+                      <tr><td><code>java</code></td><td>-</td><td>Java coffee cup logo</td></tr>
+                      <tr><td><code>golang</code></td><td><code>go</code></td><td>Go language logo</td></tr>
+                      <tr><td><code>rust</code></td><td>-</td><td>Rust gear emblem</td></tr>
+                      <tr><td><code>php</code></td><td>-</td><td>PHP oval emblem</td></tr>
+                      <tr><td><code>ruby</code></td><td>-</td><td>Ruby gem logo</td></tr>
+                      <tr><td><code>swift</code></td><td>-</td><td>Swift bird logo</td></tr>
+                      <tr><td><code>csharp</code></td><td><code>dotnet</code>, <code>net</code></td><td>.NET / C# emblem</td></tr>
+                      <tr><td><code>react</code></td><td>-</td><td>Official React atom framework logo</td></tr>
+                      <tr><td><code>vue</code></td><td><code>vuejs</code></td><td>Vue.js V emblem</td></tr>
+                      <tr><td><code>angular</code></td><td>-</td><td>Angular shield logo</td></tr>
+                      <tr><td><code>svelte</code></td><td>-</td><td>Svelte emblem</td></tr>
+                      <tr><td><code>nextjs</code></td><td><code>next</code></td><td>Next.js N emblem</td></tr>
+                      <tr><td><code>web-service</code></td><td><code>globe</code>, <code>server</code></td><td>REST Web Service / HTTP server node logo</td></tr>
+                      <tr><td><code>api</code></td><td><code>code</code></td><td>REST API & code brackets icon</td></tr>
+                      <tr><td><code>queue</code></td><td>-</td><td>Message Queue icon</td></tr>
+                      <tr><td><code>github</code></td><td>-</td><td>GitHub Octocat emblem</td></tr>
+                      <tr><td><code>gitlab</code></td><td>-</td><td>GitLab fox emblem</td></tr>
+                      <tr><td><code>lock</code></td><td><code>security</code></td><td>Lock & security badge icon</td></tr>
+                      <tr><td><code>shield</code></td><td><code>firewall</code></td><td>Security shield emblem</td></tr>
+                      <tr><td><code>key</code></td><td><code>token</code>, <code>auth</code></td><td>Authentication key icon</td></tr>
+                      <tr><td><code>mail</code></td><td><code>email</code>, <code>smtp</code></td><td>Email envelope icon</td></tr>
+                      <tr><td><code>bell</code></td><td><code>alert</code>, <code>notification</code></td><td>Notification bell icon</td></tr>
+                      <tr><td><code>search</code></td><td><code>find</code></td><td>Search magnifying glass icon</td></tr>
+                      <tr><td><code>wifi</code></td><td><code>wireless</code></td><td>Wireless network signal icon</td></tr>
+                      <tr><td><code>lightning</code></td><td><code>event</code></td><td>Event / Lightning bolt icon</td></tr>
+                      <tr><td><code>user</code></td><td>-</td><td>User & profile avatar icon</td></tr>
+                      <tr><td><code>gear</code></td><td><code>cog</code></td><td>Settings / process gear icon</td></tr>
                       <tr><td><code>cpu</code></td><td>-</td><td>CPU / Microservice chip icon</td></tr>
                     </tbody>
                   </table>
@@ -2491,6 +2525,18 @@ Server [1] -> [0..*] Database : "Fetch items" {
         <button id="btn-apply-hex" class="btn-apply-hex" title="Apply hex">↵</button>
       </label>
     </div>
+  </div>
+
+  <!-- Icon Picker Popup Overlay -->
+  <div id="icon-picker-popup" class="icon-picker-popup" style="display: none;">
+    <div class="icon-picker-header">
+      <span class="icon-picker-title"><i class="bi bi-star-fill text-warning me-1"></i> Select Icon</span>
+      <button type="button" id="btn-close-icon-picker" class="btn-close btn-close-white btn-sm" aria-label="Close"></button>
+    </div>
+    <div class="icon-picker-search-wrap">
+      <input type="text" id="icon-search-input" class="form-control form-control-sm" placeholder="Filter icons..." spellcheck="false" autocomplete="off" />
+    </div>
+    <div class="icon-picker-grid" id="icon-picker-grid"></div>
   </div>
 
   <!-- Customize Theme Modal -->

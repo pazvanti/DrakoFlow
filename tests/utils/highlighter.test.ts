@@ -31,6 +31,14 @@ describe('highlightDSL', () => {
     expect(result.colorTriggers.length).toBe(1);
     expect(result.colorTriggers[0].color).toBe('#60a5fa');
   });
+
+  it('identifies and extracts icon picker triggers', () => {
+    const code = 'icon: "docker"';
+    const result = highlightDSL(code);
+    expect(result.html).toContain('class="icon-picker-trigger"');
+    expect(result.iconTriggers.length).toBe(1);
+    expect(result.iconTriggers[0].icon).toBe('docker');
+  });
   it('identifies @decorator tokens and bracket operators', () => {
     const code = '@tags: ["database", "auth"]';
     const result = highlightDSL(code);

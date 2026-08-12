@@ -7,11 +7,12 @@ import { parseDslDocument, ParsedNode, ParsedChildEntry } from './dsl/parser';
 import { createComponentsFromDsl } from './engine/componentFactory';
 import { layoutRootComponents } from './engine/layout';
 import { renderRelationships } from './engine/relationshipRenderer';
-import { highlightDSL, ColorTrigger } from './utils/highlighter';
+import { highlightDSL, ColorTrigger, IconTrigger } from './utils/highlighter';
 import { ParsedRelationship } from './engine/Relationship';
 import { MarkdownParser } from './utils/MarkdownParser';
 import { MarkdownRenderer } from './utils/MarkdownRenderer';
 import { PlantUmlTranslator } from './utils/PlantUmlTranslator';
+import { getAllRegisteredIcons, createIconSvgElement } from './utils/IconRegistry';
 import LZString from 'lz-string';
 
 const DEFAULT_DSL = `// Welcome to DrakoFlow!
@@ -783,6 +784,13 @@ function insertBoilerplate(template: string): void {
 let activeColorTrigger: ColorTrigger | null = null;
 let lastColorTriggers: ColorTrigger[] = [];
 
+let activeIconTrigger: IconTrigger | null = null;
+let lastIconTriggers: IconTrigger[] = [];
+
+const iconPickerPopup = document.getElementById('icon-picker-popup') as HTMLElement;
+const iconSearchInput = document.getElementById('icon-search-input') as HTMLInputElement;
+const btnCloseIconPicker = document.getElementById('btn-close-icon-picker') as HTMLButtonElement;
+
 const PRESET_COLORS = [
   '#60a5fa', '#3b82f6', '#1d4ed8', '#34d399', '#10b981',
   '#f87171', '#ef4444', '#b91c1c', '#f59e0b', '#fbbf24',
@@ -870,26 +878,156 @@ function applyNewColor(newColor: string): void {
   }
 }
 
-// No-op stub — color triggers are now detected via the textarea click handler.
-function attachColorPickerListeners(): void {}
+// Icon Picker functions & event handlers
+function renderIconPickerGrid(filterQuery: string = ''): void {
+  if (!iconPickerPopup) return;
+  const grid = iconPickerPopup.querySelector('#icon-picker-grid') as HTMLElement;
+  if (!grid) return;
 
-// Detect clicks on the textarea that fall over a hex color token.
+  grid.innerHTML = '';
+  const query = filterQuery.toLowerCase().trim();
+  const allIcons = getAllRegisteredIcons();
+  const filtered = allIcons.filter(name => name.toLowerCase().includes(query));
+
+  if (filtered.length === 0) {
+    grid.innerHTML = '<div class="text-center text-muted p-3 small" style="grid-column: span 4;">No icons match filter.</div>';
+    return;
+  }
+
+  filtered.forEach(name => {
+    const cell = document.createElement('div');
+    const isActive = activeIconTrigger && activeIconTrigger.icon.toLowerCase() === name.toLowerCase();
+    cell.className = `icon-picker-cell ${isActive ? 'active' : ''}`;
+    cell.title = `Select "${name}"`;
+
+    const svgElem = createIconSvgElement(name, { size: 18 });
+    if (svgElem) {
+      cell.appendChild(svgElem);
+    }
+
+    const labelSpan = document.createElement('span');
+    labelSpan.textContent = name;
+    cell.appendChild(labelSpan);
+
+    cell.addEventListener('click', (e) => {
+      e.stopPropagation();
+      applyNewIcon(name);
+      hideIconPickerPopup();
+    });
+
+    grid.appendChild(cell);
+  });
+}
+
+function showIconPickerPopup(anchorX: number, anchorY: number, currentIcon: string): void {
+  if (!iconPickerPopup) return;
+
+  if (iconSearchInput) {
+    iconSearchInput.value = '';
+  }
+  renderIconPickerGrid();
+
+  // Position popup: first show it to measure
+  iconPickerPopup.style.top = '-9999px';
+  iconPickerPopup.style.left = '-9999px';
+  iconPickerPopup.style.display = 'flex';
+  const popupRect = iconPickerPopup.getBoundingClientRect();
+
+  let top = anchorY + 10;
+  if (top + popupRect.height > window.innerHeight) {
+    top = anchorY - popupRect.height - 10;
+  }
+
+  let left = anchorX;
+  if (left + popupRect.width > window.innerWidth) {
+    left = window.innerWidth - popupRect.width - 12;
+  }
+
+  iconPickerPopup.style.top = `${Math.max(10, top)}px`;
+  iconPickerPopup.style.left = `${Math.max(10, left)}px`;
+
+  if (iconSearchInput) {
+    iconSearchInput.focus();
+  }
+}
+
+function hideIconPickerPopup(): void {
+  if (iconPickerPopup) {
+    iconPickerPopup.style.display = 'none';
+  }
+}
+
+function applyNewIcon(newIcon: string): void {
+  if (activeIconTrigger) {
+    const oldText = editor.value;
+    const { startPos, length, isQuoted } = activeIconTrigger;
+
+    const replacement = isQuoted ? `"${newIcon}"` : newIcon;
+    const before = oldText.substring(0, startPos);
+    const after = oldText.substring(startPos + length);
+
+    editor.value = before + replacement + after;
+
+    const newCursorPos = startPos + replacement.length;
+    editor.selectionStart = editor.selectionEnd = newCursorPos;
+
+    activeIconTrigger.length = replacement.length;
+    activeIconTrigger.icon = newIcon;
+
+    updateEditorMetrics();
+    renderDiagram();
+  }
+}
+
+// Detect clicks on the textarea that fall over a hex color token or an icon token.
 editor.addEventListener('click', (e: MouseEvent) => {
   const cursorPos = editor.selectionStart;
-  const hit = lastColorTriggers.find(
+
+  const colorHit = lastColorTriggers.find(
     t => cursorPos >= t.startPos && cursorPos <= t.startPos + t.length
   );
-  if (hit) {
-    activeColorTrigger = hit;
-    showColorPickerPopup(e.clientX, e.clientY, hit.color);
-    // Stop propagation so the window-level dismiss handler doesn't
-    // immediately close the popup we just opened on this same click.
+  if (colorHit) {
+    hideIconPickerPopup();
+    activeColorTrigger = colorHit;
+    showColorPickerPopup(e.clientX, e.clientY, colorHit.color);
     e.stopPropagation();
-  } else {
-    // Clicked on editor but not on a color token — close the popup.
-    hideColorPickerPopup();
+    return;
   }
+
+  const iconHit = lastIconTriggers.find(
+    t => cursorPos >= t.startPos && cursorPos <= t.startPos + t.length
+  );
+  if (iconHit) {
+    hideColorPickerPopup();
+    activeIconTrigger = iconHit;
+    showIconPickerPopup(e.clientX, e.clientY, iconHit.icon);
+    e.stopPropagation();
+    return;
+  }
+
+  // Clicked on editor but not on a color or icon token — close both popups.
+  hideColorPickerPopup();
+  hideIconPickerPopup();
 });
+
+if (iconSearchInput) {
+  iconSearchInput.addEventListener('input', () => {
+    renderIconPickerGrid(iconSearchInput.value);
+  });
+  iconSearchInput.addEventListener('click', (e) => e.stopPropagation());
+  iconSearchInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      hideIconPickerPopup();
+    }
+  });
+}
+
+if (btnCloseIconPicker) {
+  btnCloseIconPicker.addEventListener('click', (e) => {
+    e.stopPropagation();
+    hideIconPickerPopup();
+  });
+}
 
 // Inline color swatch inside the popup — browser opens native picker anchored here.
 editorColorPicker.addEventListener('input', (e) => {
@@ -927,14 +1065,22 @@ applyHexBtn.addEventListener('click', (e) => {
   }
 });
 
-// Close color picker popup when clicking outside (any click not inside the popup).
+// Close color & icon picker popups when clicking outside.
 window.addEventListener('click', (e) => {
   if (colorPickerPopup && colorPickerPopup.style.display === 'block') {
     if (!colorPickerPopup.contains(e.target as Node)) {
       hideColorPickerPopup();
     }
   }
+  if (iconPickerPopup && iconPickerPopup.style.display !== 'none') {
+    if (!iconPickerPopup.contains(e.target as Node)) {
+      hideIconPickerPopup();
+    }
+  }
 });
+
+// No-op stub — color and icon triggers are now detected via the textarea click handler.
+function attachColorPickerListeners(): void {}
 
 /**
  * Update Editor line numbers gutter and statistics
@@ -963,6 +1109,7 @@ function updateEditorMetrics(): void {
   if (highlighting) {
     const highlightResult = highlightDSL(code, activeHighlightRange || undefined);
     lastColorTriggers = highlightResult.colorTriggers;
+    lastIconTriggers = highlightResult.iconTriggers;
     const codeElem = highlighting.querySelector('code');
     if (codeElem) {
       let html = highlightResult.html;
