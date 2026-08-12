@@ -894,9 +894,11 @@ function renderIconPickerGrid(filterQuery: string = ''): void {
     return;
   }
 
-  filtered.forEach(name => {
+  filtered.forEach((name, index) => {
     const cell = document.createElement('div');
-    const isActive = activeIconTrigger && activeIconTrigger.icon.toLowerCase() === name.toLowerCase();
+    const isExplicitActive = activeIconTrigger && activeIconTrigger.icon.toLowerCase() === name.toLowerCase();
+    const isFirstFilterItem = query.length > 0 && index === 0;
+    const isActive = isExplicitActive || isFirstFilterItem;
     cell.className = `icon-picker-cell ${isActive ? 'active' : ''}`;
     cell.title = `Select "${name}"`;
 
@@ -1016,7 +1018,17 @@ if (iconSearchInput) {
   });
   iconSearchInput.addEventListener('click', (e) => e.stopPropagation());
   iconSearchInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      e.stopPropagation();
+      const query = iconSearchInput.value.toLowerCase().trim();
+      const allIcons = getAllRegisteredIcons();
+      const filtered = allIcons.filter(name => name.toLowerCase().includes(query));
+      if (filtered.length > 0) {
+        applyNewIcon(filtered[0]);
+        hideIconPickerPopup();
+      }
+    } else if (e.key === 'Escape') {
       hideIconPickerPopup();
     }
   });

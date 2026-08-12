@@ -244,6 +244,68 @@ function renderCardinalityLabel(
   );
 }
 
+function splitPathFromCenter(
+  d: string,
+  pathElem?: SVGPathElement
+): { sourceHalf: string; targetHalf: string } {
+  if (pathElem && typeof pathElem.getTotalLength === 'function') {
+    try {
+      const totalLen = pathElem.getTotalLength();
+      if (totalLen > 0) {
+        const halfLen = totalLen / 2;
+        const numSamples = 25;
+
+        // Target Half: M -> T
+        let targetHalf = '';
+        for (let i = 0; i <= numSamples; i++) {
+          const dist = halfLen + (i / numSamples) * halfLen;
+          const pt = pathElem.getPointAtLength(dist);
+          if (i === 0) {
+            targetHalf += `M ${pt.x.toFixed(2)} ${pt.y.toFixed(2)}`;
+          } else {
+            targetHalf += ` L ${pt.x.toFixed(2)} ${pt.y.toFixed(2)}`;
+          }
+        }
+
+        // Source Half: M -> S
+        let sourceHalf = '';
+        for (let i = 0; i <= numSamples; i++) {
+          const dist = halfLen - (i / numSamples) * halfLen;
+          const pt = pathElem.getPointAtLength(dist);
+          if (i === 0) {
+            sourceHalf += `M ${pt.x.toFixed(2)} ${pt.y.toFixed(2)}`;
+          } else {
+            sourceHalf += ` L ${pt.x.toFixed(2)} ${pt.y.toFixed(2)}`;
+          }
+        }
+
+        return { sourceHalf, targetHalf };
+      }
+    } catch {
+      // Fallback if SVG path sampling fails in non-DOM environment
+    }
+  }
+
+  // Fallback point parser for command points (e.g. M x1 y1 L x2 y2 ...)
+  const points: Point[] = [];
+  const matches = Array.from(d.matchAll(/([ML])\s*(-?\d+(?:\.\d+)?)\s*[, ]\s*(-?\d+(?:\.\d+)?)/gi));
+  for (const m of matches) {
+    points.push({ x: parseFloat(m[2]), y: parseFloat(m[3]) });
+  }
+
+  if (points.length >= 2) {
+    const pStart = points[0];
+    const pEnd = points[points.length - 1];
+    const pMid = { x: (pStart.x + pEnd.x) / 2, y: (pStart.y + pEnd.y) / 2 };
+
+    const targetHalf = `M ${pMid.x.toFixed(2)} ${pMid.y.toFixed(2)} L ${pEnd.x.toFixed(2)} ${pEnd.y.toFixed(2)}`;
+    const sourceHalf = `M ${pMid.x.toFixed(2)} ${pMid.y.toFixed(2)} L ${pStart.x.toFixed(2)} ${pStart.y.toFixed(2)}`;
+    return { sourceHalf, targetHalf };
+  }
+
+  return { sourceHalf: d, targetHalf: d };
+}
+
 function applyAnimationIfNeeded(
   path: SVGPathElement,
   rel: ParsedRelationship,
@@ -277,18 +339,69 @@ function applyAnimationIfNeeded(
     defs.appendChild(animStyle);
   }
 
-  if (rel.style?.lineStyle === 'dashed' || rel.style?.lineStyle === 'dotted') {
-    path.classList.add('drakoflow-animated-flow');
+  const isDashedOrDotted = rel.style?.lineStyle === 'dashed' || rel.style?.lineStyle === 'dotted';
+
+  if (rel.bidirectional) {
+    const { sourceHalf, targetHalf } = splitPathFromCenter(path.getAttribute('d') || '', path);
+
+    if (isDashedOrDotted) {
+      // Hide the static base path stroke so static dashes don't show through under the animated overlays
+      path.setAttribute('stroke', 'none');
+
+      const targetOverlay = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      targetOverlay.setAttribute('d', targetHalf);
+      targetOverlay.setAttribute('fill', 'none');
+      targetOverlay.setAttribute('stroke', color);
+      targetOverlay.setAttribute('stroke-width', thickness.toString());
+      targetOverlay.setAttribute('class', 'drakoflow-animated-flow');
+      targetOverlay.setAttribute('pointer-events', 'none');
+      tagEl(targetOverlay);
+      pathsLayer.appendChild(targetOverlay);
+
+      const sourceOverlay = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      sourceOverlay.setAttribute('d', sourceHalf);
+      sourceOverlay.setAttribute('fill', 'none');
+      sourceOverlay.setAttribute('stroke', color);
+      sourceOverlay.setAttribute('stroke-width', thickness.toString());
+      sourceOverlay.setAttribute('class', 'drakoflow-animated-flow');
+      sourceOverlay.setAttribute('pointer-events', 'none');
+      tagEl(sourceOverlay);
+      pathsLayer.appendChild(sourceOverlay);
+    } else {
+      const targetOverlay = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      targetOverlay.setAttribute('d', targetHalf);
+      targetOverlay.setAttribute('fill', 'none');
+      targetOverlay.setAttribute('stroke', color);
+      targetOverlay.setAttribute('stroke-width', (thickness + 0.5).toString());
+      targetOverlay.setAttribute('class', 'drakoflow-animated-flow');
+      targetOverlay.setAttribute('pointer-events', 'none');
+      tagEl(targetOverlay);
+      pathsLayer.appendChild(targetOverlay);
+
+      const sourceOverlay = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      sourceOverlay.setAttribute('d', sourceHalf);
+      sourceOverlay.setAttribute('fill', 'none');
+      sourceOverlay.setAttribute('stroke', color);
+      sourceOverlay.setAttribute('stroke-width', (thickness + 0.5).toString());
+      sourceOverlay.setAttribute('class', 'drakoflow-animated-flow');
+      sourceOverlay.setAttribute('pointer-events', 'none');
+      tagEl(sourceOverlay);
+      pathsLayer.appendChild(sourceOverlay);
+    }
   } else {
-    const flowOverlay = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    flowOverlay.setAttribute('d', path.getAttribute('d') || '');
-    flowOverlay.setAttribute('fill', 'none');
-    flowOverlay.setAttribute('stroke', color);
-    flowOverlay.setAttribute('stroke-width', (thickness + 0.5).toString());
-    flowOverlay.setAttribute('class', 'drakoflow-animated-flow');
-    flowOverlay.setAttribute('pointer-events', 'none');
-    tagEl(flowOverlay);
-    pathsLayer.appendChild(flowOverlay);
+    if (isDashedOrDotted) {
+      path.classList.add('drakoflow-animated-flow');
+    } else {
+      const flowOverlay = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      flowOverlay.setAttribute('d', path.getAttribute('d') || '');
+      flowOverlay.setAttribute('fill', 'none');
+      flowOverlay.setAttribute('stroke', color);
+      flowOverlay.setAttribute('stroke-width', (thickness + 0.5).toString());
+      flowOverlay.setAttribute('class', 'drakoflow-animated-flow');
+      flowOverlay.setAttribute('pointer-events', 'none');
+      tagEl(flowOverlay);
+      pathsLayer.appendChild(flowOverlay);
+    }
   }
 }
 
