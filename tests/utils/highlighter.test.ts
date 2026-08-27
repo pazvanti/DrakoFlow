@@ -58,10 +58,16 @@ describe('highlightDSL', () => {
     expect(result.html).toContain('/**');
   });
 
-  it('applies hl-active-token class to tokens within activeRange', () => {
-    const code = 'Client: Process {\n  label: "Client App"\n}';
-    const result = highlightDSL(code, { start: 0, end: 15 });
-    expect(result.html).toContain('class="hl-active-token"');
+  it('applies hl-active-token class to tokens within activeRange without duplicate class attributes', () => {
+    const code = 'Client: Process {\n  label: "Client App"\n  color: "#ff0000"\n}';
+    const result = highlightDSL(code, { start: 0, end: code.length });
+    expect(result.html).toContain('class="hl-id hl-active-token"');
+    expect(result.html).toContain('class="hl-keyword hl-active-token"');
+    expect(result.html).toContain('class="hl-property hl-active-token"');
+    expect(result.html).toContain('class="hl-string hl-active-token"');
+    expect(result.html).toContain('class="hl-color hl-active-token"');
+    // Ensure no duplicate class attributes were generated
+    expect(result.html).not.toMatch(/class="[^"]*"\s+class=/);
   });
 
   it('highlights exterior direction keywords (LEFT, RIGHT, TOP, BOTTOM)', () => {

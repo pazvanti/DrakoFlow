@@ -53,7 +53,7 @@ function createHorizontalPathWithBridgeArcs(
 
   const lifelineXList: number[] = [];
   componentIndex.forEach(indexedComp => {
-    if (indexedComp.component.lifeline && !indexedComp.component.parent) {
+    if (indexedComp.component.lifeline && !(indexedComp.component as any).parent) {
       const centerX = indexedComp.globalBounds.x + indexedComp.globalBounds.width / 2;
       if (centerX > minX + 15 && centerX < maxX - 15) {
         lifelineXList.push(centerX);
@@ -721,8 +721,8 @@ export function renderRelationships(
       let start: Point;
       let end: Point;
       let labelPos: Point;
-      let sourceCardPos: Point;
-      let targetCardPos: Point;
+      let sourceCardPos: Point = { x: 0, y: 0 };
+      let targetCardPos: Point = { x: 0, y: 0 };
       let points: Point[];
 
       if (sourceIsExterior || targetIsExterior) {

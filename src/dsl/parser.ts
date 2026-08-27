@@ -311,7 +311,9 @@ function readQuotedString(
   start: number
 ): { value: string; end: number } | null {
   const i = skipWhitespace(text, start);
-  if (text[i] !== '"') return null;
+  if (i >= text.length) return null;
+  const quote = text[i];
+  if (quote !== '"' && quote !== "'") return null;
 
   let j = i + 1;
   while (j < text.length) {
@@ -319,7 +321,7 @@ function readQuotedString(
       j += 2;
       continue;
     }
-    if (text[j] === '"') {
+    if (text[j] === quote) {
       return { value: unescapeString(text.slice(i + 1, j)), end: j + 1 };
     }
     j++;
@@ -400,7 +402,7 @@ function parseNode(
     const valueStart = i + propMatch[0].length;
     const valueIndex = skipWhitespace(body, valueStart);
 
-    const value = readPropertyValue(body, valueIndex);
+    const value = readPropertyValue(body, valueIndex, key);
     if (value !== null) {
       properties[key] = value.value;
       i = value.end;
@@ -482,9 +484,10 @@ export function collectReferencedIds(nodes: ParsedNode[]): Set<string> {
 
 function parseKeyValueBlock(body: string): Record<string, string> {
   const result: Record<string, string> = {};
-  const pairs = body.matchAll(/(\w+)\s*:\s*"([^"]*)"/g);
+  const pairs = body.matchAll(/(\w+)\s*:\s*(?:"([^"]*)"|'([^']*)'|([#a-zA-Z0-9_-]+))/g);
   for (const match of pairs) {
-    result[match[1]] = unescapeString(match[2]);
+    const val = match[2] ?? match[3] ?? match[4];
+    result[match[1]] = unescapeString(val);
   }
   return result;
 }
@@ -586,39 +589,104 @@ function readArrayValue(
   return null;
 }
 
+const KNOWN_COLOR_KEYWORDS = new Set([
+  'aliceblue', 'antiquewhite', 'aqua', 'aquamarine', 'azure', 'beige', 'bisque',
+  'black', 'blanchedalmond', 'blue', 'blueviolet', 'brown', 'burlywood', 'cadetblue',
+  'chartreuse', 'chocolate', 'coral', 'cornflowerblue', 'cornsilk', 'crimson', 'cyan',
+  'darkblue', 'darkcyan', 'darkgoldenrod', 'darkgray', 'darkgreen', 'darkgrey',
+  'darkkhaki', 'darkmagenta', 'darkolivegreen', 'darkorange', 'darkorchid', 'darkred',
+  'darksalmon', 'darkseagreen', 'darkslateblue', 'darkslategray', 'darkslategrey',
+  'darkturquoise', 'darkviolet', 'deeppink', 'deepskyblue', 'dimgray', 'dimgrey',
+  'dodgerblue', 'firebrick', 'floralwhite', 'forestgreen', 'fuchsia', 'gainsboro',
+  'ghostwhite', 'gold', 'goldenrod', 'gray', 'green', 'greenyellow', 'grey',
+  'honeydew', 'hotpink', 'indianred', 'indigo', 'ivory', 'khaki', 'lavender',
+  'lavenderblush', 'lawngreen', 'lemonchiffon', 'lightblue', 'lightcoral', 'lightcyan',
+  'lightgoldenrodyellow', 'lightgray', 'lightgreen', 'lightgrey', 'lightpink',
+  'lightsalmon', 'lightseagreen', 'lightskyblue', 'lightslategray', 'lightslategrey',
+  'lightsteelblue', 'lightyellow', 'lime', 'limegreen', 'linen', 'magenta', 'maroon',
+  'mediumaquamarine', 'mediumblue', 'mediumorchid', 'mediumpurple', 'mediumseagreen',
+  'mediumslateblue', 'mediumspringgreen', 'mediumturquoise', 'mediumvioletred',
+  'midnightblue', 'mintcream', 'mistyrose', 'moccasin', 'navajowhite', 'navy',
+  'oldlace', 'olive', 'olivedrab', 'orange', 'orangered', 'orchid', 'palegoldenrod',
+  'palegreen', 'paleturquoise', 'palevioletred', 'papayawhip', 'peachpuff', 'peru',
+  'pink', 'plum', 'powderblue', 'purple', 'rebeccapurple', 'red', 'rosybrown',
+  'royalblue', 'saddlebrown', 'salmon', 'sandybrown', 'seagreen', 'seashell',
+  'sienna', 'silver', 'skyblue', 'slateblue', 'slategray', 'slategrey', 'snow',
+  'springgreen', 'steelblue', 'tan', 'teal', 'thistle', 'tomato', 'turquoise',
+  'violet', 'wheat', 'white', 'whitesmoke', 'yellow', 'yellowgreen', 'transparent', 'none',
+  'amber', 'emerald', 'zinc', 'slate'
+]);
+
+const KNOWN_STRING_PROPERTIES = new Set([
+  'color', 'align', 'type', 'tag', 'branch', 'lineStyle', 'routeType',
+  'label', 'doc', 'url', 'hash', 'msg', 'message', 'text', 'attributes',
+  'methods', 'items', 'content', 'theme', 'backgroundColor', 'textColor', 'borderColor'
+]);
+
 function readPropertyValue(
   text: string,
-  start: number
+  start: number,
+  propName?: string
 ): { value: any; end: number } | null {
   const i = skipWhitespace(text, start);
+  if (i >= text.length) return null;
 
   if (text[i] === '{') {
     return readArrayValue(text, i);
   }
 
-  if (text[i] === '"') {
-    let j = i + 1;
-    while (j < text.length) {
-      if (text[j] === '\\') {
-        j += 2;
-        continue;
-      }
-      if (text[j] === '"') {
-        return { value: unescapeString(text.slice(i + 1, j)), end: j + 1 };
-      }
-      j++;
-    }
-    return null;
+  // Quoted strings: "..." or '...'
+  const quoted = readQuotedString(text, i);
+  if (quoted !== null) {
+    return quoted;
   }
 
+  // Hex color codes: #fff, #ff0000, #ff000080
+  const hexMatch = text.slice(i).match(/^#([0-9a-fA-F]{3,8})\b/);
+  if (hexMatch) {
+    return { value: hexMatch[0], end: i + hexMatch[0].length };
+  }
+
+  // CSS functional colors: rgb(...), rgba(...), hsl(...), hsla(...)
+  const cssColorMatch = text.slice(i).match(/^(rgb|rgba|hsl|hsla)\([^)]+\)/i);
+  if (cssColorMatch) {
+    return { value: cssColorMatch[0], end: i + cssColorMatch[0].length };
+  }
+
+  // Booleans
   const boolMatch = text.slice(i).match(/^(true|false)\b/);
   if (boolMatch) {
     return { value: boolMatch[0] === 'true', end: i + boolMatch[0].length };
   }
 
-  const numMatch = text.slice(i).match(/^-?\d+(\.\d+)?/);
+  // Numbers (only if not part of a string identifier like 0-e3a3a20)
+  const numMatch = text.slice(i).match(/^-?\d+(\.\d+)?(?=[\s,;}]|$)/);
   if (numMatch) {
     return { value: parseFloat(numMatch[0]), end: i + numMatch[0].length };
+  }
+
+  // Unquoted keyword, color name, or identifier value (e.g. red, center, merge, dashed, 0-e3a3a20, v1.0)
+  const identMatch = text.slice(i).match(/^([a-zA-Z0-9_.-]+)/);
+  if (identMatch) {
+    const word = identMatch[1];
+    const afterWordIndex = skipWhitespace(text, i + word.length);
+    // If followed by '{', this is a child component definition (e.g. c0: Commit { ... }), NOT a property value!
+    if (afterWordIndex < text.length && text[afterWordIndex] === '{') {
+      return null;
+    }
+
+    const lowerWord = word.toLowerCase();
+    const isColorProp = propName ? propName.toLowerCase().includes('color') : false;
+    const isKnownStrProp = propName ? KNOWN_STRING_PROPERTIES.has(propName) : false;
+
+    if (
+      isColorProp ||
+      isKnownStrProp ||
+      KNOWN_COLOR_KEYWORDS.has(lowerWord) ||
+      ['left', 'right', 'center', 'normal', 'merge', 'highlight', 'reverse', 'solid', 'dashed', 'dotted', 'orthogonal', 'curved', 'straight'].includes(lowerWord)
+    ) {
+      return { value: word, end: i + word.length };
+    }
   }
 
   return null;

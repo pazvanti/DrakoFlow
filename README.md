@@ -95,6 +95,38 @@ AuthService: Cube {
 ```
 Built-in icons include `docker`, `aws`, `postgres`, `gear`, `database`, `web-service`, `redis`, `react`, `node`, `python`, `kubernetes`, `lock`, `user`, `api`, `queue`, `storage`, and `cpu`. Icons automatically adapt to the component's label text color across all themes.
 
+### Layout Flow Directives (`@layout`)
+Control the layout engine and diagram flow using the `@layout` directive:
+- `@layout: left-to-right` (Default) : Standard horizontal sequence & architecture flowchart engine.
+- `@layout: top-to-bottom` : Vertical flow engine.
+- `@layout: git-flow` : Specialized Git Flow visualization engine rendering branch tracks, smooth Bézier merge/fork curves, and slanted commit hash badges.
+
+#### Git Flow DSL Example
+```scss
+@layout: git-flow
+
+Main: Branch {
+  label: "main"
+
+  c0: Commit { hash: "0-e3a3a20" }
+  c3: Commit { type: "merge" }
+  c4: Commit { hash: "4-646b55f" }
+}
+
+Develop: Branch {
+  label: "develop"
+
+  c1: Commit { hash: "1-201f4e4" }
+  c2: Commit { hash: "2-6c2e9d5" }
+}
+
+c0 -> c1
+c1 -> c2
+c2 -> c3
+c0 -> c3
+c3 -> c4
+```
+
 ### Component types
 
 - `Rectangle` : standard box with corner rounding (`rx`, `ry`).
@@ -106,6 +138,12 @@ Built-in icons include `docker`, `aws`, `postgres`, `gear`, `database`, `web-ser
 - `Diamond` : decision gateway for flowcharts.
 - `Hexagon` : domain boundary or special shape.
 - `Process` : process step box with segmented bars.
+- `Branch` : Git branch guide lane for Git Flow diagrams.
+- `Commit` : Git commit node with hash badges, merge double-rings, and release tags.
+- `Table` : grid container representing tabular data.
+- `Class` / `Interface` / `Enum` / `Abstract` / `Struct` / `Object` : UML object-oriented modeling shapes.
+- `Cloud` / `Node` / `Artifact` / `Folder` / `Frame` / `Storage` / `Stack` / `File` / `Card` : Infrastructure and deployment shapes.
+- `Boundary` / `Control` / `Entity` / `Queue` / `Collections` / `Agent` : Robustness and interaction shapes.
 - `SVGImage` : embed vector content via `content`, scalable with `scale`.
 - `RasterImage` : embed base64 raster images (`PNG`, `JPEG`, `GIF`) via `content`.
 

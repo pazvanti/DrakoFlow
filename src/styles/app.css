@@ -987,9 +987,15 @@ body {
 
 /* Editor tokens highlight range styling */
 .hl-active-token {
-  background-color: rgba(96, 165, 250, 0.2);
+  background-color: rgba(96, 165, 250, 0.28);
   border-radius: 2px;
-  box-shadow: inset 0 -1.5px 0 #60a5fa, 0 0 6px rgba(96, 165, 250, 0.35);
+  box-shadow: inset 0 -1.5px 0 #60a5fa, 0 0 8px rgba(96, 165, 250, 0.45);
+}
+
+.gutter-active-line {
+  color: #60a5fa !important;
+  font-weight: 700;
+  text-shadow: 0 0 8px rgba(96, 165, 250, 0.5);
 }
 
 /* Editor Tabs Styles */
@@ -1339,4 +1345,67 @@ body {
     border-color: var(--app-accent-color);
   }
 }
+
+/* ==========================================================================
+   Git Flow Diagram Styles
+   ========================================================================== */
+.git-flow-diagram {
+  animation: fadeIn 0.25s ease-out;
+}
+
+.git-branch-badge {
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
+  transition: transform 0.18s cubic-bezier(0.4, 0, 0.2, 1), filter 0.18s ease;
+}
+
+.git-branch-badge-group:hover .git-branch-badge,
+.git-branch-badge-group.hovered .git-branch-badge {
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.6)) brightness(1.15);
+}
+
+.git-branch-path {
+  transition: stroke-width 0.15s ease, filter 0.15s ease;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+}
+
+.git-branch-path:hover {
+  stroke-width: 6.5px !important;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.5)) brightness(1.2);
+}
+
+.git-commit-node {
+  transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.18s ease;
+  transform-origin: center;
+}
+
+.git-commit-node circle {
+  transition: r 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.18s ease;
+}
+
+.git-commit-node:hover circle:first-child,
+.git-commit-node.hovered circle:first-child {
+  r: 12px;
+  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.4));
+}
+
+.git-commit-hash-badge {
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  user-select: none;
+}
+
+.git-commit-node:hover .git-commit-hash-badge,
+.git-commit-node.hovered .git-commit-hash-badge {
+  opacity: 1 !important;
+}
+
+.git-tag-pill {
+  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.4));
+  user-select: none;
+}
+
+.git-guide-line {
+  pointer-events: none;
+}
+
 

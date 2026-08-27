@@ -282,19 +282,51 @@ export class TableComponent extends BaseComponent<TableProps> {
 
 ---
 
-## 4. Layout & Relationship Engine
+## 4. Layout & Rendering Engine Architecture
 
-Since the DSL does not enforce manual coordinates, the `LayoutEngine` is responsible for computing node positions and drawing routing lines.
+DrakoFlow supports a pluggable, multi-engine layout and rendering architecture managed by `EngineRegistry`.
 
-### Layout Algorithm Specification
-Implement a basic grid-based layout or hierarchical layout (using simplified Sugiyama-style layered placement) to automatically position components.
+```
+                  ┌────────────────────────┐
+                  │     EngineRegistry     │
+                  └───────────┬────────────┘
+                              │
+            ┌─────────────────┴─────────────────┐
+            ▼                                   ▼
+┌─────────────────────────┐         ┌─────────────────────────┐
+│     StandardEngine      │         │      GitFlowEngine      │
+│ (left-to-right /        │         │ (@layout: git-flow /    │
+│  top-to-bottom flows)   │         │  Branch & Commit nodes) │
+└─────────────────────────┘         └─────────────────────────┘
+```
 
-1.  **Node Sizing:** Traverse all parsed components, calculate their minimum bounds using `calculateMinDimensions()`, and assign initial sizes.
-2.  **Node Placement:**
-    *   Separate components into levels based on dependency/relationship direction.
-    *   Assign grid positions (e.g., Layer 0, Layer 1).
-    *   Provide a fallback manual override if a user passes `position: { x, y }` properties inside a component definition block.
-3.  **Port Calculation:** Determine boundary intersection points on components to serve as link attachments (North, South, East, West anchors).
+### Rendering Engine Interface
+Each rendering engine implements the common `RenderingEngine` contract:
+```typescript
+export interface RenderingEngine {
+  readonly id: string;
+  readonly name: string;
+  readonly supportedLayouts: string[];
+  canHandle(document: DslDocument, layoutDirective?: string): boolean;
+  render(context: EngineRenderContext): EngineRenderResult;
+}
+```
+
+### 1. Standard Engine (`left-to-right` / `top-to-bottom`)
+* **Node Sizing:** Traverse parsed components, calculate minimum bounds with `calculateMinDimensions()`.
+* **Placement & Layering:** Hierarchical Sugiyama-style placement computing ranks and coordinate offsets.
+* **Port Calculation & Orthogonal Routing:** Calculates edge connection ports and orthogonal/curved SVG paths between shapes.
+* **Lifelines & Sub-Modules:** Supports vertical sequence lifeline stems and nested activation boxes.
+
+### 2. Git Flow Engine (`@layout: git-flow`)
+* **Branch Lanes:** Sorts horizontal tracks with pill badges for `Branch` components (`main`, `develop`, `feature`) using theme-curated branch palettes.
+* **Commit Steps:** Topological / chronological sort assigning sequential steps $s = 0, 1, 2, \dots$ to `Commit` components along lane axes.
+* **Curved Connections:** Renders smooth quadratic Bézier curves ($R=16$) for branch forks (`M x_u,y_u L x_u,(y_v-R) Q x_u,y_v (x_u+R),y_v L x_v,y_v`) and branch merges into target commit nodes.
+* **Specialized Commit Nodes:**
+  * Standard commits: solid colored circles.
+  * Merge commits: double-ring circles with dark background fills.
+  * Slanted badges: $-45^\circ$ rotated commit hash pills placed under each commit.
+  * Tag badges: pill badges rendered above commits.
 
 ### Relationship Drawing (Routing)
 Lines representing relationships must connect component borders without clipping through other elements.

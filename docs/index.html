@@ -45,6 +45,7 @@
     "description": "DrakoFlow is a lightweight, client-side, text-to-diagram engine that compiles declarative DSL scripts into interactive architecture diagrams.",
     "featureList": [
       "Text-to-diagram compilation",
+      "Git Flow branch & merge diagram engine",
       "Bidirectional drag-and-drop diagram alignment",
       "PlantUML importer and translator",
       "Standalone interactive HTML player exporter",
@@ -1655,6 +1656,15 @@
         <p>Enforce clean layout alignment and pixel-perfect rendering by locking element positions to grid cells with
           customizable sizing.</p>
       </div>
+
+      <!-- Card 10 -->
+      <div class="feature-card">
+        <div class="feature-icon-wrapper">
+          <i class="bi bi-git"></i>
+        </div>
+        <h3>Git Flow & Modular Engines</h3>
+        <p>Pluggable rendering architecture featuring specialized Git Flow branch lanes, smooth quadratic Bézier merge curves, slanted commit hash badges, and custom flow orientations.</p>
+      </div>
     </div>
   </section>
 
@@ -1743,6 +1753,7 @@
         <button class="syntax-tab" data-tab="package">Package (UML)</button>
         <button class="syntax-tab" data-tab="tags">Tags & Filtering</button>
         <button class="syntax-tab" data-tab="relationships">Relationships</button>
+        <button class="syntax-tab" data-tab="gitflow">Git Flow</button>
       </div>
 
       <div class="syntax-content-wrapper">
@@ -1811,7 +1822,7 @@
               <li><i class="bi bi-check-circle-fill"></i> Decorators are placed directly above component definitions
               </li>
               <li><i class="bi bi-check-circle-fill"></i> Interactive filter buttons appear automatically on the preview
-                panel</li>
+              panel</li>
             </ul>
           </div>
           <div class="syntax-code">
@@ -1846,6 +1857,43 @@ AuthService: Cube {
 LEFT -> Client: "External Request"
 Client -> Gateway: "Token verification"
 Gateway -> RIGHT: "Log response"</code></pre>
+          </div>
+        </div>
+
+        <!-- Git Flow Panel -->
+        <div class="syntax-panel" id="panel-gitflow">
+          <div class="syntax-info">
+            <h3>Git Flow & Multi-Component Diagrams</h3>
+            <p>Generate Git branching and merging flows with horizontal branch tracks, curved forks/merges, slanted commit hash badges, and release tags — combined seamlessly with Text, Cards, Containers, and architecture shapes.</p>
+            <ul>
+              <li><i class="bi bi-check-circle-fill"></i> Directive: <code>@layout: git-flow</code></li>
+              <li><i class="bi bi-check-circle-fill"></i> Components: <code>Branch</code>, <code>Commit</code>, plus any <code>Text</code>, <code>VerticalContainer</code>, or Shapes</li>
+              <li><i class="bi bi-check-circle-fill"></i> Commit types: <code>normal</code>, <code>merge</code>, <code>highlight</code>, <code>reverse</code></li>
+            </ul>
+          </div>
+          <div class="syntax-code">
+            <pre><code>@layout: git-flow
+
+Title: Text { label: "Release Pipeline"; x: 40; y: 15 }
+
+Main: Branch {
+  label: "main"
+  c0: Commit { hash: "0-init" }
+  c2: Commit { type: "merge"; tag: "v1.0" }
+}
+Develop: Branch {
+  label: "develop"
+  c1: Commit { hash: "1-feat" }
+}
+c0 -> c1
+c1 -> c2
+c0 -> c2
+
+Notes: VerticalContainer {
+  label: "Policies"
+  x: 40; y: 280
+  Rule: Text { label: "PR required for main" }
+}</code></pre>
           </div>
         </div>
       </div>

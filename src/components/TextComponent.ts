@@ -19,10 +19,15 @@ export class TextComponent extends BaseComponent<TextProps> {
   }
 
   calculateMinDimensions(_theme: ThemeVariables): Dimension {
-    const labelLength = this.props.label ? this.props.label.length : 0;
-    const calculatedWidth = Math.max(40, labelLength * 8);
-    const calculatedHeight = 24;
-    return { width: calculatedWidth, height: calculatedHeight };
+    const rawContent = (this.props.label || '').replace(/\\n/g, '\n');
+    const lines = rawContent.split('\n');
+    const lineHeight = 18;
+    const height = Math.max(24, lines.length * lineHeight);
+    let maxW = 40;
+    lines.forEach(line => {
+      maxW = Math.max(maxW, line.length * 8);
+    });
+    return { width: maxW, height };
   }
 
   render(theme: ThemeVariables): SVGElement {
@@ -50,13 +55,29 @@ export class TextComponent extends BaseComponent<TextProps> {
       }
 
       textElem.setAttribute("x", xStr);
-      textElem.setAttribute("y", (H / 2).toString());
       textElem.setAttribute("fill", text);
       textElem.setAttribute("font-family", font);
       textElem.setAttribute("font-size", "13");
       textElem.setAttribute("text-anchor", anchor);
-      textElem.setAttribute("dominant-baseline", "central");
-      textElem.textContent = this.props.label;
+      
+      const rawContent = (this.props.label || '').replace(/\\n/g, '\n');
+      const lines = rawContent.split('\n');
+      if (lines.length > 1) {
+        const lineHeight = 18;
+        const startY = (H - (lines.length - 1) * lineHeight) / 2;
+        lines.forEach((line, idx) => {
+          const tspan = document.createElementNS("http://www.w3.org/2000/svg", "tspan");
+          tspan.setAttribute("x", xStr);
+          tspan.setAttribute("y", (startY + idx * lineHeight).toString());
+          tspan.setAttribute("dominant-baseline", "central");
+          tspan.textContent = line;
+          textElem.appendChild(tspan);
+        });
+      } else {
+        textElem.setAttribute("y", (H / 2).toString());
+        textElem.setAttribute("dominant-baseline", "central");
+        textElem.textContent = this.props.label;
+      }
       g.appendChild(textElem);
     }
 

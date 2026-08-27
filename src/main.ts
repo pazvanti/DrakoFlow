@@ -13,6 +13,7 @@ import { MarkdownParser } from './utils/MarkdownParser';
 import { MarkdownRenderer } from './utils/MarkdownRenderer';
 import { PlantUmlTranslator } from './utils/PlantUmlTranslator';
 import { getAllRegisteredIcons, createIconSvgElement } from './utils/IconRegistry';
+import { EngineRegistry } from './engine/EngineRegistry';
 import LZString from 'lz-string';
 
 const DEFAULT_DSL = `// Welcome to DrakoFlow!
@@ -1104,10 +1105,19 @@ function updateEditorMetrics(): void {
   const charsCount = code.length;
 
   // Update Gutter
+  let activeStartLine = -1;
+  let activeEndLine = -1;
+  if (activeHighlightRange) {
+    activeStartLine = code.slice(0, activeHighlightRange.start).split('\n').length;
+    activeEndLine = code.slice(0, activeHighlightRange.end).split('\n').length;
+  }
+
   let gutterHtml = '';
   for (let i = 1; i <= linesCount; i++) {
     if (parseErrorLine !== null && i === parseErrorLine) {
       gutterHtml += `<span class="gutter-error-line">${i}</span><br>`;
+    } else if (i >= activeStartLine && i <= activeEndLine) {
+      gutterHtml += `<span class="gutter-active-line">${i}</span><br>`;
     } else {
       gutterHtml += `${i}<br>`;
     }
@@ -1227,7 +1237,13 @@ function renderDiagram(): void {
       throw new Error('No components found in DSL');
     }
 
-    const parsedLayout = dslDocument.layout === 'top-to-bottom' ? 'top-to-bottom' : 'left-to-right';
+    const engine = EngineRegistry.getInstance().getEngine(dslDocument, dslDocument.layout);
+    const parsedLayout = dslDocument.layout === 'top-to-bottom'
+      ? 'top-to-bottom'
+      : (dslDocument.layout === 'git-flow' || engine.id === 'git-flow')
+      ? 'git-flow'
+      : 'left-to-right';
+
     if (layoutSelect) {
       layoutSelect.value = parsedLayout;
     }
@@ -1335,152 +1351,46 @@ function renderDiagram(): void {
       });
     }
 
-    const components = createComponentsFromDsl(displayComponents);
-    layoutRootComponents(components, currentTheme, displayRelationships, parsedLayout);
+    const currentThemeName = themeSelect ? themeSelect.value : 'drako-dark';
 
-    let relLayers: { pathsLayer: SVGGElement; labelsLayer: SVGGElement; lifelinesLayer: SVGGElement } | null = null;
-    if (displayRelationships.length > 0) {
-      relLayers = renderRelationships(
-        displayRelationships,
-        components,
-        currentTheme,
-        diagramSvg,
-        undefined,
-        isDiagramLocked
-      );
-    }
+    const renderResult = engine.render({
+      document: dslDocument,
+      displayComponents,
+      displayRelationships,
+      theme: currentTheme,
+      themeName: currentThemeName,
+      svgElement: diagramSvg,
+      viewportG,
+      isDiagramLocked,
+      rawCode: code,
+      onComponentHover: (componentId) => {
+        if (componentId) {
+          const range = getComponentBlockRange(code, componentId);
+          if (range) {
+            activeHighlightRange = range;
+            updateEditorMetrics();
 
-    viewportG.innerHTML = '';
-
-    if (relLayers && relLayers.lifelinesLayer) {
-      viewportG.appendChild(relLayers.lifelinesLayer);
-    }
-
-    components.forEach((component: BaseComponent) => {
-      const g = component.render(currentTheme);
-      g.classList.add('diagram-component');
-      g.style.cursor = 'grab';
-      g.setAttribute('data-id', component.id);
-      if (component.tags && component.tags.length > 0) {
-        g.setAttribute('data-tags', component.tags.join(','));
-      }
-      if (component.doc) {
-        g.setAttribute('data-doc', component.doc);
-      }
-      if (component.url) {
-        g.setAttribute('data-url', component.url);
-      }
-      if (component.shadow) {
-        g.classList.add('has-shadow');
-      }
-
-      // Highlight declaration in the editor on mouseenter
-      g.addEventListener('mouseenter', () => {
-        const code = editor.value;
-        const range = getComponentBlockRange(code, component.id);
-        if (range) {
-          activeHighlightRange = range;
+            if (editor) {
+              const lineIndex = code.slice(0, range.start).split('\n').length - 1;
+              const lineHeight = 18.5;
+              const targetScrollTop = lineIndex * lineHeight;
+              const editorHeight = editor.clientHeight || 400;
+              if (editor.scrollTop > targetScrollTop || targetScrollTop > editor.scrollTop + editorHeight - 60) {
+                editor.scrollTop = Math.max(0, targetScrollTop - 40);
+                syncEditorScroll();
+              }
+            }
+          }
+        } else {
+          activeHighlightRange = null;
           updateEditorMetrics();
         }
-        g.classList.add('hovered');
-      });
-
-      // Clear highlighting on mouseleave
-      g.addEventListener('mouseleave', () => {
-        activeHighlightRange = null;
-        updateEditorMetrics();
-        g.classList.remove('hovered');
-      });
-
-      let badgeOffset = 24;
-
-      if (component.doc) {
-        const docBadgeG = document.createElementNS("http://www.w3.org/2000/svg", "g");
-        docBadgeG.setAttribute("class", "element-doc-badge");
-        const badgeX = component.bounds.width - badgeOffset;
-        const badgeY = 6;
-        docBadgeG.setAttribute("transform", `translate(${badgeX}, ${badgeY})`);
-        docBadgeG.setAttribute("style", "cursor: pointer;");
-
-        const title = document.createElementNS("http://www.w3.org/2000/svg", "title");
-        title.textContent = "View Documentation";
-        docBadgeG.appendChild(title);
-
-        const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-        circle.setAttribute("cx", "9");
-        circle.setAttribute("cy", "9");
-        circle.setAttribute("r", "9");
-        circle.setAttribute("class", "doc-badge-bg");
-        docBadgeG.appendChild(circle);
-
-        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-        path.setAttribute("d", "M6.5 4.5a1 1 0 0 1 1-1h3l2 2v6a1 1 0 0 1-1 1h-5a1 1 0 0 1-1-1v-7z M10.5 3.5v2h2 L10.5 3.5z");
-        path.setAttribute("class", "doc-badge-icon");
-        docBadgeG.appendChild(path);
-
-        docBadgeG.addEventListener('mousedown', (e) => {
-          e.stopPropagation();
-        });
-        docBadgeG.addEventListener('click', (e) => {
-          e.stopPropagation();
-          showDocumentationModal(component);
-        });
-
-        g.appendChild(docBadgeG);
-        badgeOffset += 20;
-      }
-
-      if (component.url) {
-        const urlBadgeG = document.createElementNS("http://www.w3.org/2000/svg", "g");
-        urlBadgeG.setAttribute("class", "element-url-badge");
-        const badgeX = component.bounds.width - badgeOffset;
-        const badgeY = 6;
-        urlBadgeG.setAttribute("transform", `translate(${badgeX}, ${badgeY})`);
-        urlBadgeG.setAttribute("style", "cursor: pointer;");
-
-        const title = document.createElementNS("http://www.w3.org/2000/svg", "title");
-        title.textContent = `Open Link: ${component.url}`;
-        urlBadgeG.appendChild(title);
-
-        const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-        circle.setAttribute("cx", "9");
-        circle.setAttribute("cy", "9");
-        circle.setAttribute("r", "9");
-        circle.setAttribute("class", "url-badge-bg");
-        urlBadgeG.appendChild(circle);
-
-        const iconG = document.createElementNS("http://www.w3.org/2000/svg", "g");
-        iconG.setAttribute("class", "url-badge-icon");
-        
-        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-        path.setAttribute("d", "M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71 M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71");
-        path.setAttribute("transform", "scale(0.75)");
-        
-        iconG.appendChild(path);
-        urlBadgeG.appendChild(iconG);
-
-        urlBadgeG.addEventListener('mousedown', (e) => {
-          e.stopPropagation();
-        });
-        urlBadgeG.addEventListener('click', (e) => {
-          e.stopPropagation();
-          window.open(component.url, '_blank');
-        });
-
-        g.appendChild(urlBadgeG);
-      }
-
-      viewportG.appendChild(g);
+      },
+      showDocumentationModal
     });
 
-    if (relLayers) {
-      viewportG.appendChild(relLayers.pathsLayer);
-      viewportG.appendChild(relLayers.labelsLayer);
-    }
-
-    // Save rendering state globally for drag & drop
-    currentComponents = components;
-    currentDisplayRelationships = displayRelationships;
+    currentComponents = renderResult.components;
+    currentDisplayRelationships = renderResult.relationships;
 
     statusText.innerHTML = '<i class="bi bi-check-circle-fill"></i> Parsed & Rendered Successfully';
     statusText.className = 'd-flex align-items-center gap-1.5 text-success';
@@ -1506,6 +1416,14 @@ function renderDiagram(): void {
 editor.addEventListener('input', () => {
   updateEditorMetrics();
   renderDiagram();
+  syncEditorCursorToDiagram();
+});
+
+editor.addEventListener('click', syncEditorCursorToDiagram);
+editor.addEventListener('keyup', (e: KeyboardEvent) => {
+  if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Home', 'End', 'PageUp', 'PageDown'].includes(e.key)) {
+    syncEditorCursorToDiagram();
+  }
 });
 
 editor.addEventListener('scroll', syncEditorScroll);
@@ -1615,31 +1533,130 @@ function findRootComponentElement(target: EventTarget | null): SVGGElement | nul
   return null;
 }
 
+function findMatchingBlockClose(text: string, openIndex: number): number {
+  let depth = 0;
+  let i = openIndex;
+
+  while (i < text.length) {
+    if (text[i] === '/' && text[i + 1] === '/') {
+      i += 2;
+      while (i < text.length && text[i] !== '\n') i++;
+      continue;
+    }
+    if (text[i] === '/' && text[i + 1] === '*') {
+      const close = text.indexOf('*/', i + 2);
+      if (close === -1) return -1;
+      i = close + 2;
+      continue;
+    }
+    if (text[i] === '"' || text[i] === "'") {
+      const quote = text[i];
+      i++;
+      while (i < text.length) {
+        if (text[i] === '\\') {
+          i += 2;
+          continue;
+        }
+        if (text[i] === quote) {
+          i++;
+          break;
+        }
+        i++;
+      }
+      continue;
+    }
+
+    if (text[i] === '{') depth++;
+    else if (text[i] === '}') {
+      depth--;
+      if (depth === 0) return i;
+    }
+    i++;
+  }
+  return -1;
+}
+
 function getComponentBlockRange(code: string, compId: string): { start: number; end: number } | null {
-  const declPattern = new RegExp(`\\b${compId}\\s*:\\s*([a-zA-Z_]\\w*)\\s*\\{`);
+  const escapedId = compId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const declPattern = new RegExp(`(^|\\n|\\s)(${escapedId})\\s*:\\s*([a-zA-Z_]\\w*)(\\s*\\{)?`);
   const match = code.match(declPattern);
   if (!match) return null;
 
-  const start = match.index!;
-  const bodyStart = start + match[0].length - 1; // index of '{'
+  const prefixLen = match[1].length;
+  const start = match.index! + prefixLen;
 
-  // Find matching closing brace
-  let depth = 0;
-  let closeBraceIndex = -1;
-  for (let idx = bodyStart; idx < code.length; idx++) {
-    if (code[idx] === '{') {
-      depth++;
-    } else if (code[idx] === '}') {
-      depth--;
-      if (depth === 0) {
-        closeBraceIndex = idx;
-        break;
-      }
-    }
+  let blockStart = start;
+  const beforeText = code.slice(0, start);
+  const tagMatch = beforeText.match(/(@[a-zA-Z_]\w*\s*:\s*\[[^\]]*\]\s*[\r\n]+)\s*$/);
+  if (tagMatch) {
+    blockStart = start - tagMatch[1].length;
   }
 
-  if (closeBraceIndex === -1) return null;
-  return { start, end: closeBraceIndex + 1 };
+  if (match[4] && match[4].includes('{')) {
+    const bodyStart = start + (match[0].length - prefixLen) - 1;
+    const closeBraceIndex = findMatchingBlockClose(code, bodyStart);
+    if (closeBraceIndex !== -1) {
+      return { start: blockStart, end: closeBraceIndex + 1 };
+    }
+  } else {
+    const lineEnd = code.indexOf('\n', start);
+    return { start: blockStart, end: lineEnd === -1 ? code.length : lineEnd };
+  }
+
+  return null;
+}
+
+function findComponentIdAtCursor(code: string, cursorPos: number): string | null {
+  if (!currentComponents || currentComponents.length === 0) return null;
+
+  const allComps: BaseComponent[] = [];
+  const collect = (comps: BaseComponent[]) => {
+    comps.forEach(c => {
+      allComps.push(c);
+      if (c.children && c.children.length > 0) collect(c.children);
+    });
+  };
+  collect(currentComponents);
+
+  let bestCompId: string | null = null;
+  let smallestRange = Infinity;
+
+  allComps.forEach(comp => {
+    const range = getComponentBlockRange(code, comp.id);
+    if (range && cursorPos >= range.start && cursorPos <= range.end) {
+      const rangeLen = range.end - range.start;
+      if (rangeLen < smallestRange) {
+        smallestRange = rangeLen;
+        bestCompId = comp.id;
+      }
+    }
+  });
+
+  return bestCompId;
+}
+
+let lastHighlightedFromCursor: string | null = null;
+
+function syncEditorCursorToDiagram(): void {
+  if (activeHighlightRange !== null) return;
+  const code = editor.value;
+  const cursorPos = editor.selectionStart;
+  const compId = findComponentIdAtCursor(code, cursorPos);
+
+  if (compId === lastHighlightedFromCursor) return;
+  lastHighlightedFromCursor = compId;
+
+  document.querySelectorAll('.diagram-component.hovered, .git-commit-node.hovered, .git-branch-badge-group.hovered').forEach(el => {
+    el.classList.remove('hovered');
+  });
+
+  if (compId) {
+    const targetEl = document.getElementById(compId) || 
+      document.querySelector(`[data-id="${compId}"]`);
+    if (targetEl) {
+      targetEl.classList.add('hovered');
+    }
+  }
 }
 
 function updateLockStateUI(): void {
@@ -2160,15 +2177,81 @@ function hasManualPositions(components: ParsedNode[]): boolean {
 
 if (layoutSelect) {
   layoutSelect.addEventListener('change', () => {
-    const selectedLayout = layoutSelect.value as 'left-to-right' | 'top-to-bottom';
+    const selectedLayout = layoutSelect.value as 'left-to-right' | 'top-to-bottom' | 'git-flow';
     let code = editor.value;
+
+    if (selectedLayout === 'git-flow' && (code.trim() === '' || code.trim() === DEFAULT_DSL.trim())) {
+      const gitFlowBoilerplate = `@layout: git-flow
+
+Main: Branch {
+  label: "main"
+  color: #ff0000
+
+  c0: Commit {
+    hash: "0-e3a3a20"
+  }
+  c3: Commit {
+    type: "merge"
+  }
+  c4: Commit {
+    hash: "4-646b55f"
+  }
+  c7: Commit {
+    type: "merge"
+  }
+}
+
+Develop: Branch {
+  label: "develop"
+
+  c1: Commit {
+    hash: "1-201f4e4"
+  }
+  c2: Commit {
+    hash: "2-6c2e9d5"
+    message: "A simple test message"
+    type: "reverse"
+    tag: "tag1.0.0"
+  }
+}
+
+Feature: Branch {
+  label: "feature"
+
+  c5: Commit {
+    hash: "5-71f2792"
+  }
+  c6: Commit {
+    hash: "6-e534d9"
+  }
+}
+
+c0 -> c1
+c1 -> c2
+c2 -> c3
+c0 -> c3
+c3 -> c4
+c4 -> c5
+c5 -> c6
+c6 -> c7
+c4 -> c7
+`;
+      editor.value = gitFlowBoilerplate;
+      renderDiagram();
+      return;
+    }
+
     try {
       const doc = parseDslDocument(code);
       if (hasManualPositions(doc.components)) {
         const proceed = confirm("Changing the layout algorithm will override your manual element positions. Do you want to proceed?");
         if (!proceed) {
           // Revert selection
-          const parsedLayout = doc.layout === 'top-to-bottom' ? 'top-to-bottom' : 'left-to-right';
+          const parsedLayout = doc.layout === 'top-to-bottom'
+            ? 'top-to-bottom'
+            : doc.layout === 'git-flow'
+            ? 'git-flow'
+            : 'left-to-right';
           layoutSelect.value = parsedLayout;
           return;
         }
@@ -3032,7 +3115,8 @@ if (btnDoExportHtml) {
         includeMinimap,
         components: currentComponents,
         relationships: currentDisplayRelationships,
-        themeName: selectedThemeKey
+        themeName: selectedThemeKey,
+        bbox: { x: minX, y: minY, width: exportWidth, height: exportHeight }
       });
 
       // Restore the original user theme and tags in active app

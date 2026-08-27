@@ -10,6 +10,7 @@ export interface HTMLPlayerExportOptions {
   components: BaseComponent[];
   relationships: ParsedRelationship[];
   themeName: string;
+  bbox?: { x: number; y: number; width: number; height: number };
 }
 
 function isDarkColor(hexColor: string): boolean {
@@ -51,6 +52,79 @@ function findImmediateParent(targetId: string, rootComponents: BaseComponent[]):
   return null;
 }
 
+function findMatchingBlockClose(text: string, openIndex: number): number {
+  let depth = 0;
+  let i = openIndex;
+
+  while (i < text.length) {
+    if (text[i] === '/' && text[i + 1] === '/') {
+      i += 2;
+      while (i < text.length && text[i] !== '\n') i++;
+      continue;
+    }
+    if (text[i] === '/' && text[i + 1] === '*') {
+      const close = text.indexOf('*/', i + 2);
+      if (close === -1) return -1;
+      i = close + 2;
+      continue;
+    }
+    if (text[i] === '"' || text[i] === "'") {
+      const quote = text[i];
+      i++;
+      while (i < text.length) {
+        if (text[i] === '\\') {
+          i += 2;
+          continue;
+        }
+        if (text[i] === quote) {
+          i++;
+          break;
+        }
+        i++;
+      }
+      continue;
+    }
+
+    if (text[i] === '{') depth++;
+    else if (text[i] === '}') {
+      depth--;
+      if (depth === 0) return i;
+    }
+    i++;
+  }
+  return -1;
+}
+
+function getComponentBlockRange(code: string, compId: string): { start: number; end: number } | null {
+  const escapedId = compId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const declPattern = new RegExp(`(^|\\n|\\s)(${escapedId})\\s*:\\s*([a-zA-Z_]\\w*)(\\s*\\{)?`);
+  const match = code.match(declPattern);
+  if (!match) return null;
+
+  const prefixLen = match[1].length;
+  const start = match.index! + prefixLen;
+
+  let blockStart = start;
+  const beforeText = code.slice(0, start);
+  const tagMatch = beforeText.match(/(@[a-zA-Z_]\w*\s*:\s*\[[^\]]*\]\s*[\r\n]+)\s*$/);
+  if (tagMatch) {
+    blockStart = start - tagMatch[1].length;
+  }
+
+  if (match[4] && match[4].includes('{')) {
+    const bodyStart = start + (match[0].length - prefixLen) - 1;
+    const closeBraceIndex = findMatchingBlockClose(code, bodyStart);
+    if (closeBraceIndex !== -1) {
+      return { start: blockStart, end: closeBraceIndex + 1 };
+    }
+  } else {
+    const lineEnd = code.indexOf('\n', start);
+    return { start: blockStart, end: lineEnd === -1 ? code.length : lineEnd };
+  }
+
+  return null;
+}
+
 export function exportToHTML(
   svgMarkup: string,
   theme: ThemeVariables,
@@ -75,6 +149,24 @@ export function exportToHTML(
   // Pre-highlight the DSL code
   const highlightedCode = highlightDSL(dslCode).html;
 
+  // Pre-calculate component highlight variations
+  const allComps: BaseComponent[] = [];
+  const collect = (comps: BaseComponent[]) => {
+    comps.forEach(c => {
+      allComps.push(c);
+      if (c.children && c.children.length > 0) collect(c.children);
+    });
+  };
+  collect(options.components);
+
+  const componentHighlightMap: Record<string, string> = {};
+  allComps.forEach(comp => {
+    const range = getComponentBlockRange(dslCode, comp.id);
+    if (range) {
+      componentHighlightMap[comp.id] = highlightDSL(dslCode, range).html;
+    }
+  });
+
   // Build component list metadata
   const componentsMetadata = options.components.map(comp => ({
     id: comp.id,
@@ -90,6 +182,40 @@ export function exportToHTML(
 
   // Get all unique tags
   const allTags = Array.from(new Set(options.components.flatMap(c => c.tags || []))).sort();
+
+  // Extract initial bbox from options or viewBox attribute
+  let initialBBox: { x: number; y: number; width: number; height: number } | null = options.bbox || null;
+  if (!initialBBox) {
+    const vbMatch = svgMarkup.match(/viewBox=["']([^"']+)["']/i);
+    if (vbMatch) {
+      const parts = vbMatch[1].trim().split(/[\s,]+/).map(Number);
+      if (parts.length === 4 && !parts.some(isNaN) && parts[2] > 0 && parts[3] > 0) {
+        initialBBox = { x: parts[0], y: parts[1], width: parts[2], height: parts[3] };
+      }
+    }
+  }
+
+  // Normalize SVG Markup: ensure .diagram-svg, #diagram-svg, #viewport-g, and clean viewBox for full interactive canvas
+  let normalizedSvg = svgMarkup.trim();
+  if (!/class=["'][^"']*diagram-svg[^"']*["']/i.test(normalizedSvg)) {
+    if (/class=["'][^"']*["']/i.test(normalizedSvg)) {
+      normalizedSvg = normalizedSvg.replace(/class=(["'])([^"']*)(["'])/i, 'class=$1$2 diagram-svg$3');
+    } else {
+      normalizedSvg = normalizedSvg.replace(/<svg\b/i, '<svg class="diagram-svg"');
+    }
+  }
+  if (!/id=["'][^"']*diagram-svg[^"']*["']/i.test(normalizedSvg)) {
+    if (!/id=["'][^"']*["']/i.test(normalizedSvg)) {
+      normalizedSvg = normalizedSvg.replace(/<svg\b/i, '<svg id="diagram-svg"');
+    }
+  }
+  if (!/id=["']viewport-g["']/i.test(normalizedSvg)) {
+    normalizedSvg = normalizedSvg.replace(/(<svg\b[^>]*>[\s\S]*?)<g\b/i, (match, prefix) => {
+      return `${prefix}<g id="viewport-g"`;
+    });
+  }
+  // Strip viewBox from the canvas SVG so it can pan and zoom across the full infinite viewport
+  normalizedSvg = normalizedSvg.replace(/\s*viewBox=["'][^"']*["']/i, '');
 
   return `<!DOCTYPE html>
 <html lang="en" data-bs-theme="${isThemeDark ? 'dark' : 'light'}">
@@ -139,9 +265,6 @@ export function exportToHTML(
       height: 100%;
       overflow: hidden;
       position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
       background-color: var(--diagram-bg);
       background-image: radial-gradient(var(--diagram-dot-color) 1.2px, transparent 1.2px);
       background-size: 20px 20px;
@@ -153,11 +276,11 @@ export function exportToHTML(
       cursor: grabbing;
     }
     
+    .diagram-canvas-container svg,
     .diagram-svg {
       width: 100%;
       height: 100%;
       display: block;
-      transform-origin: center;
       overflow: visible;
     }
     
@@ -329,6 +452,11 @@ export function exportToHTML(
     .hl-color { color: #2ac3de; }
     .hl-decorator { color: #f7768e; font-style: italic; }
     .hl-accessor { color: #4ade80; font-weight: bold; }
+    .hl-active-token {
+      background-color: rgba(96, 165, 250, 0.28);
+      border-radius: 2px;
+      box-shadow: inset 0 -1.5px 0 #60a5fa, 0 0 8px rgba(96, 165, 250, 0.45);
+    }
     
     /* Directional Line Flow Animations */
     @keyframes drakoflow-dash-flow {
@@ -344,14 +472,16 @@ export function exportToHTML(
     .diagram-component {
       transition: filter 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    .diagram-component:hover {
-      filter: drop-shadow(0 0 8px rgba(96, 165, 250, 0.4));
+    .diagram-component:hover, .diagram-component.hovered,
+    .git-commit-node.hovered circle:first-child,
+    .git-branch-badge-group.hovered .git-branch-badge {
+      filter: drop-shadow(0 0 10px rgba(96, 165, 250, 0.6)) !important;
     }
     .diagram-component.has-shadow {
       filter: var(--element-shadow);
     }
-    .diagram-component.has-shadow:hover {
-      filter: var(--element-shadow) drop-shadow(0 0 8px rgba(96, 165, 250, 0.4));
+    .diagram-component.has-shadow:hover, .diagram-component.has-shadow.hovered {
+      filter: var(--element-shadow) drop-shadow(0 0 10px rgba(96, 165, 250, 0.6)) !important;
     }
     
     .element-doc-badge {
@@ -538,6 +668,9 @@ export function exportToHTML(
     <button id="btn-zoom-reset" class="btn-control" title="Reset Zoom">
       <i class="bi bi-arrow-counterclockwise"></i>
     </button>
+    <button id="btn-zoom-fit" class="btn-control" title="Fit to Screen">
+      <i class="bi bi-arrows-angle-expand"></i>
+    </button>
     ${options.includeMinimap ? `
     <button id="btn-toggle-minimap" class="btn-control" title="Toggle Minimap">
       <i class="bi bi-map-fill text-primary"></i>
@@ -560,7 +693,7 @@ export function exportToHTML(
     <div class="panel-header d-flex justify-content-between align-items-center">
       <h5 class="m-0 text-white"><i class="bi bi-code-square text-primary me-2"></i> DSL Code</h5>
       <div class="d-flex align-items-center gap-2">
-        <button id="btn-copy-code" class="btn btn-outline-light btn-sm py-0.5 px-2" style="font-size: 0.75rem;" title="Copy Code">
+        <button id="btn-copy-code" class="btn-outline-light btn btn-sm py-0.5 px-2" style="font-size: 0.75rem;" title="Copy Code">
           <i class="bi bi-copy"></i> Copy
         </button>
         <button id="btn-close-code" class="btn-close btn-close-white" aria-label="Close"></button>
@@ -573,7 +706,7 @@ export function exportToHTML(
 
   <!-- Interactive Graphic Canvas -->
   <div id="canvas-container" class="diagram-canvas-container">
-    ${svgMarkup}
+    ${normalizedSvg}
   </div>
 
   <!-- Attribution Badge -->
@@ -614,15 +747,29 @@ export function exportToHTML(
       const relationships = ${JSON.stringify(relationshipsMetadata)};
       const allTags = ${JSON.stringify(allTags)};
       const docsData = ${JSON.stringify(docsMap)};
+      const initialBBox = ${JSON.stringify(initialBBox)};
       
       const canvasContainer = document.getElementById('canvas-container');
-      const diagramSvg = document.querySelector('.diagram-svg');
-      const viewportG = document.getElementById('viewport-g');
+      const diagramSvg = document.querySelector('.diagram-svg') || document.querySelector('#canvas-container svg') || document.querySelector('svg');
+      const viewportG = document.getElementById('viewport-g') || (diagramSvg ? diagramSvg.querySelector('g') : null);
       
       let zoomLevel = 1.0;
       let panOffset = { x: 0, y: 0 };
       let isPanning = false;
       let startPan = { x: 0, y: 0 };
+      
+      // Minimap state & elements
+      let isMinimapVisible = ${options.includeMinimap ? 'true' : 'false'};
+      const MINIMAP_WIDTH = 180;
+      const MINIMAP_HEIGHT = 120;
+      let currentMinimapScale = 1.0;
+      let currentMinimapDx = 0;
+      let currentMinimapDy = 0;
+      const minimapContainer = document.getElementById('minimap-container');
+      const minimapSvg = document.getElementById('minimap-svg');
+      const minimapContentG = document.getElementById('minimap-content-g');
+      const minimapViewportRect = document.getElementById('minimap-viewport-rect');
+      const btnToggleMinimap = document.getElementById('btn-toggle-minimap');
       
       // Setup default SVG drag styling
       if (diagramSvg) {
@@ -637,6 +784,53 @@ export function exportToHTML(
         if (typeof updateMinimapViewportRect === 'function') {
           updateMinimapViewportRect();
         }
+      }
+
+      function fitToScreen() {
+        if (!viewportG || !canvasContainer) return;
+        const oldTransform = viewportG.getAttribute('transform');
+        viewportG.removeAttribute('transform');
+        let bbox = null;
+        try {
+          const b = viewportG.getBBox();
+          if (b && b.width > 0 && b.height > 0) {
+            bbox = b;
+          }
+        } catch (e) {}
+
+        if (!bbox && initialBBox && initialBBox.width > 0) {
+          bbox = initialBBox;
+        }
+
+        if (oldTransform) {
+          viewportG.setAttribute('transform', oldTransform);
+        }
+
+        if (!bbox || bbox.width === 0 || bbox.height === 0) {
+          zoomLevel = 1.0;
+          panOffset = { x: 0, y: 0 };
+          applyTransformations();
+          return;
+        }
+
+        const containerWidth = canvasContainer.clientWidth || window.innerWidth || 800;
+        const containerHeight = canvasContainer.clientHeight || window.innerHeight || 600;
+
+        const padding = 80;
+        const scaleX = (containerWidth - padding) / bbox.width;
+        const scaleY = (containerHeight - padding) / bbox.height;
+
+        zoomLevel = Math.max(0.2, Math.min(scaleX, scaleY, 1.5));
+
+        const centerX = bbox.x + bbox.width / 2;
+        const centerY = bbox.y + bbox.height / 2;
+
+        panOffset = {
+          x: containerWidth / 2 - centerX * zoomLevel,
+          y: containerHeight / 2 - centerY * zoomLevel
+        };
+
+        applyTransformations();
       }
 
       // Drag to Pan
@@ -705,12 +899,15 @@ export function exportToHTML(
         applyTransformations();
       });
 
+      const btnZoomFit = document.getElementById('btn-zoom-fit');
+      if (btnZoomFit) {
+        btnZoomFit.addEventListener('click', fitToScreen);
+      }
+
       window.addEventListener('load', function() {
-        zoomLevel = 1.0;
-        panOffset = { x: 0, y: 0 };
-        applyTransformations();
+        fitToScreen();
         if (typeof updateMinimapContent === 'function') {
-          updateMinimapContent();
+          setTimeout(updateMinimapContent, 50);
         }
       });
 
@@ -719,6 +916,11 @@ export function exportToHTML(
           updateMinimapContent();
         }
       });
+
+      // Execute fitToScreen immediately as well
+      fitToScreen();
+      setTimeout(fitToScreen, 50);
+      setTimeout(fitToScreen, 200);
 
       // view code sidebar panel toggle
       const btnToggleCode = document.getElementById('btn-toggle-code');
@@ -762,6 +964,38 @@ export function exportToHTML(
           }
         });
       }
+
+      // Bi-directional Highlighting between Diagram and Code Panel
+      const defaultHighlightedCode = ${JSON.stringify(highlightedCode)};
+      const componentHighlights = ${JSON.stringify(componentHighlightMap)};
+      const codeContainer = codePanel ? codePanel.querySelector('pre code') : null;
+
+      function highlightCodeForComponent(compId) {
+        if (!codeContainer) return;
+        if (compId && componentHighlights[compId]) {
+          codeContainer.innerHTML = componentHighlights[compId];
+          const activeEl = codeContainer.querySelector('.hl-active-token');
+          if (activeEl && codePanel && !codePanel.classList.contains('collapsed')) {
+            activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        } else {
+          codeContainer.innerHTML = defaultHighlightedCode;
+        }
+      }
+
+      document.querySelectorAll('.diagram-component, .git-branch-badge-group, .git-commit-node').forEach(function(el) {
+        const compId = el.getAttribute('data-id') || el.id;
+        if (compId) {
+          el.addEventListener('mouseenter', function() {
+            el.classList.add('hovered');
+            highlightCodeForComponent(compId);
+          });
+          el.addEventListener('mouseleave', function() {
+            el.classList.remove('hovered');
+            highlightCodeForComponent(null);
+          });
+        }
+      });
 
       // Documentation Modal
       ${options.includeDocs ? `
@@ -945,19 +1179,6 @@ export function exportToHTML(
 
       // Minimap logic
       ${options.includeMinimap ? `
-      let isMinimapVisible = true;
-      const MINIMAP_WIDTH = 180;
-      const MINIMAP_HEIGHT = 120;
-      let currentMinimapScale = 1.0;
-      let currentMinimapDx = 0;
-      let currentMinimapDy = 0;
-      
-      const minimapContainer = document.getElementById('minimap-container');
-      const minimapSvg = document.getElementById('minimap-svg');
-      const minimapContentG = document.getElementById('minimap-content-g');
-      const minimapViewportRect = document.getElementById('minimap-viewport-rect');
-      const btnToggleMinimap = document.getElementById('btn-toggle-minimap');
-
       function updateMinimapContent() {
         if (!minimapContainer || !minimapContentG || !viewportG || !canvasContainer) return;
         minimapContentG.innerHTML = '';
@@ -965,12 +1186,23 @@ export function exportToHTML(
         // Temporarily reset transform to get accurate bounding box
         const oldTransform = viewportG.getAttribute('transform');
         viewportG.removeAttribute('transform');
-        const bbox = viewportG.getBBox();
+        let bbox = null;
+        try {
+          const b = viewportG.getBBox();
+          if (b && b.width > 0 && b.height > 0) {
+            bbox = b;
+          }
+        } catch (e) {}
+
+        if (!bbox && initialBBox && initialBBox.width > 0) {
+          bbox = initialBBox;
+        }
+
         if (oldTransform) {
           viewportG.setAttribute('transform', oldTransform);
         }
 
-        if (bbox.width === 0 || bbox.height === 0) {
+        if (!bbox || bbox.width === 0 || bbox.height === 0) {
           minimapContainer.classList.add('collapsed');
           return;
         }

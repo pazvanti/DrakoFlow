@@ -418,5 +418,53 @@ A -> MissingComp : "Sends message"`;
       expect(error.line).toBe(3);
     });
   });
+
+  describe('Color and literal parsing', () => {
+    it('parses unquoted hex colors on components and branches', () => {
+      const code = `Main: Branch {
+  label: "main"
+  color: #ff0000
+}`;
+      const nodes = parseDsl(code);
+      expect(nodes).toHaveLength(1);
+      expect(nodes[0].properties.color).toBe('#ff0000');
+    });
+
+    it('parses quoted and single-quoted colors', () => {
+      const code = `B1: Branch {
+  color: "#3b82f6"
+}
+B2: Branch {
+  color: '#22c55e'
+}`;
+      const nodes = parseDsl(code);
+      expect(nodes[0].properties.color).toBe('#3b82f6');
+      expect(nodes[1].properties.color).toBe('#22c55e');
+    });
+
+    it('parses CSS color keywords and functional colors', () => {
+      const code = `B1: Branch {
+  color: red
+}
+B2: Branch {
+  color: rgb(255, 0, 0)
+}`;
+      const nodes = parseDsl(code);
+      expect(nodes[0].properties.color).toBe('red');
+      expect(nodes[1].properties.color).toBe('rgb(255, 0, 0)');
+    });
+
+    it('parses unquoted hex colors in themeOverride', () => {
+      const code = `R: Rectangle {
+  themeOverride: {
+    backgroundColor: #22c55e
+    borderColor: #16a34a
+  }
+}`;
+      const nodes = parseDsl(code);
+      expect(nodes[0].themeOverride.backgroundColor).toBe('#22c55e');
+      expect(nodes[0].themeOverride.borderColor).toBe('#16a34a');
+    });
+  });
 });
 

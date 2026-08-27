@@ -251,9 +251,10 @@
           <select id="layout-select"
             class="form-select form-select-sm bg-dark border-secondary border-opacity-50 text-white"
             style="font-size: 0.75rem; width: 120px; cursor: pointer;"
-            title="Select Layout Direction">
+            title="Select Layout Direction / Engine">
             <option value="left-to-right">Left to Right</option>
             <option value="top-to-bottom">Top to Bottom</option>
+            <option value="git-flow">Git Flow</option>
           </select>
           <button id="btn-edit-theme" class="btn btn-outline-secondary btn-sm d-flex align-items-center justify-content-center" title="Customize Theme" style="font-size: 0.75rem; width: 32px; height: 28px;">
             <i class="bi bi-sliders"></i>
@@ -627,6 +628,15 @@
                 </button>
                 <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-object-tab" data-bs-toggle="pill" data-bs-target="#v-pills-object" type="button" role="tab" aria-controls="v-pills-object" aria-selected="false">
                   <i class="bi bi-box-arrow-in-down-right me-2"></i> Object
+                </button>
+
+                <!-- Git Flow Section -->
+                <div class="nav-label text-muted small text-uppercase fw-bold mb-2 px-3 mt-3">Git Flow Components</div>
+                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-branch-tab" data-bs-toggle="pill" data-bs-target="#v-pills-branch" type="button" role="tab" aria-controls="v-pills-branch" aria-selected="false">
+                  <i class="bi bi-git me-2"></i> Branch
+                </button>
+                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-commit-tab" data-bs-toggle="pill" data-bs-target="#v-pills-commit" type="button" role="tab" aria-controls="v-pills-commit" aria-selected="false">
+                  <i class="bi bi-circle-dot me-2"></i> Commit
                 </button>
               </div>
             </div>
@@ -1820,6 +1830,7 @@ client -> server : "API Request"</pre>
                 <ul class="small text-muted" style="padding-left: 1.25rem;">
                   <li><code>left-to-right</code> (Default) - Elements are arranged horizontally from left to right.</li>
                   <li><code>top-to-bottom</code> - Elements are arranged vertically from top to bottom.</li>
+                  <li><code>git-flow</code> - Specialized Git Flow branching and merging visualization with branch lanes, curved forks/merges, and slanted commit badges using <code>Branch</code> and <code>Commit</code> components.</li>
                 </ul>
               </div>
 
@@ -2505,6 +2516,104 @@ Server [1] -> [0..*] Database : "Fetch items" {
     name = "Alice"
     role = "Admin"
   }
+}</pre>
+              </div>
+
+              <!-- Branch Tab -->
+              <div class="tab-pane fade" id="v-pills-branch" role="tabpanel" aria-labelledby="v-pills-branch-tab">
+                <h4 class="mb-1">Branch Component</h4>
+                <p class="text-muted small">Represents a Git branch guide lane in a Git Flow diagram (<code>@layout: git-flow</code>). Renders horizontal dashed guide tracks and left-aligned branch pill badges with theme-adaptive colors. Fully compatible with other components like <code>Text</code>, <code>VerticalContainer</code>, and architecture shapes.</p>
+                
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Properties</h6>
+                <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
+                  <thead>
+                    <tr>
+                      <th style="width: 25%;">Property</th>
+                      <th style="width: 20%;">Type</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><code>label</code></td>
+                      <td>String</td>
+                      <td>The branch name displayed in the left badge (e.g. <code>"main"</code>, <code>"develop"</code>, <code>"feature"</code>).</td>
+                    </tr>
+                    <tr>
+                      <td><code>order</code></td>
+                      <td>Number</td>
+                      <td>Optional explicit vertical lane index (0 is top-most). If omitted, <code>main</code>/<code>master</code> is placed on lane 0 and others follow declaration order.</td>
+                    </tr>
+                    <tr>
+                      <td><code>color</code></td>
+                      <td>String</td>
+                      <td>Explicit branch color override (Hex/RGB/CSS). If omitted, uses the curated theme branch palette.</td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Example Usage</h6>
+                <pre class="bg-black p-3 rounded font-monospace text-success" style="font-size: 0.75rem;">Main: Branch {
+  label: "main"
+  order: 0
+
+  c0: Commit { hash: "0-init" }
+  c3: Commit { type: "merge" }
+}</pre>
+              </div>
+
+              <!-- Commit Tab -->
+              <div class="tab-pane fade" id="v-pills-commit" role="tabpanel" aria-labelledby="v-pills-commit-tab">
+                <h4 class="mb-1">Commit Component</h4>
+                <p class="text-muted small">Represents an individual commit on a Git branch track. Displays commit circles, slanted -45° commit hash badges, tag pills, and specialized merge double-ring nodes.</p>
+                
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Properties</h6>
+                <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
+                  <thead>
+                    <tr>
+                      <th style="width: 25%;">Property</th>
+                      <th style="width: 20%;">Type</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><code>hash</code></td>
+                      <td>String</td>
+                      <td>Explicit commit hash ID (e.g. <code>"0-e3a3a20"</code>). If omitted, a deterministic hash is automatically generated.</td>
+                    </tr>
+                    <tr>
+                      <td><code>type</code></td>
+                      <td>String</td>
+                      <td>Commit node type style: <code>"normal"</code> (solid circle), <code>"merge"</code> (double-ring node), <code>"highlight"</code> (dashed halo), or <code>"reverse"</code> (revert cross).</td>
+                    </tr>
+                    <tr>
+                      <td><code>tag</code></td>
+                      <td>String</td>
+                      <td>Release tag badge rendered above the commit node (e.g. <code>"v1.0.0"</code>).</td>
+                    </tr>
+                    <tr>
+                      <td><code>branch</code></td>
+                      <td>String</td>
+                      <td>Branch name when declaring flat commits outside of a <code>Branch { ... }</code> container block.</td>
+                    </tr>
+                    <tr>
+                      <td><code>message</code> / <code>msg</code></td>
+                      <td>String</td>
+                      <td>Optional commit message displayed in the commit hover tooltip.</td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Example Usage</h6>
+                <pre class="bg-black p-3 rounded font-monospace text-success" style="font-size: 0.75rem;">c1: Commit {
+  hash: "1-feat"
+  tag: "v1.0"
+  type: "normal"
+}
+
+c2: Commit {
+  type: "merge"
 }</pre>
               </div>
             </div>

@@ -40,6 +40,8 @@ import { AnnotationComponent, AnnotationProps } from '../components/AnnotationCo
 import { StructComponent, StructProps } from '../components/StructComponent';
 import { ObjectComponent, ObjectProps } from '../components/ObjectComponent';
 import { TableComponent, TableProps } from '../components/TableComponent';
+import { BranchComponent, BranchProps } from '../components/BranchComponent';
+import { CommitComponent, CommitProps } from '../components/CommitComponent';
 import { collectReferencedIds, ParsedChildEntry, ParsedNode } from '../dsl/parser';
 import { isComponentType } from '../dsl/componentTypes';
 
@@ -452,6 +454,29 @@ function instantiateFromDefinition(
         headerAtBottom: node.properties.headerAtBottom === true
       };
       component = new TableComponent(metadata, props, themeOverride);
+      break;
+    }
+    case 'Branch': {
+      const props: BranchProps = {
+        label: node.properties.label as string | undefined,
+        order: node.properties.order as number | undefined,
+        color: node.properties.color as string | undefined,
+        gap: node.properties.gap as number | undefined,
+        padding: node.properties.padding as number | undefined
+      };
+      component = new BranchComponent(metadata, props, themeOverride);
+      break;
+    }
+    case 'Commit': {
+      const props: CommitProps = {
+        hash: (node.properties.hash || node.properties.id) as string | undefined,
+        label: (node.properties.label || node.properties.msg || node.properties.message) as string | undefined,
+        tag: node.properties.tag as string | undefined,
+        type: node.properties.type as any,
+        branch: node.properties.branch as string | undefined,
+        color: node.properties.color as string | undefined
+      };
+      component = new CommitComponent(metadata, props, themeOverride);
       break;
     }
     default: {

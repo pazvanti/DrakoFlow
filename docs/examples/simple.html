@@ -44,9 +44,6 @@
       height: 100%;
       overflow: hidden;
       position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
       background-color: var(--diagram-bg);
       background-image: radial-gradient(var(--diagram-dot-color) 1.2px, transparent 1.2px);
       background-size: 20px 20px;
@@ -58,11 +55,11 @@
       cursor: grabbing;
     }
     
+    .diagram-canvas-container svg,
     .diagram-svg {
       width: 100%;
       height: 100%;
       display: block;
-      transform-origin: center;
       overflow: visible;
     }
     
@@ -234,19 +231,36 @@
     .hl-color { color: #2ac3de; }
     .hl-decorator { color: #f7768e; font-style: italic; }
     .hl-accessor { color: #4ade80; font-weight: bold; }
+    .hl-active-token {
+      background-color: rgba(96, 165, 250, 0.28);
+      border-radius: 2px;
+      box-shadow: inset 0 -1.5px 0 #60a5fa, 0 0 8px rgba(96, 165, 250, 0.45);
+    }
     
+    /* Directional Line Flow Animations */
+    @keyframes drakoflow-dash-flow {
+      from { stroke-dashoffset: 16; }
+      to { stroke-dashoffset: 0; }
+    }
+    .drakoflow-animated-flow {
+      stroke-dasharray: 8 8 !important;
+      animation: drakoflow-dash-flow 0.6s linear infinite !important;
+    }
+
     /* SVG Elements styles */
     .diagram-component {
       transition: filter 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    .diagram-component:hover {
-      filter: drop-shadow(0 0 8px rgba(96, 165, 250, 0.4));
+    .diagram-component:hover, .diagram-component.hovered,
+    .git-commit-node.hovered circle:first-child,
+    .git-branch-badge-group.hovered .git-branch-badge {
+      filter: drop-shadow(0 0 10px rgba(96, 165, 250, 0.6)) !important;
     }
     .diagram-component.has-shadow {
       filter: var(--element-shadow);
     }
-    .diagram-component.has-shadow:hover {
-      filter: var(--element-shadow) drop-shadow(0 0 8px rgba(96, 165, 250, 0.4));
+    .diagram-component.has-shadow:hover, .diagram-component.has-shadow.hovered {
+      filter: var(--element-shadow) drop-shadow(0 0 10px rgba(96, 165, 250, 0.6)) !important;
     }
     
     .element-doc-badge {
@@ -433,6 +447,9 @@
     <button id="btn-zoom-reset" class="btn-control" title="Reset Zoom">
       <i class="bi bi-arrow-counterclockwise"></i>
     </button>
+    <button id="btn-zoom-fit" class="btn-control" title="Fit to Screen">
+      <i class="bi bi-arrows-angle-expand"></i>
+    </button>
     
     <button id="btn-toggle-minimap" class="btn-control" title="Toggle Minimap">
       <i class="bi bi-map-fill text-primary"></i>
@@ -455,7 +472,7 @@
     <div class="panel-header d-flex justify-content-between align-items-center">
       <h5 class="m-0 text-white"><i class="bi bi-code-square text-primary me-2"></i> DSL Code</h5>
       <div class="d-flex align-items-center gap-2">
-        <button id="btn-copy-code" class="btn btn-outline-light btn-sm py-0.5 px-2" style="font-size: 0.75rem;" title="Copy Code">
+        <button id="btn-copy-code" class="btn-outline-light btn btn-sm py-0.5 px-2" style="font-size: 0.75rem;" title="Copy Code">
           <i class="bi bi-copy"></i> Copy
         </button>
         <button id="btn-close-code" class="btn-close btn-close-white" aria-label="Close"></button>
@@ -491,9 +508,7 @@ C <span class="hl-operator">&lt;-&gt;</span> A</code></pre>
 
   <!-- Interactive Graphic Canvas -->
   <div id="canvas-container" class="diagram-canvas-container">
-    <svg xmlns="http://www.w3.org/2000/svg" id="diagram-svg" class="diagram-svg" viewBox="40 40 640 236"><defs><marker id="drako-arrowhead-0" viewBox="0 0 10 10" refX="9" refY="5" orient="auto-start-reverse" markerUnits="userSpaceOnUse" markerWidth="16" markerHeight="16"><path d="M 0 0 L 10 5 L 0 10 z" fill="#52525b"/></marker><marker id="drako-arrowhead-1" viewBox="0 0 10 10" refX="9" refY="5" orient="auto-start-reverse" markerUnits="userSpaceOnUse" markerWidth="16" markerHeight="16"><path d="M 0 0 L 10 5 L 0 10 z" fill="#52525b"/></marker><marker id="drako-arrowhead-2" viewBox="0 0 10 10" refX="9" refY="5" orient="auto-start-reverse" markerUnits="userSpaceOnUse" markerWidth="16" markerHeight="16"><path d="M 0 0 L 10 5 L 0 10 z" fill="#52525b"/></marker><marker id="drako-arrowhead-3" viewBox="0 0 10 10" refX="9" refY="5" orient="auto-start-reverse" markerUnits="userSpaceOnUse" markerWidth="16" markerHeight="16"><path d="M 0 0 L 10 5 L 0 10 z" fill="#34d399"/></marker><marker id="drako-arrowhead-4" viewBox="0 0 10 10" refX="9" refY="5" orient="auto-start-reverse" markerUnits="userSpaceOnUse" markerWidth="16" markerHeight="16"><path d="M 0 0 L 10 5 L 0 10 z" fill="#f59e0b"/></marker><marker id="drako-arrowhead-5" viewBox="0 0 10 10" refX="9" refY="5" orient="auto-start-reverse" markerUnits="userSpaceOnUse" markerWidth="16" markerHeight="16"><path d="M 0 0 L 10 5 L 0 10 z" fill="#52525b"/></marker><marker id="drako-arrowhead-6" viewBox="0 0 10 10" refX="9" refY="5" orient="auto-start-reverse" markerUnits="userSpaceOnUse" markerWidth="16" markerHeight="16"><path d="M 0 0 L 10 5 L 0 10 z" fill="#52525b"/></marker><marker id="drako-arrowhead-7" viewBox="0 0 10 10" refX="9" refY="5" orient="auto-start-reverse" markerUnits="userSpaceOnUse" markerWidth="16" markerHeight="16"><path d="M 0 0 L 10 5 L 0 10 z" fill="#52525b"/></marker></defs>
-          <g id="viewport-g"><g id="A" transform="translate(80, 80)" class="diagram-component" data-id="A" style="cursor: grab;"><rect width="100" height="96" fill="#18181b" stroke="#52525b" stroke-width="2" rx="8" ry="8"/><text x="50" y="48" fill="#f4f4f5" font-family="Outfit, system-ui, -apple-system, sans-serif" text-anchor="middle" dominant-baseline="central">A</text></g><g id="B" transform="translate(280, 80)" class="diagram-component" data-id="B" style="cursor: grab;"><path d="M 0 0 H 160 V 64 H 0 Z" fill="#18181b" stroke="#52525b" stroke-width="2" stroke-linejoin="miter"/><line x1="19.2" y1="0" x2="19.2" y2="64" stroke="#52525b" stroke-width="2"/><line x1="140.8" y1="0" x2="140.8" y2="64" stroke="#52525b" stroke-width="2"/><text x="80" y="32" fill="#f4f4f5" font-family="Outfit, system-ui, -apple-system, sans-serif" text-anchor="middle" dominant-baseline="central">B</text></g><g id="C" transform="translate(540, 140)" class="diagram-component" data-id="C" style="cursor: grab;"><rect width="100" height="96" fill="#18181b" stroke="#52525b" stroke-width="2" rx="8" ry="8"/><text x="50" y="48" fill="#f4f4f5" font-family="Outfit, system-ui, -apple-system, sans-serif" text-anchor="middle" dominant-baseline="central">C</text></g><g class="relationship-paths"><path d="M 185.98553452276525 124.10535412015545 L 274.01446547723475 117.98160240158367" fill="none" stroke="#52525b" stroke-width="2" data-source-id="A" data-target-id="B" marker-end="url(#drako-arrowhead-0)"/><path d="M 445.69703432936615 140.31728090883402 L 534.3029656706339 169.59576256942685" fill="none" stroke="#52525b" stroke-width="2" data-source-id="B" data-target-id="C" marker-end="url(#drako-arrowhead-1)"/><path d="M 534.0503975328827 180.7022257651586 L 185.94960246711733 135.2977742348414" fill="none" stroke="#52525b" stroke-width="2" data-source-id="C" data-target-id="A" marker-end="url(#drako-arrowhead-2)" marker-start="url(#drako-arrowhead-2)"/></g><g class="relationship-labels"/></g>
-        </svg>
+    <svg id="diagram-svg" class="diagram-svg"><defs><marker id="drako-arrowhead-0" refX="9" refY="5" orient="auto-start-reverse" markerUnits="userSpaceOnUse" markerWidth="16" markerHeight="16"><path d="M 0 0 L 10 5 L 0 10 z" fill="#52525b"></path></marker><marker id="drako-arrowhead-1" viewBox="0 0 10 10" refX="9" refY="5" orient="auto-start-reverse" markerUnits="userSpaceOnUse" markerWidth="16" markerHeight="16"><path d="M 0 0 L 10 5 L 0 10 z" fill="#52525b"></path></marker><marker id="drako-arrowhead-2" viewBox="0 0 10 10" refX="9" refY="5" orient="auto-start-reverse" markerUnits="userSpaceOnUse" markerWidth="16" markerHeight="16"><path d="M 0 0 L 10 5 L 0 10 z" fill="#52525b"></path></marker></defs><g id="viewport-g"><g class="relationship-lifelines"></g><g id="A" transform="translate(80, 80)" class="diagram-component" style="cursor: grab;" data-id="A"><rect width="100" height="96" fill="#18181b" stroke="#52525b" stroke-width="2" rx="8" ry="8"></rect><text x="50" y="48" fill="#f4f4f5" font-family="Outfit, sans-serif" text-anchor="middle" dominant-baseline="central">A</text></g><g id="B" transform="translate(280, 80)" class="diagram-component" style="cursor: grab;" data-id="B"><path d="M 0 0 H 160 V 64 H 0 Z" fill="#18181b" stroke="#52525b" stroke-width="2" stroke-linejoin="miter"></path><line x1="19.2" y1="0" x2="19.2" y2="64" stroke="#52525b" stroke-width="2"></line><line x1="140.8" y1="0" x2="140.8" y2="64" stroke="#52525b" stroke-width="2"></line><text x="80" y="32" fill="#f4f4f5" font-family="Outfit, sans-serif" text-anchor="middle" dominant-baseline="central">B</text></g><g id="C" transform="translate(540, 140)" class="diagram-component" style="cursor: grab;" data-id="C"><rect width="100" height="96" fill="#18181b" stroke="#52525b" stroke-width="2" rx="8" ry="8"></rect><text x="50" y="48" fill="#f4f4f5" font-family="Outfit, sans-serif" text-anchor="middle" dominant-baseline="central">C</text></g><g class="relationship-paths"><path d="M 185.98553452276525 124.10535412015545 L 274.01446547723475 117.98160240158367" fill="none" stroke="#52525b" stroke-width="2" data-source-id="A" data-target-id="B" marker-end="url(#drako-arrowhead-0)"></path><path d="M 445.69703432936615 140.31728090883402 L 534.3029656706339 169.59576256942685" fill="none" stroke="#52525b" stroke-width="2" data-source-id="B" data-target-id="C" marker-end="url(#drako-arrowhead-1)"></path><path d="M 534.0503975328827 180.7022257651586 L 185.94960246711733 135.2977742348414" fill="none" stroke="#52525b" stroke-width="2" data-source-id="C" data-target-id="A" marker-end="url(#drako-arrowhead-2)" marker-start="url(#drako-arrowhead-2)"></path></g><g class="relationship-labels"></g></g></svg>
   </div>
 
   <!-- Attribution Badge -->
@@ -534,15 +549,29 @@ C <span class="hl-operator">&lt;-&gt;</span> A</code></pre>
       const relationships = [{"sourceId":"A","targetId":"B"},{"sourceId":"B","targetId":"C"},{"sourceId":"C","targetId":"A"}];
       const allTags = [];
       const docsData = {};
+      const initialBBox = {"x":80,"y":80,"width":560,"height":156};
       
       const canvasContainer = document.getElementById('canvas-container');
-      const diagramSvg = document.querySelector('.diagram-svg');
-      const viewportG = document.getElementById('viewport-g');
+      const diagramSvg = document.querySelector('.diagram-svg') || document.querySelector('#canvas-container svg') || document.querySelector('svg');
+      const viewportG = document.getElementById('viewport-g') || (diagramSvg ? diagramSvg.querySelector('g') : null);
       
       let zoomLevel = 1.0;
       let panOffset = { x: 0, y: 0 };
       let isPanning = false;
       let startPan = { x: 0, y: 0 };
+      
+      // Minimap state & elements
+      let isMinimapVisible = true;
+      const MINIMAP_WIDTH = 180;
+      const MINIMAP_HEIGHT = 120;
+      let currentMinimapScale = 1.0;
+      let currentMinimapDx = 0;
+      let currentMinimapDy = 0;
+      const minimapContainer = document.getElementById('minimap-container');
+      const minimapSvg = document.getElementById('minimap-svg');
+      const minimapContentG = document.getElementById('minimap-content-g');
+      const minimapViewportRect = document.getElementById('minimap-viewport-rect');
+      const btnToggleMinimap = document.getElementById('btn-toggle-minimap');
       
       // Setup default SVG drag styling
       if (diagramSvg) {
@@ -557,6 +586,53 @@ C <span class="hl-operator">&lt;-&gt;</span> A</code></pre>
         if (typeof updateMinimapViewportRect === 'function') {
           updateMinimapViewportRect();
         }
+      }
+
+      function fitToScreen() {
+        if (!viewportG || !canvasContainer) return;
+        const oldTransform = viewportG.getAttribute('transform');
+        viewportG.removeAttribute('transform');
+        let bbox = null;
+        try {
+          const b = viewportG.getBBox();
+          if (b && b.width > 0 && b.height > 0) {
+            bbox = b;
+          }
+        } catch (e) {}
+
+        if (!bbox && initialBBox && initialBBox.width > 0) {
+          bbox = initialBBox;
+        }
+
+        if (oldTransform) {
+          viewportG.setAttribute('transform', oldTransform);
+        }
+
+        if (!bbox || bbox.width === 0 || bbox.height === 0) {
+          zoomLevel = 1.0;
+          panOffset = { x: 0, y: 0 };
+          applyTransformations();
+          return;
+        }
+
+        const containerWidth = canvasContainer.clientWidth || window.innerWidth || 800;
+        const containerHeight = canvasContainer.clientHeight || window.innerHeight || 600;
+
+        const padding = 80;
+        const scaleX = (containerWidth - padding) / bbox.width;
+        const scaleY = (containerHeight - padding) / bbox.height;
+
+        zoomLevel = Math.max(0.2, Math.min(scaleX, scaleY, 1.5));
+
+        const centerX = bbox.x + bbox.width / 2;
+        const centerY = bbox.y + bbox.height / 2;
+
+        panOffset = {
+          x: containerWidth / 2 - centerX * zoomLevel,
+          y: containerHeight / 2 - centerY * zoomLevel
+        };
+
+        applyTransformations();
       }
 
       // Drag to Pan
@@ -625,12 +701,15 @@ C <span class="hl-operator">&lt;-&gt;</span> A</code></pre>
         applyTransformations();
       });
 
+      const btnZoomFit = document.getElementById('btn-zoom-fit');
+      if (btnZoomFit) {
+        btnZoomFit.addEventListener('click', fitToScreen);
+      }
+
       window.addEventListener('load', function() {
-        zoomLevel = 1.0;
-        panOffset = { x: 0, y: 0 };
-        applyTransformations();
+        fitToScreen();
         if (typeof updateMinimapContent === 'function') {
-          updateMinimapContent();
+          setTimeout(updateMinimapContent, 50);
         }
       });
 
@@ -639,6 +718,11 @@ C <span class="hl-operator">&lt;-&gt;</span> A</code></pre>
           updateMinimapContent();
         }
       });
+
+      // Execute fitToScreen immediately as well
+      fitToScreen();
+      setTimeout(fitToScreen, 50);
+      setTimeout(fitToScreen, 200);
 
       // view code sidebar panel toggle
       const btnToggleCode = document.getElementById('btn-toggle-code');
@@ -682,6 +766,38 @@ C <span class="hl-operator">&lt;-&gt;</span> A</code></pre>
           }
         });
       }
+
+      // Bi-directional Highlighting between Diagram and Code Panel
+      const defaultHighlightedCode = "<span class=\"hl-comment\">// Welcome to DrakoFlow!</span>\n<span class=\"hl-comment\">// Type below to build sequence/flow interactions.</span>\n<span class=\"hl-id\">A </span><span class=\"hl-operator\">:</span> <span class=\"hl-keyword\">Rectangle</span> <span class=\"hl-operator\">{</span>\n  <span class=\"hl-property\">label</span><span class=\"hl-operator\">:</span> <span class=\"hl-string\">&quot;A&quot;</span>\n  <span class=\"hl-property\">rx</span><span class=\"hl-operator\">:</span> <span class=\"hl-number\">8</span>\n  <span class=\"hl-property\">ry</span><span class=\"hl-operator\">:</span> <span class=\"hl-number\">8</span>\n<span class=\"hl-operator\">}</span>\n\n\n<span class=\"hl-id\">B</span><span class=\"hl-operator\">:</span> <span class=\"hl-keyword\">Process</span> <span class=\"hl-operator\">{</span>\n  <span class=\"hl-property\">label</span><span class=\"hl-operator\">:</span> <span class=\"hl-string\">&quot;B&quot;</span>\n<span class=\"hl-operator\">}</span>\n\n<span class=\"hl-id\">C</span><span class=\"hl-operator\">:</span> <span class=\"hl-keyword\">Rectangle</span> <span class=\"hl-operator\">{</span>\n  <span class=\"hl-property\">label</span><span class=\"hl-operator\">:</span> <span class=\"hl-string\">&quot;C&quot;</span>\n  <span class=\"hl-property\">rx</span><span class=\"hl-operator\">:</span> <span class=\"hl-number\">8</span>\n  <span class=\"hl-property\">ry</span><span class=\"hl-operator\">:</span> <span class=\"hl-number\">8</span>\n<span class=\"hl-operator\">}</span>\n\nA <span class=\"hl-operator\">-&gt;</span> B\n\nB <span class=\"hl-operator\">-&gt;</span> C\n\nC <span class=\"hl-operator\">&lt;-&gt;</span> A";
+      const componentHighlights = {"A":"<span class=\"hl-comment\">// Welcome to DrakoFlow!</span>\n<span class=\"hl-comment\">// Type below to build sequence/flow interactions.</span>\n<span class=\"hl-id hl-active-token\">A </span><span class=\"hl-operator hl-active-token\">:</span><span class=\"hl-active-token\"> </span><span class=\"hl-keyword hl-active-token\">Rectangle</span><span class=\"hl-active-token\"> </span><span class=\"hl-operator hl-active-token\">{</span><span class=\"hl-active-token\">\n</span><span class=\"hl-active-token\"> </span><span class=\"hl-active-token\"> </span><span class=\"hl-property hl-active-token\">label</span><span class=\"hl-operator hl-active-token\">:</span><span class=\"hl-active-token\"> </span><span class=\"hl-string hl-active-token\">&quot;A&quot;</span><span class=\"hl-active-token\">\n</span><span class=\"hl-active-token\"> </span><span class=\"hl-active-token\"> </span><span class=\"hl-property hl-active-token\">rx</span><span class=\"hl-operator hl-active-token\">:</span><span class=\"hl-active-token\"> </span><span class=\"hl-number hl-active-token\">8</span><span class=\"hl-active-token\">\n</span><span class=\"hl-active-token\"> </span><span class=\"hl-active-token\"> </span><span class=\"hl-property hl-active-token\">ry</span><span class=\"hl-operator hl-active-token\">:</span><span class=\"hl-active-token\"> </span><span class=\"hl-number hl-active-token\">8</span><span class=\"hl-active-token\">\n</span><span class=\"hl-operator hl-active-token\">}</span>\n\n\n<span class=\"hl-id\">B</span><span class=\"hl-operator\">:</span> <span class=\"hl-keyword\">Process</span> <span class=\"hl-operator\">{</span>\n  <span class=\"hl-property\">label</span><span class=\"hl-operator\">:</span> <span class=\"hl-string\">&quot;B&quot;</span>\n<span class=\"hl-operator\">}</span>\n\n<span class=\"hl-id\">C</span><span class=\"hl-operator\">:</span> <span class=\"hl-keyword\">Rectangle</span> <span class=\"hl-operator\">{</span>\n  <span class=\"hl-property\">label</span><span class=\"hl-operator\">:</span> <span class=\"hl-string\">&quot;C&quot;</span>\n  <span class=\"hl-property\">rx</span><span class=\"hl-operator\">:</span> <span class=\"hl-number\">8</span>\n  <span class=\"hl-property\">ry</span><span class=\"hl-operator\">:</span> <span class=\"hl-number\">8</span>\n<span class=\"hl-operator\">}</span>\n\nA <span class=\"hl-operator\">-&gt;</span> B\n\nB <span class=\"hl-operator\">-&gt;</span> C\n\nC <span class=\"hl-operator\">&lt;-&gt;</span> A","B":"<span class=\"hl-comment\">// Welcome to DrakoFlow!</span>\n<span class=\"hl-comment\">// Type below to build sequence/flow interactions.</span>\n<span class=\"hl-id\">A </span><span class=\"hl-operator\">:</span> <span class=\"hl-keyword\">Rectangle</span> <span class=\"hl-operator\">{</span>\n  <span class=\"hl-property\">label</span><span class=\"hl-operator\">:</span> <span class=\"hl-string\">&quot;A&quot;</span>\n  <span class=\"hl-property\">rx</span><span class=\"hl-operator\">:</span> <span class=\"hl-number\">8</span>\n  <span class=\"hl-property\">ry</span><span class=\"hl-operator\">:</span> <span class=\"hl-number\">8</span>\n<span class=\"hl-operator\">}</span>\n\n\n<span class=\"hl-id hl-active-token\">B</span><span class=\"hl-operator hl-active-token\">:</span><span class=\"hl-active-token\"> </span><span class=\"hl-keyword hl-active-token\">Process</span><span class=\"hl-active-token\"> </span><span class=\"hl-operator hl-active-token\">{</span><span class=\"hl-active-token\">\n</span><span class=\"hl-active-token\"> </span><span class=\"hl-active-token\"> </span><span class=\"hl-property hl-active-token\">label</span><span class=\"hl-operator hl-active-token\">:</span><span class=\"hl-active-token\"> </span><span class=\"hl-string hl-active-token\">&quot;B&quot;</span><span class=\"hl-active-token\">\n</span><span class=\"hl-operator hl-active-token\">}</span>\n\n<span class=\"hl-id\">C</span><span class=\"hl-operator\">:</span> <span class=\"hl-keyword\">Rectangle</span> <span class=\"hl-operator\">{</span>\n  <span class=\"hl-property\">label</span><span class=\"hl-operator\">:</span> <span class=\"hl-string\">&quot;C&quot;</span>\n  <span class=\"hl-property\">rx</span><span class=\"hl-operator\">:</span> <span class=\"hl-number\">8</span>\n  <span class=\"hl-property\">ry</span><span class=\"hl-operator\">:</span> <span class=\"hl-number\">8</span>\n<span class=\"hl-operator\">}</span>\n\nA <span class=\"hl-operator\">-&gt;</span> B\n\nB <span class=\"hl-operator\">-&gt;</span> C\n\nC <span class=\"hl-operator\">&lt;-&gt;</span> A","C":"<span class=\"hl-comment\">// Welcome to DrakoFlow!</span>\n<span class=\"hl-comment\">// Type below to build sequence/flow interactions.</span>\n<span class=\"hl-id\">A </span><span class=\"hl-operator\">:</span> <span class=\"hl-keyword\">Rectangle</span> <span class=\"hl-operator\">{</span>\n  <span class=\"hl-property\">label</span><span class=\"hl-operator\">:</span> <span class=\"hl-string\">&quot;A&quot;</span>\n  <span class=\"hl-property\">rx</span><span class=\"hl-operator\">:</span> <span class=\"hl-number\">8</span>\n  <span class=\"hl-property\">ry</span><span class=\"hl-operator\">:</span> <span class=\"hl-number\">8</span>\n<span class=\"hl-operator\">}</span>\n\n\n<span class=\"hl-id\">B</span><span class=\"hl-operator\">:</span> <span class=\"hl-keyword\">Process</span> <span class=\"hl-operator\">{</span>\n  <span class=\"hl-property\">label</span><span class=\"hl-operator\">:</span> <span class=\"hl-string\">&quot;B&quot;</span>\n<span class=\"hl-operator\">}</span>\n\n<span class=\"hl-id hl-active-token\">C</span><span class=\"hl-operator hl-active-token\">:</span><span class=\"hl-active-token\"> </span><span class=\"hl-keyword hl-active-token\">Rectangle</span><span class=\"hl-active-token\"> </span><span class=\"hl-operator hl-active-token\">{</span><span class=\"hl-active-token\">\n</span><span class=\"hl-active-token\"> </span><span class=\"hl-active-token\"> </span><span class=\"hl-property hl-active-token\">label</span><span class=\"hl-operator hl-active-token\">:</span><span class=\"hl-active-token\"> </span><span class=\"hl-string hl-active-token\">&quot;C&quot;</span><span class=\"hl-active-token\">\n</span><span class=\"hl-active-token\"> </span><span class=\"hl-active-token\"> </span><span class=\"hl-property hl-active-token\">rx</span><span class=\"hl-operator hl-active-token\">:</span><span class=\"hl-active-token\"> </span><span class=\"hl-number hl-active-token\">8</span><span class=\"hl-active-token\">\n</span><span class=\"hl-active-token\"> </span><span class=\"hl-active-token\"> </span><span class=\"hl-property hl-active-token\">ry</span><span class=\"hl-operator hl-active-token\">:</span><span class=\"hl-active-token\"> </span><span class=\"hl-number hl-active-token\">8</span><span class=\"hl-active-token\">\n</span><span class=\"hl-operator hl-active-token\">}</span>\n\nA <span class=\"hl-operator\">-&gt;</span> B\n\nB <span class=\"hl-operator\">-&gt;</span> C\n\nC <span class=\"hl-operator\">&lt;-&gt;</span> A"};
+      const codeContainer = codePanel ? codePanel.querySelector('pre code') : null;
+
+      function highlightCodeForComponent(compId) {
+        if (!codeContainer) return;
+        if (compId && componentHighlights[compId]) {
+          codeContainer.innerHTML = componentHighlights[compId];
+          const activeEl = codeContainer.querySelector('.hl-active-token');
+          if (activeEl && codePanel && !codePanel.classList.contains('collapsed')) {
+            activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        } else {
+          codeContainer.innerHTML = defaultHighlightedCode;
+        }
+      }
+
+      document.querySelectorAll('.diagram-component, .git-branch-badge-group, .git-commit-node').forEach(function(el) {
+        const compId = el.getAttribute('data-id') || el.id;
+        if (compId) {
+          el.addEventListener('mouseenter', function() {
+            el.classList.add('hovered');
+            highlightCodeForComponent(compId);
+          });
+          el.addEventListener('mouseleave', function() {
+            el.classList.remove('hovered');
+            highlightCodeForComponent(null);
+          });
+        }
+      });
 
       // Documentation Modal
       
@@ -865,19 +981,6 @@ C <span class="hl-operator">&lt;-&gt;</span> A</code></pre>
 
       // Minimap logic
       
-      let isMinimapVisible = true;
-      const MINIMAP_WIDTH = 180;
-      const MINIMAP_HEIGHT = 120;
-      let currentMinimapScale = 1.0;
-      let currentMinimapDx = 0;
-      let currentMinimapDy = 0;
-      
-      const minimapContainer = document.getElementById('minimap-container');
-      const minimapSvg = document.getElementById('minimap-svg');
-      const minimapContentG = document.getElementById('minimap-content-g');
-      const minimapViewportRect = document.getElementById('minimap-viewport-rect');
-      const btnToggleMinimap = document.getElementById('btn-toggle-minimap');
-
       function updateMinimapContent() {
         if (!minimapContainer || !minimapContentG || !viewportG || !canvasContainer) return;
         minimapContentG.innerHTML = '';
@@ -885,12 +988,23 @@ C <span class="hl-operator">&lt;-&gt;</span> A</code></pre>
         // Temporarily reset transform to get accurate bounding box
         const oldTransform = viewportG.getAttribute('transform');
         viewportG.removeAttribute('transform');
-        const bbox = viewportG.getBBox();
+        let bbox = null;
+        try {
+          const b = viewportG.getBBox();
+          if (b && b.width > 0 && b.height > 0) {
+            bbox = b;
+          }
+        } catch (e) {}
+
+        if (!bbox && initialBBox && initialBBox.width > 0) {
+          bbox = initialBBox;
+        }
+
         if (oldTransform) {
           viewportG.setAttribute('transform', oldTransform);
         }
 
-        if (bbox.width === 0 || bbox.height === 0) {
+        if (!bbox || bbox.width === 0 || bbox.height === 0) {
           minimapContainer.classList.add('collapsed');
           return;
         }

@@ -39,9 +39,9 @@ const tokenRegex = new RegExp(
     // Exterior direction keywords for relationships
     '(?<exterior>\\b(LEFT|RIGHT|TOP|BOTTOM|left|right|top|bottom)\\b)',
     // Keywords/Types (all registered component types)
-    '(?<keyword>\\b(Rectangle|Process|Ellipse|VerticalContainer|Cylinder|Cube|Diamond|Hexagon|Actor|Parallelogram|Class|Interface|UMLComponent|Module|Package|Text|Paragraph|SVGImage|RasterImage|Cloud|Node|Artifact|Folder|Frame|Storage|Stack|File|Card|Usecase|Boundary|Control|Entity|Queue|Collections|Agent|Enum|Abstract|Annotation|Struct|Object|Table)\\b)',
+    '(?<keyword>\\b(Rectangle|Process|Ellipse|VerticalContainer|Cylinder|Cube|Diamond|Hexagon|Actor|Parallelogram|Class|Interface|UMLComponent|Module|Package|Text|Paragraph|SVGImage|RasterImage|Cloud|Node|Artifact|Folder|Frame|Storage|Stack|File|Card|Usecase|Boundary|Control|Entity|Queue|Collections|Agent|Enum|Abstract|Annotation|Struct|Object|Table|Branch|Commit)\\b)',
     // Properties (all known DSL property names)
-    '(?<property>\\b(label|icon|rx|ry|lifeline|url|lineWidth|shadow|themeOverride|lineStyle|color|thickness|routeType|startX|startY|animated|gap|padding|tabWidthRatio|radius|backgroundColor|borderColor|textColor|headerBackgroundColor|headerTextColor|headerType|headerTypeColor|headerTypeTextColor|colorizeHeaderByType|attributes|methods|items|align|text|content|scale|width|height|header|rows|headerAtTop|headerAtBottom)\\b)',
+    '(?<property>\\b(label|icon|rx|ry|lifeline|url|lineWidth|shadow|themeOverride|lineStyle|color|thickness|routeType|startX|startY|animated|gap|padding|tabWidthRatio|radius|backgroundColor|borderColor|textColor|headerBackgroundColor|headerTextColor|headerType|headerTypeColor|headerTypeTextColor|colorizeHeaderByType|attributes|methods|items|align|text|content|scale|width|height|header|rows|headerAtTop|headerAtBottom|hash|tag|branch|order|msg|message|type)\\b)',
     // Accessor modifiers at the start of a line (after optional leading whitespace)
     '(?<accessor>(?:^|(?<=\\n))[^\\S\\n]*(?:\\*\\s*)?[+\\-#~](?=[^>\\s])|(?:^|(?<=\\n))[^\\S\\n]*\\*(?=\\s*[a-zA-Z_]))',
     // Operators: generic connector combinations followed by fallback chars
@@ -83,8 +83,8 @@ export function highlightDSL(code: string, activeRange?: { start: number; end: n
       (matchIndex + value.length) <= activeRange.end;
 
     const wrapTag = (cls: string, content: string): string => {
-      const activeAttr = isTokenHighlighted ? ' class="hl-active-token"' : '';
-      return `<span class="hl-${cls}"${activeAttr}>${escapeHtml(content)}</span>`;
+      const activeClass = isTokenHighlighted ? ' hl-active-token' : '';
+      return `<span class="hl-${cls}${activeClass}">${escapeHtml(content)}</span>`;
     };
 
     if (groups.hexColor) {
@@ -96,8 +96,8 @@ export function highlightDSL(code: string, activeRange?: { start: number; end: n
         color: colorVal,
         isQuoted
       });
-      const activeAttr = isTokenHighlighted ? ' class="hl-active-token"' : '';
-      html += `<span class="hl-color"${activeAttr}>${escapeHtml(value)}<span class="color-picker-trigger" style="background-color: ${colorVal}"></span></span>`;
+      const activeClass = isTokenHighlighted ? ' hl-active-token' : '';
+      html += `<span class="hl-color${activeClass}">${escapeHtml(value)}<span class="color-picker-trigger" style="background-color: ${colorVal}"></span></span>`;
       expectingIconValue = false;
     } else if (groups.blockComment) {
       html += wrapTag('comment', value);
@@ -121,9 +121,9 @@ export function highlightDSL(code: string, activeRange?: { start: number; end: n
         icon: iconVal,
         isQuoted
       });
-      const activeAttr = isTokenHighlighted ? ' class="hl-active-token"' : '';
+      const activeClass = isTokenHighlighted ? ' hl-active-token' : '';
       const iconSvg = createIconSvgElement(iconVal, { size: 13 })?.outerHTML || '';
-      html += `<span class="hl-${groups.string ? 'string' : 'keyword'}"${activeAttr}>${escapeHtml(value)}<span class="icon-picker-trigger" title="Change icon (${escapeHtml(iconVal)})">${iconSvg}</span></span>`;
+      html += `<span class="hl-${groups.string ? 'string' : 'keyword'}${activeClass}">${escapeHtml(value)}<span class="icon-picker-trigger" title="Change icon (${escapeHtml(iconVal)})">${iconSvg}</span></span>`;
       expectingIconValue = false;
     } else if (groups.string) {
       html += wrapTag('string', value);
@@ -152,7 +152,12 @@ export function highlightDSL(code: string, activeRange?: { start: number; end: n
     } else if (groups.id) {
       html += wrapTag('id', value);
     } else {
-      html += escapeHtml(value);
+      const escaped = escapeHtml(value);
+      if (isTokenHighlighted) {
+        html += `<span class="hl-active-token">${escaped}</span>`;
+      } else {
+        html += escaped;
+      }
       if (value.trim().length > 0 && value !== ':') {
         expectingIconValue = false;
       }

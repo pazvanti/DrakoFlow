@@ -594,6 +594,17 @@
         <li class="sidebar-item"><a href="#agent"><i class="bi bi-person-gear"></i> Agent</a></li>
       </ul>
 
+      <div class="sidebar-section-title">Layout Flow Directives</div>
+      <ul class="sidebar-menu">
+        <li class="sidebar-item"><a href="#layout-directives"><i class="bi bi-diagram-3"></i> @layout Directives</a></li>
+      </ul>
+
+      <div class="sidebar-section-title">Git Flow Components</div>
+      <ul class="sidebar-menu">
+        <li class="sidebar-item"><a href="#branch"><i class="bi bi-git"></i> Branch Lane</a></li>
+        <li class="sidebar-item"><a href="#commit"><i class="bi bi-circle-dot"></i> Commit Node</a></li>
+      </ul>
+
       <div class="sidebar-section-title">Relationships</div>
       <ul class="sidebar-menu">
         <li class="sidebar-item"><a href="#arrows"><i class="bi bi-arrow-right"></i> Connectors & Styles</a></li>
@@ -1467,6 +1478,83 @@ CloudInfra: Cloud {
         example: `MonitorAgent: Agent {
   label: "Telemetry Agent"
   DbProbe: Rectangle { label: "DB Probe" }
+}`
+      },
+      {
+        id: "layout-directives",
+        name: "@layout Flow Directives",
+        group: "Layout Flow Directives",
+        description: "Specify the diagram layout engine and orientation using the global @layout directive placed at the top of your DSL script.",
+        icon: "bi-diagram-3",
+        properties: [
+          { name: "left-to-right", type: "Directive", desc: "Default layout engine for architecture and sequence flowcharts arranging elements horizontally from left to right." },
+          { name: "top-to-bottom", type: "Directive", desc: "Arranges elements vertically from top to bottom." },
+          { name: "git-flow", type: "Directive", desc: "Specialized Git Flow branching and merging visualization engine rendering horizontal branch tracks, curved forks/merges, slanted commit hash badges, while fully supporting coexisting Text annotations, Containers, Cards, and architecture components." }
+        ],
+        example: `@layout: git-flow
+
+Title: Text { label: "Release Pipeline"; x: 40; y: 15 }
+
+Main: Branch {
+  label: "main"
+  c0: Commit { hash: "0-init" }
+  c2: Commit { type: "merge"; tag: "v1.0" }
+}
+Develop: Branch {
+  label: "develop"
+  c1: Commit { hash: "1-feat" }
+}
+c0 -> c1
+c1 -> c2
+c0 -> c2
+
+Notes: VerticalContainer {
+  label: "Branching Policies"
+  x: 40
+  y: 280
+  Rule: Text { label: "• All PRs require review" }
+}`
+      },
+      {
+        id: "branch",
+        name: "Branch Lane Component",
+        group: "Git Flow Components",
+        description: "Represents a Git branch guide track in a Git Flow diagram (@layout: git-flow). Renders horizontal dashed guide tracks and left-aligned branch pill badges with theme-adaptive colors.",
+        icon: "bi-git",
+        properties: [
+          { name: "label", type: "String", desc: "The branch name displayed inside the left badge (e.g. \"main\", \"develop\", \"feature\")." },
+          { name: "order", type: "Number", desc: "Optional explicit vertical lane index (0 is top-most). If omitted, main/master is placed on lane 0 and others follow declaration order." },
+          { name: "color", type: "String", desc: "Explicit branch color override (Hex/RGB/CSS). If omitted, uses the curated theme branch palette." }
+        ],
+        example: `Main: Branch {
+  label: "main"
+  order: 0
+
+  c0: Commit { hash: "0-e3a3a20" }
+  c3: Commit { type: "merge" }
+}`
+      },
+      {
+        id: "commit",
+        name: "Commit Node Component",
+        group: "Git Flow Components",
+        description: "Represents an individual commit on a Git branch track. Displays commit circles, slanted -45° commit hash badges, tag pills, and specialized merge double-ring nodes.",
+        icon: "bi-circle-dot",
+        properties: [
+          { name: "hash", type: "String", desc: "Explicit commit hash ID (e.g. \"0-e3a3a20\"). If omitted, a deterministic hash is automatically generated." },
+          { name: "type", type: "String", desc: "Commit node type style: \"normal\" (solid circle), \"merge\" (double-ring node), \"highlight\" (dashed halo), or \"reverse\" (revert cross)." },
+          { name: "tag", type: "String", desc: "Release tag badge rendered above the commit node (e.g. \"v1.0.0\")." },
+          { name: "branch", type: "String", desc: "Branch name when declaring flat commits outside of a Branch { ... } container block." },
+          { name: "message / msg", type: "String", desc: "Optional commit message displayed in the commit hover tooltip." }
+        ],
+        example: `c1: Commit {
+  hash: "1-201f4e4"
+  tag: "v1.0"
+  type: "normal"
+}
+
+c3: Commit {
+  type: "merge"
 }`
       }
     ];

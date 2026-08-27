@@ -370,6 +370,85 @@ MyContainer: VerticalContainer {
   headerAtTop: true
   headerAtBottom: false
 }`
+  },
+  {
+    type: "Branch",
+    displayName: "Git Branch Lane",
+    description: "Represents a branch track in a Git Flow diagram, containing or connecting commits.",
+    tags: ["Git Flow", "Shapes"],
+    template: `Main: Branch {
+  label: "main"
+}`
+  },
+  {
+    type: "Commit",
+    displayName: "Git Commit",
+    description: "Represents a Git commit with an ID/hash, optional tag badge, and type (normal, merge, highlight, reverse).",
+    tags: ["Git Flow", "Shapes"],
+    template: `c1: Commit {
+  hash: "1-feat"
+  tag: "v1.0"
+}`
+  },
+  {
+    type: "GitFlow",
+    displayName: "Git Flow Diagram",
+    description: "A complete Git branching and merging workflow diagram with main, develop, and feature branches.",
+    tags: ["Git Flow", "Templates"],
+    template: `@layout: git-flow
+
+Main: Branch {
+  label: "main"
+  color: #ff0000
+
+  c0: Commit {
+    hash: "0-e3a3a20"
+  }
+  c3: Commit {
+    type: "merge"
+  }
+  c4: Commit {
+    hash: "4-646b55f"
+  }
+  c7: Commit {
+    type: "merge"
+  }
+}
+
+Develop: Branch {
+  label: "develop"
+
+  c1: Commit {
+    hash: "1-201f4e4"
+  }
+  c2: Commit {
+    hash: "2-6c2e9d5"
+    message: "A simple test message"
+    type: "reverse"
+    tag: "tag1.0.0"
+  }
+}
+
+Feature: Branch {
+  label: "feature"
+
+  c5: Commit {
+    hash: "5-71f2792"
+  }
+  c6: Commit {
+    hash: "6-e534d9"
+  }
+}
+
+c0 -> c1
+c1 -> c2
+c2 -> c3
+c0 -> c3
+c3 -> c4
+c4 -> c5
+c5 -> c6
+c6 -> c7
+c4 -> c7`
   }
 ];
 
