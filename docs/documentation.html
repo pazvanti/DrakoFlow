@@ -1489,31 +1489,25 @@ CloudInfra: Cloud {
         properties: [
           { name: "left-to-right", type: "Directive", desc: "Default layout engine for architecture and sequence flowcharts arranging elements horizontally from left to right." },
           { name: "top-to-bottom", type: "Directive", desc: "Arranges elements vertically from top to bottom." },
-          { name: "git-flow", type: "Directive", desc: "Specialized Git Flow branching and merging visualization engine rendering horizontal branch tracks, curved forks/merges, slanted commit hash badges, while fully supporting coexisting Text annotations, Containers, Cards, and architecture components." }
+          { name: "git-flow", type: "Directive", desc: "Specialized Git Flow branching and merging visualization engine rendering horizontal branch tracks, curved forks/merges, slanted commit hash badges, while fully supporting coexisting Text annotations, Containers, Cards, and architecture components." },
+          { name: "mindmap", type: "Directive", desc: "Radial mindmap brainstorming engine with automatic root node detection (node with highest degree of connections), branch color inheritance, and organic Bézier curved connectors." },
+          { name: "mindmap(RootNode)", type: "Directive", desc: "Mindmap layout with an explicitly designated central root component identifier (e.g. @layout: mindmap(CentralIdea))." }
         ],
-        example: `@layout: git-flow
+        example: `// Example 1: Mindmap Layout
+@layout: mindmap(CentralIdea)
 
-Title: Text { label: "Release Pipeline"; x: 40; y: 15 }
+CentralIdea: Ellipse { label: "Central Idea" }
+Topic1: Process { label: "Topic 1" }
+Topic2: Cube { label: "Topic 2" }
+Topic3: Cylinder { label: "Topic 3" }
 
-Main: Branch {
-  label: "main"
-  c0: Commit { hash: "0-init" }
-  c2: Commit { type: "merge"; tag: "v1.0" }
-}
-Develop: Branch {
-  label: "develop"
-  c1: Commit { hash: "1-feat" }
-}
-c0 -> c1
-c1 -> c2
-c0 -> c2
+CentralIdea -> Topic1 : "Branch A"
+CentralIdea -> Topic2 : "Branch B"
+Topic2 -> Topic3
 
-Notes: VerticalContainer {
-  label: "Branching Policies"
-  x: 40
-  y: 280
-  Rule: Text { label: "• All PRs require review" }
-}`
+// Example 2: Git Flow Layout
+// @layout: git-flow
+// Main: Branch { label: "main"; c0: Commit { hash: "0-init" } }`
       },
       {
         id: "branch",

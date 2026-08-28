@@ -125,6 +125,24 @@ Control the layout engine and diagram flow using the `@layout` directive:
 - `@layout: left-to-right` (Default) : Standard horizontal sequence & architecture flowchart engine.
 - `@layout: top-to-bottom` : Vertical flow engine.
 - `@layout: git-flow` : Specialized Git Flow visualization engine rendering branch tracks, smooth Bézier merge/fork curves, and slanted commit hash badges.
+- `@layout: mindmap` or `@layout: mindmap(RootNode)` : Radial mindmap layout engine with auto root detection, branch theme colors, and organic curved connections.
+
+#### Mindmap DSL Example
+```scss
+@layout: mindmap
+
+mindmap: Ellipse {
+  label: "mindmap"
+}
+
+Research: Rectangle { label: "Research" }
+Tools: Rectangle { label: "Tools" }
+Origins: Rectangle { label: "Origins" }
+
+mindmap -> Research
+mindmap -> Tools
+mindmap -> Origins
+```
 
 #### Git Flow DSL Example
 ```scss

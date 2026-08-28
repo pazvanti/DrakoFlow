@@ -1,0 +1,93 @@
+@layout: mindmap(mindmap)
+
+mindmap: Ellipse {
+  label: "mindmap"
+}
+
+Research: Rectangle {
+  label: "Research"
+}
+
+Uses: Rectangle {
+  label: "Uses"
+}
+
+AutoCreation: Rectangle {
+  label: "On Automatic creation"
+  x: 332
+  y: 696
+}
+
+Effectiveness: Rectangle {
+  label: "On effectiveness\nand features"
+}
+
+StrategicPlanning: Rectangle {
+  label: "Strategic planning"
+  x: 8
+  y: 826
+}
+
+CreativeTech: Rectangle {
+  label: "Creative techniques"
+  x: -47
+  y: 710
+}
+
+ArgumentMapping: Rectangle {
+  label: "Argument mapping"
+  x: -41
+  y: 550
+}
+
+Tools: Rectangle {
+  label: "Tools"
+}
+
+PenPaper: Rectangle {
+  label: "Pen and paper"
+}
+
+Mermaid: Rectangle {
+  label: "Mermaid"
+}
+
+Origins: Rectangle {
+  label: "Origins"
+}
+
+Popularisation: Rectangle {
+  label: "Popularisation"
+  x: 838
+  y: 954
+}
+
+History: Rectangle {
+  label: "Long history"
+  x: 601
+  y: 955
+}
+
+TonyBuzan: Rectangle {
+  label: "British popular psychology\nauthor Tony Buzan"
+}
+
+// Research branch (purple)
+mindmap -> Research
+Research -> AutoCreation
+AutoCreation -> Uses
+Uses -> StrategicPlanning
+Uses -> CreativeTech
+Uses -> ArgumentMapping
+Research -> Effectiveness
+
+// Tools branch (cyan)
+mindmap -> Tools
+Tools -> PenPaper
+Tools -> Mermaid
+
+// Origins branch (amber/rust)
+mindmap -> Origins
+Origins -> Popularisation
+Popularisation -> TonyBuzan
+Origins -> History

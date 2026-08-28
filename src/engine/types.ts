@@ -28,6 +28,7 @@ export interface EngineRenderResult {
     labelsLayer?: SVGGElement;
     lifelinesLayer?: SVGGElement;
   };
+  layoutResult?: any;
 }
 
 export interface RenderingEngine {

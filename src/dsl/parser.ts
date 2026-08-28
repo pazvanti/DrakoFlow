@@ -528,10 +528,10 @@ function tryParseLayoutDirective(
   if (text[start] !== '@') return null;
 
   const slice = text.slice(start);
-  const m = slice.match(/^@layout\s*:\s*(?:"([^"]+)"|([a-zA-Z0-9_-]+))/);
+  const m = slice.match(/^@layout\s*:\s*(?:"([^"]+)"|([a-zA-Z0-9_-]+(?:\s*\([^)]*\))?))/);
   if (!m) return null;
 
-  const value = m[1] || m[2];
+  const value = (m[1] || m[2]).trim();
   return { value, end: start + m[0].length };
 }
 

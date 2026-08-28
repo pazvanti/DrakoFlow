@@ -287,17 +287,17 @@ export class TableComponent extends BaseComponent<TableProps> {
 DrakoFlow supports a pluggable, multi-engine layout and rendering architecture managed by `EngineRegistry`.
 
 ```
-                  ┌────────────────────────┐
-                  │     EngineRegistry     │
-                  └───────────┬────────────┘
-                              │
-            ┌─────────────────┴─────────────────┐
-            ▼                                   ▼
-┌─────────────────────────┐         ┌─────────────────────────┐
-│     StandardEngine      │         │      GitFlowEngine      │
-│ (left-to-right /        │         │ (@layout: git-flow /    │
-│  top-to-bottom flows)   │         │  Branch & Commit nodes) │
-└─────────────────────────┘         └─────────────────────────┘
+                  ┌─────────────────────────────────────┐
+                  │           EngineRegistry            │
+                  └──────────────────┬──────────────────┘
+                                     │
+           ┌─────────────────────────┼─────────────────────────┐
+           ▼                         ▼                         ▼
+┌─────────────────────┐   ┌─────────────────────┐   ┌─────────────────────┐
+│   StandardEngine    │   │    GitFlowEngine    │   │    MindmapEngine    │
+│ (left-to-right /    │   │ (@layout: git-flow/ │   │ (@layout: mindmap / │
+│  top-to-bottom)     │   │  Branch & Commit)   │   │  Radial tree layout)│
+└─────────────────────┘   └─────────────────────┘   └─────────────────────┘
 ```
 
 ### Rendering Engine Interface
@@ -327,6 +327,12 @@ export interface RenderingEngine {
   * Merge commits: double-ring circles with dark background fills.
   * Slanted badges: $-45^\circ$ rotated commit hash pills placed under each commit.
   * Tag badges: pill badges rendered above commits.
+
+### 3. Mindmap Engine (`@layout: mindmap` / `@layout: mindmap(RootNode)`)
+* **Root Node Detection:** Automatically detects the central root node by degree of connectivity or accepts an explicit parameter e.g. `@layout: mindmap(MyRoot)`.
+* **Spanning Tree & Sector Allocation:** Traverses connections via BFS, assigning angular sectors $[-\pi, \pi]$ proportional to descendant subtree leaf counts.
+* **Curved Bézier Connectors:** Renders organic cubic Bézier curved branches with depth-based stroke width tapering and inherited branch palette colors.
+* **Real-time Free Dragging:** Supports manual coordinate placement with real-time dynamic curve stretching and subtree origin propagation.
 
 ### Relationship Drawing (Routing)
 Lines representing relationships must connect component borders without clipping through other elements.

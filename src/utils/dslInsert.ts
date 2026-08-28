@@ -199,8 +199,8 @@ export function clearDslManualPositions(code: string): string {
   return code.replace(/^[ \t]*\b(x|y)\s*:\s*-?\d+(?:\.\d+)?\b\r?\n?/gm, '');
 }
 
-export function setDslLayoutDirective(code: string, layout: 'left-to-right' | 'top-to-bottom' | 'git-flow'): string {
-  const layoutPattern = /^@layout\s*:\s*(?:"([^"]+)"|([a-zA-Z0-9_-]+))\r?\n?/m;
+export function setDslLayoutDirective(code: string, layout: 'left-to-right' | 'top-to-bottom' | 'git-flow' | 'mindmap' | string): string {
+  const layoutPattern = /^@layout\s*:\s*(?:"([^"]+)"|([a-zA-Z0-9_-]+(?:\s*\([^)]*\))?))\r?\n?/m;
   const newValue = `@layout: ${layout}\n`;
   
   if (layoutPattern.test(code)) {

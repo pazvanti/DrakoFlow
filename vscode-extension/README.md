@@ -35,6 +35,7 @@ Hovering over any component, container, or commit in the visual diagram automati
 Switch layouts effortlessly with the `@layout` directive:
 - **`@layout: left-to-right` / `@layout: top-to-bottom`**: Architecture flowcharts, sequence diagrams with lifelines, automated blue/green deployment routes, animated flow arrows, and container boundaries.
 - **`@layout: git-flow`**: Purpose-built Git Flow engine with branch lanes (`main`, `develop`, `feature`), smooth Bézier merge & fork curves, slanted `-45°` commit hash badges, custom messages, and release tags.
+- **`@layout: mindmap` / `@layout: mindmap(RootNode)`**: Radial brainstorming mindmap engine with automatic root node detection, branch theme color inheritance, and organic curved connections.
 
 ![Sequence & Architecture Flowcharts](https://raw.githubusercontent.com/pazvanti/DrakoFlow/main/screenshots/screenshot1.png)
 

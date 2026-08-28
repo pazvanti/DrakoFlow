@@ -1,6 +1,7 @@
 import { RenderingEngine } from './types';
 import { StandardEngine } from './StandardEngine';
 import { GitFlowEngine } from './gitflow/GitFlowEngine';
+import { MindmapEngine } from './mindmap/MindmapEngine';
 import { DslDocument } from '../dsl/parser';
 
 export class EngineRegistry {
@@ -10,6 +11,7 @@ export class EngineRegistry {
   private constructor() {
     // Register default engines (specialized engines first, fallback last)
     this.registerEngine(new GitFlowEngine());
+    this.registerEngine(new MindmapEngine());
     this.registerEngine(new StandardEngine());
   }
 

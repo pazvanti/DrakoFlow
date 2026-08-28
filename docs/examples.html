@@ -542,16 +542,25 @@
     <div class="badge-gallery">
       <i class="bi bi-collection-play-fill"></i> Interactive Examples Gallery
     </div>
-    <h1>DrakoFlow <span style="background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Examples</span></h1>
-    <p class="lead">Explore real-world architecture flowcharts, sequence diagrams with sub-modules, and multi-layer container setups. Open any example directly in the live interactive player or launch it in the editor.</p>
+    <h1>DrakoFlow <span
+        style="background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Examples</span>
+    </h1>
+    <p class="lead">Explore real-world architecture flowcharts, sequence diagrams with sub-modules, and multi-layer
+      container setups. Open any example directly in the live interactive player or launch it in the editor.</p>
 
     <!-- Filter Pills -->
     <div class="filter-pills">
-      <button class="filter-pill active" onclick="filterExamples('all', this)"><i class="bi bi-grid-fill"></i> All Examples</button>
-      <button class="filter-pill" onclick="filterExamples('flowchart', this)"><i class="bi bi-diagram-2-fill"></i> Flowcharts</button>
-      <button class="filter-pill" onclick="filterExamples('sequence', this)"><i class="bi bi-arrow-down-up"></i> Sequence Diagrams</button>
+      <button class="filter-pill active" onclick="filterExamples('all', this)"><i class="bi bi-grid-fill"></i> All
+        Examples</button>
+      <button class="filter-pill" onclick="filterExamples('flowchart', this)"><i class="bi bi-diagram-2-fill"></i>
+        Flowcharts</button>
+      <button class="filter-pill" onclick="filterExamples('sequence', this)"><i class="bi bi-arrow-down-up"></i>
+        Sequence Diagrams</button>
       <button class="filter-pill" onclick="filterExamples('git-flow', this)"><i class="bi bi-git"></i> Git Flow</button>
-      <button class="filter-pill" onclick="filterExamples('architecture', this)"><i class="bi bi-layers-fill"></i> Architecture & Tags</button>
+      <button class="filter-pill" onclick="filterExamples('mindmap', this)"><i class="bi bi-diagram-3"></i>
+        Mindmaps</button>
+      <button class="filter-pill" onclick="filterExamples('architecture', this)"><i class="bi bi-layers-fill"></i>
+        Architecture & Tags</button>
     </div>
   </section>
 
@@ -567,7 +576,8 @@
             <span class="tag-badge">Flowchart</span>
             <span class="tag-badge green">Basic DSL</span>
           </div>
-          <p class="example-description">Demonstrates basic shape declarations (Rectangle, Process) and simple directed (`->`) and bidirectional (`<->`) relationship connections.</p>
+          <p class="example-description">Demonstrates basic shape declarations (Rectangle, Process) and simple directed
+            (`->`) and bidirectional (`<->`) relationship connections.</p>
         </div>
         <a href="./examples/simple.html" target="_blank" class="btn-action-secondary">
           <i class="bi bi-box-arrow-up-right"></i> Open Fullscreen Player
@@ -576,7 +586,8 @@
 
       <!-- Full-Width Interactive HTML Player Container -->
       <div class="example-player-wrapper">
-        <iframe src="./examples/simple.html" class="preview-iframe" title="Simple Flowchart Example Interactive Player"></iframe>
+        <iframe src="./examples/simple.html" class="preview-iframe"
+          title="Simple Flowchart Example Interactive Player"></iframe>
       </div>
 
       <div class="example-card-footer">
@@ -630,7 +641,9 @@ C <-> A</script>
             <span class="tag-badge green">Vertical Container</span>
             <span class="tag-badge">@tags Metadata</span>
           </div>
-          <p class="example-description">Demonstrates complex architecture layouts using `VerticalContainer` components, custom color theme overrides, styled connectors, and `@tags` decorator metadata for interactive layer filtering.</p>
+          <p class="example-description">Demonstrates complex architecture layouts using `VerticalContainer` components,
+            custom color theme overrides, styled connectors, and `@tags` decorator metadata for interactive layer
+            filtering.</p>
         </div>
         <a href="./examples/sequence-with-tags.html" target="_blank" class="btn-action-secondary">
           <i class="bi bi-box-arrow-up-right"></i> Open Fullscreen Player
@@ -639,7 +652,8 @@ C <-> A</script>
 
       <!-- Full-Width Interactive HTML Player Container -->
       <div class="example-player-wrapper">
-        <iframe src="./examples/sequence-with-tags.html" class="preview-iframe" title="Tagged Architecture Example Interactive Player"></iframe>
+        <iframe src="./examples/sequence-with-tags.html" class="preview-iframe"
+          title="Tagged Architecture Example Interactive Player"></iframe>
       </div>
 
       <div class="example-card-footer">
@@ -652,7 +666,8 @@ C <-> A</script>
           </button>
         </div>
         <div class="action-group">
-          <a href="./examples/sequence-with-tags.drako" download="sequence-with-tags.drako" class="btn-action-secondary">
+          <a href="./examples/sequence-with-tags.drako" download="sequence-with-tags.drako"
+            class="btn-action-secondary">
             <i class="bi bi-download"></i> Download .drako
           </a>
         </div>
@@ -758,7 +773,9 @@ MyContainer2 -> Client</script>
             <span class="tag-badge purple">Sequence Diagram</span>
             <span class="tag-badge">Sub-Modules</span>
           </div>
-          <p class="example-description">Shows component headers with lifelines (`lifeline: true`), child version sub-modules attached to lifelines, bridge arcs over intermediate vertical lifelines, and exterior call events (`LEFT -> ...`).</p>
+          <p class="example-description">Shows component headers with lifelines (`lifeline: true`), child version
+            sub-modules attached to lifelines, bridge arcs over intermediate vertical lifelines, and exterior call
+            events (`LEFT -> ...`).</p>
         </div>
         <a href="./examples/sequence-with-components.html" target="_blank" class="btn-action-secondary">
           <i class="bi bi-box-arrow-up-right"></i> Open Fullscreen Player
@@ -767,7 +784,8 @@ MyContainer2 -> Client</script>
 
       <!-- Full-Width Interactive HTML Player Container -->
       <div class="example-player-wrapper">
-        <iframe src="./examples/sequence-with-components.html" class="preview-iframe" title="Lifeline Sequence Example Interactive Player"></iframe>
+        <iframe src="./examples/sequence-with-components.html" class="preview-iframe"
+          title="Lifeline Sequence Example Interactive Player"></iframe>
       </div>
 
       <div class="example-card-footer">
@@ -780,7 +798,8 @@ MyContainer2 -> Client</script>
           </button>
         </div>
         <div class="action-group">
-          <a href="./examples/sequence-with-components.drako" download="sequence-with-components.drako" class="btn-action-secondary">
+          <a href="./examples/sequence-with-components.drako" download="sequence-with-components.drako"
+            class="btn-action-secondary">
             <i class="bi bi-download"></i> Download .drako
           </a>
         </div>
@@ -840,7 +859,8 @@ LEFT -> ComponentB : "Component B Sync" { startX: 266, startY: 309 }</script>
             <span class="tag-badge purple">@layout: git-flow</span>
             <span class="tag-badge">Branch Lanes</span>
           </div>
-          <p class="example-description">Visualizes a complete Git branching model with main, develop, and feature lanes, smooth Bézier merge/fork curves, slanted -45° commit hash badges, and specialized merge nodes.</p>
+          <p class="example-description">Visualizes a complete Git branching model with main, develop, and feature
+            lanes, smooth Bézier merge/fork curves, slanted -45° commit hash badges, and specialized merge nodes.</p>
         </div>
         <a href="./examples/git.html" target="_blank" class="btn-action-secondary">
           <i class="bi bi-box-arrow-up-right"></i> Open Fullscreen Player
@@ -925,11 +945,148 @@ c6 -> c7
 c4 -> c7</script>
     </div>
 
+    <!-- EXAMPLE 5: Mindmap Brainstorming Diagram -->
+    <div class="example-card" data-category="mindmap">
+      <div class="example-card-header">
+        <div class="example-title-area">
+          <div class="example-title-row">
+            <h2>Mindmap Brainstorming & Ontology Diagram</h2>
+            <span class="tag-badge purple">Mindmap</span>
+            <span class="tag-badge blue">@layout: mindmap</span>
+            <span class="tag-badge">Radial Branches</span>
+          </div>
+          <p class="example-description">Demonstrates the specialized radial mindmap layout engine with automatic root
+            node detection, branch theme color inheritance, and organic Bézier connections.</p>
+        </div>
+        <a href="./examples/mindmap.html" target="_blank" class="btn-action-secondary">
+          <i class="bi bi-box-arrow-up-right"></i> Open Fullscreen Player
+        </a>
+      </div>
+
+      <!-- Full-Width Interactive HTML Player Container -->
+      <div class="example-player-wrapper">
+        <iframe src="./examples/mindmap.html" class="preview-iframe"
+          title="Mindmap Example Interactive Player"></iframe>
+      </div>
+
+      <div class="example-card-footer">
+        <div class="action-group">
+          <a href="./examples/mindmap.html" target="_blank" class="btn-action-primary">
+            <i class="bi bi-play-circle-fill"></i> Open Interactive Player
+          </a>
+          <button class="btn-action-secondary" onclick="openInEditor('code-mindmap')">
+            <i class="bi bi-box-arrow-up-right"></i> Open in Online Editor
+          </button>
+        </div>
+        <div class="action-group">
+          <a href="./examples/mindmap.drako" download="mindmap.drako" class="btn-action-secondary">
+            <i class="bi bi-download"></i> Download .drako
+          </a>
+        </div>
+      </div>
+
+      <!-- Hidden Source Script for Editor Link -->
+      <script id="code-mindmap" type="text/plain">@layout: mindmap(mindmap)
+
+mindmap: Ellipse {
+  label: "mindmap"
+}
+
+Research: Rectangle {
+  label: "Research"
+}
+
+Uses: Rectangle {
+  label: "Uses"
+}
+
+AutoCreation: Rectangle {
+  label: "On Automatic creation"
+  x: 332
+  y: 696
+}
+
+Effectiveness: Rectangle {
+  label: "On effectiveness\nand features"
+}
+
+StrategicPlanning: Rectangle {
+  label: "Strategic planning"
+  x: 8
+  y: 826
+}
+
+CreativeTech: Rectangle {
+  label: "Creative techniques"
+  x: -47
+  y: 710
+}
+
+ArgumentMapping: Rectangle {
+  label: "Argument mapping"
+  x: -41
+  y: 550
+}
+
+Tools: Rectangle {
+  label: "Tools"
+}
+
+PenPaper: Rectangle {
+  label: "Pen and paper"
+}
+
+Mermaid: Rectangle {
+  label: "Mermaid"
+}
+
+Origins: Rectangle {
+  label: "Origins"
+}
+
+Popularisation: Rectangle {
+  label: "Popularisation"
+  x: 838
+  y: 954
+}
+
+History: Rectangle {
+  label: "Long history"
+  x: 601
+  y: 955
+}
+
+TonyBuzan: Rectangle {
+  label: "British popular psychology\nauthor Tony Buzan"
+}
+
+// Research branch (purple)
+mindmap -> Research
+Research -> AutoCreation
+AutoCreation -> Uses
+Uses -> StrategicPlanning
+Uses -> CreativeTech
+Uses -> ArgumentMapping
+Research -> Effectiveness
+
+// Tools branch (cyan)
+mindmap -> Tools
+Tools -> PenPaper
+Tools -> Mermaid
+
+// Origins branch (amber/rust)
+mindmap -> Origins
+Origins -> Popularisation
+Popularisation -> TonyBuzan
+Origins -> History</script>
+    </div>
+
     <!-- Submit / More Examples Card -->
     <div class="submit-card">
       <div style="font-size: 2.5rem; color: #a78bfa;"><i class="bi bi-journal-plus"></i></div>
       <h3>More Examples Coming Soon!</h3>
-      <p>Have a diagram pattern or workflow to share? DrakoFlow is open-source and community-driven. Submit your `.drako` scripts on GitHub to feature them in the gallery.</p>
+      <p>Have a diagram pattern or workflow to share? DrakoFlow is open-source and community-driven. Submit your
+        `.drako` scripts on GitHub to feature them in the gallery.</p>
       <a href="https://github.com/pazvanti/DrakoFlow" target="_blank" rel="noopener" class="btn-action-primary">
         <i class="bi bi-github"></i> Submit Example on GitHub
       </a>

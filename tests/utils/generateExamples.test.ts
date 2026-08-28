@@ -84,4 +84,13 @@ describe('Generate HTML Player Examples', () => {
   it('generates docs/examples/sequence-with-components.html', () => {
     generateExample('sequence-with-components');
   });
+
+  it('generates docs/examples/mindmap.html', () => {
+    generateExample('mindmap');
+    const content = fs.readFileSync(path.resolve(__dirname, '../../docs/examples/mindmap.html'), 'utf8');
+    expect(content).toContain('mindmap-diagram');
+    expect(content).toContain('class="diagram-svg"');
+    expect(content).toContain('id="viewport-g"');
+    expect(content).toContain('fitToScreen');
+  });
 });

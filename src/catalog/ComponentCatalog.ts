@@ -449,6 +449,90 @@ c4 -> c5
 c5 -> c6
 c6 -> c7
 c4 -> c7`
+  },
+  {
+    type: "Mindmap",
+    displayName: "Mindmap Diagram",
+    description: "Radial brainstorming mindmap diagram with branches, automatic root node detection, and organic curved connections.",
+    tags: ["Mindmap", "Templates"],
+    template: `@layout: mindmap
+
+mindmap: Ellipse {
+  label: "mindmap"
+}
+
+Research: Rectangle {
+  label: "Research"
+}
+
+Uses: Rectangle {
+  label: "Uses"
+}
+
+AutoCreation: Rectangle {
+  label: "On Automatic creation"
+}
+
+Effectiveness: Rectangle {
+  label: "On effectiveness\\nand features"
+}
+
+StrategicPlanning: Rectangle {
+  label: "Strategic planning"
+}
+
+CreativeTech: Rectangle {
+  label: "Creative techniques"
+}
+
+ArgumentMapping: Rectangle {
+  label: "Argument mapping"
+}
+
+Tools: Rectangle {
+  label: "Tools"
+}
+
+PenPaper: Rectangle {
+  label: "Pen and paper"
+}
+
+Mermaid: Rectangle {
+  label: "Mermaid"
+}
+
+Origins: Rectangle {
+  label: "Origins"
+}
+
+Popularisation: Rectangle {
+  label: "Popularisation"
+}
+
+History: Rectangle {
+  label: "Long history"
+}
+
+TonyBuzan: Rectangle {
+  label: "British popular psychology\\nauthor Tony Buzan"
+}
+
+mindmap -> Research
+Research -> AutoCreation
+AutoCreation -> Uses
+Uses -> StrategicPlanning
+Uses -> CreativeTech
+Uses -> ArgumentMapping
+Research -> Effectiveness
+
+mindmap -> Tools
+Tools -> PenPaper
+Tools -> Mermaid
+
+mindmap -> Origins
+Origins -> Popularisation
+Popularisation -> TonyBuzan
+Origins -> History`
   }
 ];
 

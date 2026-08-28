@@ -14,6 +14,8 @@ import { MarkdownRenderer } from './utils/MarkdownRenderer';
 import { PlantUmlTranslator } from './utils/PlantUmlTranslator';
 import { getAllRegisteredIcons, createIconSvgElement } from './utils/IconRegistry';
 import { EngineRegistry } from './engine/EngineRegistry';
+import { EngineRenderResult } from './engine/types';
+import { MindmapRenderer } from './engine/mindmap/MindmapRenderer';
 import LZString from 'lz-string';
 
 const DEFAULT_DSL = `// Welcome to DrakoFlow!
@@ -1242,6 +1244,8 @@ function renderDiagram(): void {
       ? 'top-to-bottom'
       : (dslDocument.layout === 'git-flow' || engine.id === 'git-flow')
       ? 'git-flow'
+      : (dslDocument.layout?.startsWith('mindmap') || engine.id === 'mindmap')
+      ? 'mindmap'
       : 'left-to-right';
 
     if (layoutSelect) {
@@ -1389,6 +1393,7 @@ function renderDiagram(): void {
       showDocumentationModal
     });
 
+    currentRenderResult = renderResult;
     currentComponents = renderResult.components;
     currentDisplayRelationships = renderResult.relationships;
 
@@ -1516,6 +1521,7 @@ window.addEventListener('keydown', (e: KeyboardEvent) => {
 });
 
 // Drag & Drop State Variables
+let currentRenderResult: EngineRenderResult | null = null;
 let dragTarget: BaseComponent | null = null;
 let dragStartMouse = { x: 0, y: 0 };
 let dragStartComponentPos = { x: 0, y: 0 };
@@ -1784,14 +1790,18 @@ canvasContainer.addEventListener('mousemove', (e) => {
     }
     
     // Update relationship lines dynamically in real-time
-    const oldLifelines = viewportG.querySelector('.relationship-lifelines');
-    const oldPaths = viewportG.querySelector('.relationship-paths');
-    const oldLabels = viewportG.querySelector('.relationship-labels');
-    if (oldLifelines) oldLifelines.remove();
-    if (oldPaths) oldPaths.remove();
-    if (oldLabels) oldLabels.remove();
-    
-    if (currentDisplayRelationships.length > 0) {
+    if (currentRenderResult?.engineId === 'mindmap' && currentRenderResult.layoutResult) {
+      MindmapRenderer.updatePaths(currentRenderResult.layoutResult, viewportG, currentTheme);
+    } else if (currentRenderResult?.engineId === 'git-flow') {
+      // Git Flow manages its own internal branch curves
+    } else if (currentDisplayRelationships.length > 0) {
+      const oldLifelines = viewportG.querySelector('.relationship-lifelines');
+      const oldPaths = viewportG.querySelector('.relationship-paths');
+      const oldLabels = viewportG.querySelector('.relationship-labels');
+      if (oldLifelines) oldLifelines.remove();
+      if (oldPaths) oldPaths.remove();
+      if (oldLabels) oldLabels.remove();
+      
       const { pathsLayer, labelsLayer, lifelinesLayer } = renderRelationships(
         currentDisplayRelationships,
         currentComponents,
@@ -2177,7 +2187,7 @@ function hasManualPositions(components: ParsedNode[]): boolean {
 
 if (layoutSelect) {
   layoutSelect.addEventListener('change', () => {
-    const selectedLayout = layoutSelect.value as 'left-to-right' | 'top-to-bottom' | 'git-flow';
+    const selectedLayout = layoutSelect.value as 'left-to-right' | 'top-to-bottom' | 'git-flow' | 'mindmap';
     let code = editor.value;
 
     if (selectedLayout === 'git-flow' && (code.trim() === '' || code.trim() === DEFAULT_DSL.trim())) {
@@ -2241,6 +2251,94 @@ c4 -> c7
       return;
     }
 
+    if (selectedLayout === 'mindmap' && (code.trim() === '' || code.trim() === DEFAULT_DSL.trim())) {
+      const mindmapBoilerplate = `@layout: mindmap
+
+mindmap: Ellipse {
+  label: "mindmap"
+}
+
+Research: Rectangle {
+  label: "Research"
+}
+
+Uses: Rectangle {
+  label: "Uses"
+}
+
+AutoCreation: Rectangle {
+  label: "On Automatic creation"
+}
+
+Effectiveness: Rectangle {
+  label: "On effectiveness\\nand features"
+}
+
+StrategicPlanning: Rectangle {
+  label: "Strategic planning"
+}
+
+CreativeTech: Rectangle {
+  label: "Creative techniques"
+}
+
+ArgumentMapping: Rectangle {
+  label: "Argument mapping"
+}
+
+Tools: Rectangle {
+  label: "Tools"
+}
+
+PenPaper: Rectangle {
+  label: "Pen and paper"
+}
+
+Mermaid: Rectangle {
+  label: "Mermaid"
+}
+
+Origins: Rectangle {
+  label: "Origins"
+}
+
+Popularisation: Rectangle {
+  label: "Popularisation"
+}
+
+History: Rectangle {
+  label: "Long history"
+}
+
+TonyBuzan: Rectangle {
+  label: "British popular psychology\\nauthor Tony Buzan"
+}
+
+// Research branch
+mindmap -> Research
+Research -> AutoCreation
+AutoCreation -> Uses
+Uses -> StrategicPlanning
+Uses -> CreativeTech
+Uses -> ArgumentMapping
+Research -> Effectiveness
+
+// Tools branch
+mindmap -> Tools
+Tools -> PenPaper
+Tools -> Mermaid
+
+// Origins branch
+mindmap -> Origins
+Origins -> Popularisation
+Popularisation -> TonyBuzan
+Origins -> History
+`;
+      editor.value = mindmapBoilerplate;
+      renderDiagram();
+      return;
+    }
+
     try {
       const doc = parseDslDocument(code);
       if (hasManualPositions(doc.components)) {
@@ -2251,6 +2349,8 @@ c4 -> c7
             ? 'top-to-bottom'
             : doc.layout === 'git-flow'
             ? 'git-flow'
+            : doc.layout?.startsWith('mindmap')
+            ? 'mindmap'
             : 'left-to-right';
           layoutSelect.value = parsedLayout;
           return;
