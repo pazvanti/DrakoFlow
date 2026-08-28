@@ -93,6 +93,24 @@ const THEME_BRANCH_PALETTES: Record<string, string[]> = {
     '#b45309', // Amber
     '#047857', // Emerald
     '#4338ca'  // Indigo
+  ],
+  'rust-dark': [
+    '#78716c', // main: Warm Stone
+    '#ea580c', // develop: Rust Orange
+    '#eab308', // feature: Amber / Gold
+    '#dc2626', // Red / Crimson
+    '#14b8a6', // Teal
+    '#8b5cf6', // Violet
+    '#f97316'  // Bright Orange
+  ],
+  'cyber-neon': [
+    '#64748b', // main: Slate
+    '#06b6d4', // develop: Electric Cyan
+    '#f43f5e', // feature: Neon Rose
+    '#a855f7', // Purple
+    '#fbbf24', // Amber
+    '#10b981', // Emerald
+    '#38bdf8'  // Sky Blue
   ]
 };
 

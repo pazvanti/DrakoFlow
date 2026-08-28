@@ -157,6 +157,8 @@ describe('Theme Customizer tests', () => {
     expect(activeThemes['drako-light']).toBeDefined();
     expect(activeThemes['obsidian-dark']).toBeDefined();
     expect(activeThemes['serene-light']).toBeDefined();
+    expect(activeThemes['rust-dark']).toBeDefined();
+    expect(activeThemes['cyber-neon']).toBeDefined();
   });
 
   it('should populate options in theme selects correctly', async () => {
@@ -185,6 +187,8 @@ describe('Theme Customizer tests', () => {
     expect(selectOptions).toContain('drako-light');
     expect(selectOptions).toContain('obsidian-dark');
     expect(selectOptions).toContain('serene-light');
+    expect(selectOptions).toContain('rust-dark');
+    expect(selectOptions).toContain('cyber-neon');
     expect(selectOptions).toContain('Solarized Custom');
 
     const loadOptions = Array.from(themeLoadSelect.options).map(opt => opt.value);
@@ -193,6 +197,8 @@ describe('Theme Customizer tests', () => {
     expect(loadOptions).not.toContain('drako-light');
     expect(loadOptions).not.toContain('obsidian-dark');
     expect(loadOptions).not.toContain('serene-light');
+    expect(loadOptions).not.toContain('rust-dark');
+    expect(loadOptions).not.toContain('cyber-neon');
   });
 
   it('should reset current theme back to default values when reset button is clicked', async () => {
@@ -212,5 +218,24 @@ describe('Theme Customizer tests', () => {
     // Verify it is restored to default
     expect(activeThemes['drako-dark'].primaryColor).toBe('#60a5fa');
     expect(pickerPrimaryColor.value).toBe('#60a5fa');
+  });
+
+  it('should persist last selected theme in localStorage and restore it on populateThemeSelects', async () => {
+    const { LAST_THEME_KEY, populateThemeSelects } = await import('../../src/main');
+
+    const themeSelect = document.getElementById('theme-select') as HTMLSelectElement;
+    populateThemeSelects();
+
+    // Simulate user selecting rust-dark
+    themeSelect.value = 'rust-dark';
+    themeSelect.dispatchEvent(new Event('change'));
+
+    // Check localStorage
+    expect(localStorage.getItem(LAST_THEME_KEY)).toBe('rust-dark');
+
+    // Simulate a fresh populate / page reload
+    themeSelect.value = '';
+    populateThemeSelects();
+    expect(themeSelect.value).toBe('rust-dark');
   });
 });

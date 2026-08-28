@@ -105,13 +105,33 @@ const THEMES: Record<string, ThemeVariables> = {
     textColor: "#0f172a", // Slate-900 text
     borderColor: "#cbd5e1", // Slate-300 borders
     fontFamily: "Outfit, system-ui, -apple-system, sans-serif"
+  },
+  "rust-dark": {
+    primaryColor: "#f97316", // Vibrant Rust Orange
+    secondaryColor: "#fdba74", // Warm Amber / Copper
+    backgroundColor: "#1c1917", // Deep Warm Rust Charcoal
+    textColor: "#fafaf9", // Warm Stone Text
+    borderColor: "#44403c", // Warm Dark Stone Border
+    fontFamily: "Outfit, system-ui, -apple-system, sans-serif"
+  },
+  "cyber-neon": {
+    primaryColor: "#06b6d4", // Electric Neon Cyan
+    secondaryColor: "#f43f5e", // Vibrant Neon Rose / Magenta
+    backgroundColor: "#0c0f17", // Deep Midnight Black
+    textColor: "#f8fafc", // Crisp White
+    borderColor: "#334155", // Neutral Slate-700 Border
+    fontFamily: "Outfit, system-ui, -apple-system, sans-serif"
   }
 };
 
-let currentTheme = THEMES["drako-dark"];
-
 // Active themes registry containing builtins and custom saved themes
-const activeThemes: Record<string, ThemeVariables> = { ...THEMES };
+const activeThemes: Record<string, ThemeVariables> = Object.fromEntries(
+  Object.entries(THEMES).map(([k, v]) => [k, { ...v }])
+);
+
+const LAST_THEME_KEY = 'drako-last-theme';
+const initialSavedTheme = localStorage.getItem(LAST_THEME_KEY) || 'drako-dark';
+let currentTheme = activeThemes[initialSavedTheme] || activeThemes["drako-dark"];
 
 // Diagram tag filtering state
 let activeDiagramTags: string[] = [];
@@ -320,7 +340,7 @@ function saveCustomThemes(themes: Record<string, ThemeVariables>): void {
 
 function refreshActiveThemes(): void {
   Object.keys(activeThemes).forEach(key => {
-    if (key !== 'drako-dark' && key !== 'drako-light' && key !== 'obsidian-dark' && key !== 'serene-light') {
+    if (!THEMES[key]) {
       delete activeThemes[key];
     }
   });
@@ -2152,6 +2172,11 @@ if (btnToggleMinimap) {
 
 themeSelect.addEventListener('change', () => {
   const selectedTheme = themeSelect.value;
+  try {
+    localStorage.setItem(LAST_THEME_KEY, selectedTheme);
+  } catch (e) {
+    console.error('Failed to save last theme to localStorage', e);
+  }
   currentTheme = activeThemes[selectedTheme] || activeThemes["drako-dark"];
 
   // Update diagram panel class
@@ -2406,9 +2431,19 @@ function populateThemeSelects(): void {
   sereneOpt.textContent = 'Serene Light';
   themeSelect.appendChild(sereneOpt);
 
+  const rustOpt = document.createElement('option');
+  rustOpt.value = 'rust-dark';
+  rustOpt.textContent = 'Rust Dark';
+  themeSelect.appendChild(rustOpt);
+
+  const cyberNeonOpt = document.createElement('option');
+  cyberNeonOpt.value = 'cyber-neon';
+  cyberNeonOpt.textContent = 'Cyber Neon';
+  themeSelect.appendChild(cyberNeonOpt);
+
   // Add custom themes
   Object.keys(activeThemes).forEach(key => {
-    if (key !== 'drako-dark' && key !== 'drako-light' && key !== 'obsidian-dark' && key !== 'serene-light') {
+    if (!THEMES[key]) {
       const opt = document.createElement('option');
       opt.value = key;
       opt.textContent = key;
@@ -2417,8 +2452,11 @@ function populateThemeSelects(): void {
   });
 
   // Restore selection
-  if (activeThemes[currentVal]) {
+  const savedTheme = localStorage.getItem(LAST_THEME_KEY);
+  if (currentVal && activeThemes[currentVal]) {
     themeSelect.value = currentVal;
+  } else if (savedTheme && activeThemes[savedTheme]) {
+    themeSelect.value = savedTheme;
   } else {
     themeSelect.value = 'drako-dark';
   }
@@ -2431,7 +2469,7 @@ function populateThemeSelects(): void {
   themeLoadSelect.appendChild(defaultLoadOpt);
 
   Object.keys(activeThemes).forEach(key => {
-    if (key !== 'drako-dark' && key !== 'drako-light' && key !== 'obsidian-dark' && key !== 'serene-light') {
+    if (!THEMES[key]) {
       const opt = document.createElement('option');
       opt.value = key;
       opt.textContent = key;
@@ -2439,7 +2477,7 @@ function populateThemeSelects(): void {
     }
   });
 
-  if (activeThemes[loadVal] && loadVal !== 'drako-dark' && loadVal !== 'drako-light' && loadVal !== 'obsidian-dark' && loadVal !== 'serene-light') {
+  if (activeThemes[loadVal] && !THEMES[loadVal]) {
     themeLoadSelect.value = loadVal;
   } else {
     themeLoadSelect.value = '';
@@ -2470,7 +2508,7 @@ setupColorSync(pickerBorderColor, inputBorderColor);
 
 if (btnEditTheme) {
   btnEditTheme.addEventListener('click', () => {
-    // Populate form with currentTheme variables
+    // Populate inputs with current active theme values
     pickerPrimaryColor.value = currentTheme.primaryColor;
     inputPrimaryColor.value = currentTheme.primaryColor.toUpperCase();
 
@@ -2490,7 +2528,7 @@ if (btnEditTheme) {
 
     // If the active theme is a custom theme, set the inputs appropriately
     const activeKey = themeSelect.value;
-    if (activeKey !== 'drako-dark' && activeKey !== 'drako-light' && activeKey !== 'obsidian-dark' && activeKey !== 'serene-light') {
+    if (!THEMES[activeKey]) {
       themeLoadSelect.value = activeKey;
       inputThemeName.value = activeKey;
     } else {
@@ -2542,7 +2580,7 @@ if (btnDeleteSavedTheme) {
       return;
     }
 
-    if (selectedKey === 'drako-dark' || selectedKey === 'drako-light' || selectedKey === 'obsidian-dark' || selectedKey === 'serene-light') {
+    if (THEMES[selectedKey]) {
       alert("Cannot delete built-in themes.");
       return;
     }
@@ -2558,6 +2596,11 @@ if (btnDeleteSavedTheme) {
       // If the deleted theme was current, switch to drako-dark
       if (themeSelect.value === selectedKey) {
         themeSelect.value = 'drako-dark';
+        try {
+          localStorage.setItem(LAST_THEME_KEY, 'drako-dark');
+        } catch (e) {
+          console.error('Failed to save last theme to localStorage', e);
+        }
         currentTheme = activeThemes['drako-dark'];
         
         // Update diagram panel class and canvas variables
@@ -2598,7 +2641,7 @@ if (btnSaveCustomTheme) {
       return;
     }
 
-    if (themeName === 'drako-dark' || themeName === 'drako-light' || themeName === 'obsidian-dark' || themeName === 'serene-light') {
+    if (THEMES[themeName]) {
       alert("Cannot overwrite built-in themes. Please choose a different name.");
       return;
     }
@@ -2631,6 +2674,11 @@ if (btnSaveCustomTheme) {
 
     // Select the newly saved theme
     themeSelect.value = themeName;
+    try {
+      localStorage.setItem(LAST_THEME_KEY, themeName);
+    } catch (e) {
+      console.error('Failed to save last theme to localStorage', e);
+    }
     currentTheme = activeThemes[themeName];
 
     // Update diagram panel class and canvas variables
@@ -2672,7 +2720,7 @@ if (btnApplyTheme) {
 
     // Save modifications if editing an active custom theme
     const activeKey = themeSelect.value;
-    if (activeKey !== 'drako-dark' && activeKey !== 'drako-light') {
+    if (!THEMES[activeKey]) {
       const custom = loadCustomThemes();
       custom[activeKey] = { ...currentTheme };
       saveCustomThemes(custom);
@@ -2702,29 +2750,9 @@ if (btnResetTheme) {
   btnResetTheme.addEventListener('click', () => {
     const activeKey = themeSelect.value;
 
-    if (activeKey === 'drako-dark' || activeKey === 'drako-light') {
+    if (THEMES[activeKey]) {
       // Revert built-in themes to default static values
-      const defaults: Record<string, ThemeVariables> = {
-        'drako-dark': {
-          primaryColor: "#60a5fa",
-          secondaryColor: "#a1a1aa",
-          backgroundColor: "#18181b",
-          textColor: "#f4f4f5",
-          borderColor: "#52525b",
-          fontFamily: "Outfit, system-ui, -apple-system, sans-serif"
-        },
-        'drako-light': {
-          primaryColor: "#1d4ed8",
-          secondaryColor: "#4b5563",
-          backgroundColor: "#ffffff",
-          textColor: "#1f2937",
-          borderColor: "#9ca3af",
-          fontFamily: "Outfit, system-ui, -apple-system, sans-serif"
-        }
-      };
-
-      const original = defaults[activeKey];
-      // Reset in activeThemes and currentTheme
+      const original = THEMES[activeKey];
       activeThemes[activeKey] = { ...original };
       currentTheme = activeThemes[activeKey];
     } else {
@@ -2734,7 +2762,7 @@ if (btnResetTheme) {
         activeThemes[activeKey] = { ...saved[activeKey] };
         currentTheme = activeThemes[activeKey];
       }
-    }
+    } 
 
     // Prefill modal form with restored values
     pickerPrimaryColor.value = currentTheme.primaryColor;
@@ -3629,8 +3657,10 @@ function initializeApp(): void {
   refreshActiveThemes();
   populateThemeSelects();
 
-  // Set initial currentTheme
-  const selectedTheme = themeSelect.value || "drako-dark";
+  // Set initial currentTheme from saved preference or themeSelect
+  const savedTheme = localStorage.getItem(LAST_THEME_KEY);
+  const selectedTheme = (savedTheme && activeThemes[savedTheme]) ? savedTheme : (themeSelect.value || "drako-dark");
+  themeSelect.value = selectedTheme;
   currentTheme = activeThemes[selectedTheme] || activeThemes["drako-dark"];
 
   // Set initial diagram theme class and inline CSS variables
@@ -3676,6 +3706,7 @@ if (document.readyState === 'loading') {
 }
 
 export {
+  LAST_THEME_KEY,
   loadCustomThemes,
   saveCustomThemes,
   refreshActiveThemes,
