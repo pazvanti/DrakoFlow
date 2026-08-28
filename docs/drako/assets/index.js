@@ -545,6 +545,19 @@ ${r}
       let isPanning = false;
       let startPan = { x: 0, y: 0 };
       
+      // Minimap state & elements
+      let isMinimapVisible = ${r.includeMinimap?"true":"false"};
+      const MINIMAP_WIDTH = 180;
+      const MINIMAP_HEIGHT = 120;
+      let currentMinimapScale = 1.0;
+      let currentMinimapDx = 0;
+      let currentMinimapDy = 0;
+      const minimapContainer = document.getElementById('minimap-container');
+      const minimapSvg = document.getElementById('minimap-svg');
+      const minimapContentG = document.getElementById('minimap-content-g');
+      const minimapViewportRect = document.getElementById('minimap-viewport-rect');
+      const btnToggleMinimap = document.getElementById('btn-toggle-minimap');
+      
       // Setup default SVG drag styling
       if (diagramSvg) {
         diagramSvg.setAttribute('width', '100%');
@@ -953,19 +966,6 @@ ${r}
 
       // Minimap logic
       ${r.includeMinimap?`
-      let isMinimapVisible = true;
-      const MINIMAP_WIDTH = 180;
-      const MINIMAP_HEIGHT = 120;
-      let currentMinimapScale = 1.0;
-      let currentMinimapDx = 0;
-      let currentMinimapDy = 0;
-      
-      const minimapContainer = document.getElementById('minimap-container');
-      const minimapSvg = document.getElementById('minimap-svg');
-      const minimapContentG = document.getElementById('minimap-content-g');
-      const minimapViewportRect = document.getElementById('minimap-viewport-rect');
-      const btnToggleMinimap = document.getElementById('btn-toggle-minimap');
-
       function updateMinimapContent() {
         if (!minimapContainer || !minimapContentG || !viewportG || !canvasContainer) return;
         minimapContentG.innerHTML = '';

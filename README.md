@@ -2,25 +2,50 @@
 
 **Live Site:** [https://pazvanti.github.io/DrakoFlow/](https://pazvanti.github.io/DrakoFlow/)
 
-DrakoFlow is a lightweight, offline-first, client-side text-to-diagram engine written in TypeScript. It converts a clean, human-readable declarative DSL into interactive, themeable architecture diagrams that run entirely in the browser with no server-side dependencies.
+[![Visual Studio Marketplace](https://img.shields.io/badge/VS%20Code-Extension-blue?style=flat-square&logo=visual-studio-code)](https://marketplace.visualstudio.com/items?itemName=pazvanti.drakoflow-vscode)
+[![IntelliJ Plugin](https://img.shields.io/badge/IntelliJ%20IDEA-Plugin-orange?style=flat-square&logo=intellij-idea)](./intellij-extension)
+[![License: GPL-3.0](https://img.shields.io/badge/License-GPL--3.0-purple.svg?style=flat-square)](./LICENSE)
+[![Privacy First](https://img.shields.io/badge/Privacy-100%25%20Offline-success.svg?style=flat-square)](#-highlights)
+
+DrakoFlow is a lightweight, offline-first, client-side text-to-diagram engine written in TypeScript. It converts a clean, human-readable declarative DSL into interactive, themeable architecture diagrams, sequence flows, and Git branching workflows that run entirely in the browser, VS Code, or IntelliJ with no server-side dependencies.
 
 > [!IMPORTANT]
-> **Privacy-First & Secure**: Everything is processed locally in the browser. No diagram data is sent to a back-end server.
+> **Privacy-First & Secure**: Everything is processed locally. No diagram data is sent to a back-end server.
+
+---
+
+## 🎬 Live Demo
+
+![DrakoFlow Live Preview Demo](https://raw.githubusercontent.com/pazvanti/DrakoFlow/main/screenshots/drako.gif)
 
 ---
 
 ## ✨ Highlights
 
 - **Declarative DSL parser.** Turn structured text blocks into diagrams instantly.
+- **Bi-directional editor ↔ canvas highlighting.** Hover in the diagram to highlight the corresponding DSL lines, and vice versa.
+- **Git Flow engine.** Specialized `@layout: git-flow` engine visualizing branch lanes, commit hash badges, and merge curves.
+- **Sequence & flowchart engines.** Left-to-right and top-to-bottom flows with lifelines, animated arrows, and routing.
 - **PlantUML translator (Beta).** Import PlantUML and auto-translate it to DrakoFlow's DSL.
 - **Drag-and-drop overrides.** Move elements on the canvas; coordinate overrides (`x` and `y`) are rounded and serialized back into the DSL editor.
-- **Canvas lock.** Prevent accidental edits by locking the canvas (disables dragging when enabled).
-- **Editor ↔ Canvas highlighting.** Hover in the SVG canvas to highlight the corresponding DSL lines, and vice versa.
+- **Canvas lock.** Prevent accidental edits by locking the canvas.
 - **Nested scopes & packages.** Group related components using `Package` blocks or `VerticalContainer` layouts.
 - **Themes & style overrides.** Switch themes or customize shape colors via a `themeOverride` block.
-- **Offline export options.** Export high-resolution PNG, copy SVG to the clipboard, or export a self-contained interactive HTML player.
+- **Offline export options.** Export high-resolution PNG, copy SVG to clipboard, or export a self-contained interactive HTML player.
 - **Snap-to-grid & minimap.** Toggle grid snapping and use the minimap for quick navigation.
-- **Serverless sharing.** Share diagrams via a URL that contains compressed diagram data.
+- **Serverless sharing.** Share diagrams via compressed URL data.
+
+---
+
+## 📸 Screenshots
+
+| Sequence Flows & Architecture | Git Flow Branching |
+| :---: | :---: |
+| ![Sequence Flow](https://raw.githubusercontent.com/pazvanti/DrakoFlow/main/screenshots/screenshot1.png) | ![Git Flow](https://raw.githubusercontent.com/pazvanti/DrakoFlow/main/screenshots/screenshot3.png) |
+
+| Bi-Directional Code Highlighting |
+| :---: |
+| ![Bi-Directional Highlighting](https://raw.githubusercontent.com/pazvanti/DrakoFlow/main/screenshots/screenshot2.png) |
 
 ---
 

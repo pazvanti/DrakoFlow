@@ -1,20 +1,49 @@
 {
   "name": "drakoflow-vscode",
   "displayName": "DrakoFlow Diagram Engine",
-  "description": "Visual Studio Code preview panel for DrakoFlow text diagrams",
+  "description": "Fast, privacy-first text-to-diagram engine with live preview, bi-directional code highlighting, Git Flow, sequence flows, and architecture diagrams.",
   "version": "1.0.0",
+  "publisher": "pazvanti",
   "icon": "icon.png",
+  "homepage": "https://pazvanti.github.io/DrakoFlow/",
+  "galleryBanner": {
+    "color": "#18181b",
+    "theme": "dark"
+  },
+  "bugs": {
+    "url": "https://github.com/pazvanti/DrakoFlow/issues"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/pazvanti/DrakoFlow.git",
     "directory": "vscode-extension"
   },
+  "keywords": [
+    "diagram",
+    "diagrams",
+    "text-to-diagram",
+    "diagram-preview",
+    "sequence-diagram",
+    "flowchart",
+    "architecture",
+    "software-architecture",
+    "git-flow",
+    "gitgraph",
+    "uml",
+    "visualization",
+    "plantuml",
+    "mermaid",
+    "drakoflow",
+    "c4-model",
+    "graphviz"
+  ],
   "engines": {
     "vscode": "^1.75.0"
   },
   "categories": [
     "Visualization",
-    "Programming Languages"
+    "Programming Languages",
+    "Other"
   ],
   "main": "./out/extension.js",
   "activationEvents": [

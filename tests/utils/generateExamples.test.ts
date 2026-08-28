@@ -33,7 +33,7 @@ function generateExample(filename: string) {
   viewportG.setAttribute('id', 'viewport-g');
   svgElement.appendChild(viewportG);
 
-  const engine = EngineRegistry.getInstance().getEngine(doc, doc.layoutDirective);
+  const engine = EngineRegistry.getInstance().getEngine(doc, doc.layout);
   
   const result = engine.render({
     document: doc,

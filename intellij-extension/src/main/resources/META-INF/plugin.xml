@@ -4,9 +4,91 @@
     <vendor url="https://github.com/pazvanti/DrakoFlow">DrakoFlow</vendor>
 
     <description><![CDATA[
-    Live split-view preview and diagram engine for DrakoFlow (<code>.drako</code>) files inside IntelliJ IDEA.<br>
-    Features DSL code editing on the left and real-time visual diagram rendering on the right via embedded web renderer.
+    <h2>DrakoFlow: Privacy-First Text-to-Diagram Engine for JetBrains IDEs</h2>
+    <p>
+        <b>DrakoFlow</b> is a lightweight, offline-first, client-side <b>text-to-diagram engine</b> that turns human-readable declarative DSL code (<code>.drako</code>) into interactive, themeable architecture diagrams, sequence flows, and Git branching workflows.
+    </p>
+    <p>
+        Edit your diagram scripts on the left and see the rendered diagram update live in real-time on the right with bi-directional highlighting, interactive zoom/pan, and zero server dependencies.
+    </p>
+
+    <p align="center">
+        <img src="https://raw.githubusercontent.com/pazvanti/DrakoFlow/main/screenshots/drako.gif" width="700" alt="DrakoFlow Live Preview Demo"/>
+    </p>
+
+    <h3>✨ Key Highlights</h3>
+    <ul>
+        <li><b>Live Split-View Preview:</b> Instant, lag-free diagram rendering synchronized with your editor as you type.</li>
+        <li><b>Bi-Directional Code ↔ Canvas Highlighting:</b> Hover over diagram components to highlight the corresponding lines in your editor, and move your cursor in the editor to highlight nodes in the diagram.</li>
+        <li><b>Specialized Git Flow Engine:</b> Dedicated <code>@layout: git-flow</code> engine visualizing branch swimlanes, smooth Bézier merge curves, commit hash badges, and release tags.</li>
+        <li><b>Sequence & Architecture Flowcharts:</b> Horizontal and vertical layouts with lifelines, animated flow arrows, and auto-routing.</li>
+        <li><b>Extensive UML & Component Library:</b> Model systems with <code>Cube</code> (3D isometric), <code>Cylinder</code> (database), <code>Package</code>, <code>Actor</code>, <code>Process</code>, <code>Diamond</code>, <code>Class</code>, <code>Cloud</code>, <code>Storage</code>, <code>Queue</code>, and more.</li>
+        <li><b>20+ Built-in Tech Icons:</b> Add Docker, AWS, PostgreSQL, Kubernetes, Redis, Python, React, Node, and more directly to components.</li>
+        <li><b>100% Offline & Private:</b> All rendering runs locally via embedded Chromium/JCEF. No diagram data is ever transmitted to external servers.</li>
+        <li><b>PlantUML Importer:</b> Translate existing PlantUML diagrams directly into DrakoFlow DSL.</li>
+    </ul>
+
+    <h3>📸 Screenshots</h3>
+    <p><b>Sequence Flows & Architecture:</b></p>
+    <p><img src="https://raw.githubusercontent.com/pazvanti/DrakoFlow/main/screenshots/screenshot1.png" width="700" alt="Sequence & Architecture Flowchart"/></p>
+
+    <p><b>Bi-Directional Highlighting:</b></p>
+    <p><img src="https://raw.githubusercontent.com/pazvanti/DrakoFlow/main/screenshots/screenshot2.png" width="700" alt="Bi-Directional Highlighting"/></p>
+
+    <p><b>Git Flow Branching Diagrams:</b></p>
+    <p><img src="https://raw.githubusercontent.com/pazvanti/DrakoFlow/main/screenshots/screenshot3.png" width="700" alt="Git Flow Diagram"/></p>
+
+    <h3>🚀 Quick Start</h3>
+    <ol>
+        <li>Create or open any file with the <code>.drako</code> extension.</li>
+        <li>Use IntelliJ's native top-right split editor controls to switch between <b>Editor Only</b>, <b>Split View</b>, or <b>Preview Only</b>.</li>
+        <li>Write your diagram DSL and watch it render live!</li>
+    </ol>
+
+    <h3>📝 Example DSL</h3>
+    <pre><code>// Architecture & Sequence Flow
+Client: Process {
+  label: "Client App"
+  lifeline: true
+  icon: "react"
+}
+
+Server: Process {
+  label: "API Server"
+  lifeline: true
+  icon: "docker"
+}
+
+Database: Cylinder {
+  label: "PostgreSQL Database"
+  icon: "postgres"
+}
+
+Client -> Server: "1. GET /users" { lineStyle: "solid" }
+Server -> Database: "2. Query Database" { lineStyle: "dashed" }
+Database -> Server: "3. User Records" { lineStyle: "dashed" }
+Server -> Client: "4. 200 OK (JSON)" { color: "#34d399" }
+</code></pre>
+
+    <hr/>
+    <p>
+        🌐 <a href="https://pazvanti.github.io/DrakoFlow/">Live Web Application</a> &bull;
+        📖 <a href="https://pazvanti.github.io/DrakoFlow/examples.html">Examples Gallery</a> &bull;
+        🐙 <a href="https://github.com/pazvanti/DrakoFlow">GitHub Repository</a> &bull;
+        🐛 <a href="https://github.com/pazvanti/DrakoFlow/issues">Issue Tracker</a>
+    </p>
     ]]></description>
+
+    <change-notes><![CDATA[
+    <h3>1.0.0</h3>
+    <ul>
+        <li>Initial release of DrakoFlow Diagram Engine for IntelliJ IDEA and JetBrains IDEs.</li>
+        <li>Real-time split editor preview for <code>.drako</code> files.</li>
+        <li>Bi-directional code and diagram component highlighting.</li>
+        <li>Support for Sequence, Architecture, Flowcharts, and Git Flow layouts.</li>
+        <li>Full offline rendering support.</li>
+    </ul>
+    ]]></change-notes>
 
     <depends>com.intellij.modules.platform</depends>
 
