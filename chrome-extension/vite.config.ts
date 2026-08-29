@@ -6,19 +6,21 @@ export default defineConfig({
   build: {
     outDir: path.resolve(__dirname, 'dist'),
     emptyOutDir: true,
-    lib: {
-      entry: path.resolve(__dirname, 'src/content.ts'),
-      name: 'DrakoFlowContent',
-      formats: ['iife'],
-      fileName: () => 'content.js'
-    },
     rollupOptions: {
+      input: {
+        content: path.resolve(__dirname, 'src/content.ts'),
+        player: path.resolve(__dirname, 'src/player.ts')
+      },
       output: {
-        extend: true,
+        entryFileNames: '[name].js',
+        chunkFileNames: 'chunks/[name].js',
         assetFileNames: (assetInfo) => {
-          if (assetInfo.name === 'style.css') return 'content.css';
-          return assetInfo.name || '';
-        }
+          if (assetInfo.name?.includes('content') || assetInfo.name === 'style.css') return 'content.css';
+          if (assetInfo.name?.includes('player')) return 'player.css';
+          return '[name].[ext]';
+        },
+        format: 'iife',
+        name: 'DrakoFlowBundle'
       }
     }
   }

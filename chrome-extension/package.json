@@ -5,8 +5,8 @@
   "author": "pazvanti",
   "license": "GPL-3.0",
   "scripts": {
-    "build": "vite build",
-    "watch": "vite build --watch"
+    "build": "node scripts/build.js",
+    "watch": "node scripts/build.js"
   },
   "devDependencies": {
     "@types/chrome": "^0.0.260",

@@ -72,7 +72,9 @@ Gateway: Rectangle {
   x: 50
   y: 155
 }
+```
 
+```drako
 // 2. Nest objects inside UML Package boundaries
 @tags: ["core", "services"]
 CoreDomain: Package {
@@ -95,7 +97,9 @@ CoreDomain: Package {
     icon: "aws"
   }
 }
+```
 
+```drako
 // 3. Define structured databases
 @tags: ["storage"]
 UserDB: Cylinder {
@@ -104,7 +108,9 @@ UserDB: Cylinder {
   x: 340
   y: 220
 }
+```
 
+```drako
 // 4. Connect elements with labels and styled routes
 Gateway -> AuthService: "Validate token"
 Gateway o-> PaymentService: "Process transaction"

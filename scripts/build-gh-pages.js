@@ -64,7 +64,7 @@ try {
 
   // Build and package Chrome extension
   console.log('Building Chrome extension...');
-  execSync('npx vite build --config chrome-extension/vite.config.ts', { stdio: 'inherit' });
+  execSync('node chrome-extension/scripts/build.js', { stdio: 'inherit' });
 
   const chromeDir = path.join(__dirname, '../chrome-extension');
   const chromeZipDest = path.join(downloadsDir, 'drakoflow-chrome-1.0.0.zip');
@@ -75,7 +75,7 @@ try {
 
   try {
     if (fs.existsSync(chromeZipDest)) fs.unlinkSync(chromeZipDest);
-    const filesToZip = ['manifest.json', 'popup.html', 'dist', 'icons', 'README.md']
+    const filesToZip = ['manifest.json', 'popup.html', 'player.html', 'dist', 'icons', 'README.md']
       .map(f => `'${path.join(chromeDir, f)}'`)
       .join(', ');
     execSync(`powershell -Command "Compress-Archive -Path ${filesToZip} -DestinationPath '${chromeZipDest}' -Force"`);

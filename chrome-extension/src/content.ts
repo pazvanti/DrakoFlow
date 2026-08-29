@@ -115,7 +115,7 @@ function renderDrakoDiagram(targetElement: HTMLElement, rawDsl: string): void {
       });
     });
 
-    // Fullscreen Player Button (Opens blob in new tab)
+    // Fullscreen Player Button (Opens extension player.html in new tab)
     const btnFullscreen = document.createElement('button');
     btnFullscreen.className = 'drakoflow-btn';
     btnFullscreen.type = 'button';
@@ -123,9 +123,14 @@ function renderDrakoDiagram(targetElement: HTMLElement, rawDsl: string): void {
     btnFullscreen.title = 'Open Fullscreen Interactive Player';
     btnFullscreen.addEventListener('click', (e) => {
       e.stopPropagation();
-      const blob = new Blob([htmlPlayer], { type: 'text/html' });
-      const blobUrl = URL.createObjectURL(blob);
-      window.open(blobUrl, '_blank');
+      if (typeof chrome !== 'undefined' && chrome.runtime?.getURL) {
+        const fullPlayerUrl = chrome.runtime.getURL('player.html') + '#code=' + encodeURIComponent(dsl);
+        window.open(fullPlayerUrl, '_blank');
+      } else {
+        const blob = new Blob([htmlPlayer], { type: 'text/html' });
+        const blobUrl = URL.createObjectURL(blob);
+        window.open(blobUrl, '_blank');
+      }
     });
 
     // Open in Web App Button
@@ -147,11 +152,22 @@ function renderDrakoDiagram(targetElement: HTMLElement, rawDsl: string): void {
     header.appendChild(actions);
     wrapper.appendChild(header);
 
-    // Interactive Iframe
+    // Interactive Iframe (Uses isolated extension origin to bypass host page CSP)
     const iframe = document.createElement('iframe');
     iframe.className = 'drakoflow-embed-iframe';
-    iframe.setAttribute('sandbox', 'allow-scripts allow-popups allow-downloads allow-modals');
-    iframe.srcdoc = htmlPlayer;
+    
+    if (typeof chrome !== 'undefined' && chrome.runtime?.getURL) {
+      const playerUrl = chrome.runtime.getURL('player.html');
+      iframe.src = `${playerUrl}#code=${encodeURIComponent(dsl)}`;
+      iframe.addEventListener('load', () => {
+        try {
+          iframe.contentWindow?.postMessage({ type: 'RENDER_DRAKO', dsl }, '*');
+        } catch (postErr) {}
+      });
+    } else {
+      iframe.setAttribute('sandbox', 'allow-scripts allow-popups allow-downloads allow-modals');
+      iframe.srcdoc = htmlPlayer;
+    }
 
     // Calculate height
     const calculatedHeight = Math.min(750, Math.max(450, (result.bbox?.height || 400) + 120));
@@ -173,15 +189,35 @@ function renderDrakoDiagram(targetElement: HTMLElement, rawDsl: string): void {
       btnToggleCode.classList.toggle('active');
     });
 
-    // Replace or insert next to target element
-    const parent = targetElement.parentElement;
+    // Replace the outermost code block wrapper (e.g. GitHub's .snippet-clipboard-content or .highlight)
+    const containerToReplace = findOutermostCodeContainer(targetElement);
+    containerToReplace.dataset.drakoflowProcessed = 'true';
+    targetElement.dataset.drakoflowProcessed = 'true';
+
+    const parent = containerToReplace.parentElement;
     if (parent) {
-      parent.insertBefore(wrapper, targetElement);
-      targetElement.style.display = 'none';
+      parent.insertBefore(wrapper, containerToReplace);
+      containerToReplace.style.display = 'none';
     }
   } catch (err: any) {
     console.debug('[DrakoFlow Chrome Extension] Diagram render skipped:', err.message || err);
   }
+}
+
+function findOutermostCodeContainer(element: HTMLElement): HTMLElement {
+  const githubSnippet = element.closest('.snippet-clipboard-content') as HTMLElement;
+  if (githubSnippet) return githubSnippet;
+
+  const highlightDiv = element.closest('.highlight') as HTMLElement;
+  if (highlightDiv) return highlightDiv;
+
+  const notionBlock = element.closest('.notion-code-block') as HTMLElement;
+  if (notionBlock) return notionBlock;
+
+  const pre = element.closest('pre') as HTMLElement;
+  if (pre) return pre;
+
+  return element;
 }
 
 export function scanAndProcessDocument(): void {
@@ -194,7 +230,6 @@ export function scanAndProcessDocument(): void {
     if (block.closest('.drakoflow-embed-wrapper')) return;
     const target = (block.closest('pre') || block) as HTMLElement;
     if (target.dataset.drakoflowProcessed) return;
-    target.dataset.drakoflowProcessed = 'true';
     renderDrakoDiagram(target, block.textContent || '');
   });
 

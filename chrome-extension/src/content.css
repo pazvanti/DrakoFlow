@@ -1,6 +1,10 @@
 /* DrakoFlow Embedded Player Styles */
 .drakoflow-embed-wrapper {
-  margin: 1.25rem 0 !important;
+  display: block !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 100% !important;
+  margin: 1.5rem 0 !important;
   border: 1px solid #27272a !important;
   border-radius: 10px !important;
   background-color: #18181b !important;

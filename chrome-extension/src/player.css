@@ -1,0 +1,336 @@
+/* DrakoFlow Player Styles (Fully Offline & CSP-Compliant) */
+:root {
+  --diagram-bg: #18181b;
+  --diagram-dot-color: rgba(255, 255, 255, 0.08);
+  --app-bg-dark: #18181b;
+  --app-border-color: rgba(255, 255, 255, 0.15);
+  --app-text-main: #f4f4f5;
+  --app-text-muted: #a1a1aa;
+  --app-accent-color: #3b82f6;
+  --app-accent-glow: rgba(59, 130, 246, 0.25);
+  --diagram-hover-glow: rgba(59, 130, 246, 0.4);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body, html {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background-color: var(--diagram-bg);
+  color: var(--app-text-main);
+  user-select: none;
+}
+
+.diagram-canvas-container {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+  background-color: var(--diagram-bg);
+  background-image: radial-gradient(var(--diagram-dot-color) 1.2px, transparent 1.2px);
+  background-size: 20px 20px;
+  cursor: grab;
+}
+
+.diagram-canvas-container.panning {
+  cursor: grabbing;
+}
+
+.diagram-svg {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+  overflow: visible;
+}
+
+/* Floating Toolbar */
+.floating-controls {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(24, 24, 27, 0.85);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--app-border-color);
+  padding: 5px 8px;
+  border-radius: 30px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  z-index: 100;
+}
+
+.floating-btn {
+  background: transparent;
+  border: none;
+  color: var(--app-text-main);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  padding: 0;
+}
+
+.floating-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.floating-btn svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+
+.toolbar-separator {
+  width: 1px;
+  height: 18px;
+  background-color: var(--app-border-color);
+  margin: 0 2px;
+}
+
+/* Tag Filtering Bar */
+.tag-filter-bar {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(24, 24, 27, 0.85);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--app-border-color);
+  padding: 6px 12px;
+  border-radius: 20px;
+  z-index: 100;
+  max-width: calc(100% - 28px);
+  overflow-x: auto;
+  font-size: 12px;
+}
+
+.tag-filter-label {
+  color: var(--app-text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 10px;
+  letter-spacing: 0.05em;
+}
+
+.tag-pills {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.tag-pill {
+  padding: 2px 8px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--app-text-main);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-size: 11px;
+}
+
+.tag-pill:hover {
+  background: rgba(59, 130, 246, 0.2);
+  border-color: #3b82f6;
+  color: #93c5fd;
+}
+
+.tag-pill.active {
+  background: #2563eb;
+  border-color: #3b82f6;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.btn-clear-tags {
+  background: transparent;
+  border: none;
+  color: var(--app-text-muted);
+  cursor: pointer;
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.btn-clear-tags:hover {
+  color: #ef4444;
+}
+
+/* Minimap */
+.minimap-container {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  width: 160px;
+  height: 110px;
+  background: rgba(24, 24, 27, 0.9);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--app-border-color);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  z-index: 90;
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+.minimap-container.collapsed {
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.9);
+}
+
+.minimap-svg {
+  width: 100%;
+  height: 100%;
+  cursor: crosshair;
+}
+
+.minimap-viewport-rect {
+  fill: rgba(59, 130, 246, 0.2);
+  stroke: #3b82f6;
+  stroke-width: 1.5;
+}
+
+/* Watermark */
+.player-watermark {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10.5px;
+  color: var(--app-text-muted);
+  opacity: 0.6;
+  pointer-events: none;
+  letter-spacing: 0.03em;
+}
+
+/* Code View Modal */
+.code-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(6px);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.code-modal-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.code-modal {
+  width: 90%;
+  max-width: 680px;
+  max-height: 80vh;
+  background: #18181b;
+  border: 1px solid var(--app-border-color);
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
+}
+
+.code-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 16px;
+  background: #121214;
+  border-bottom: 1px solid var(--app-border-color);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.modal-btn-copy {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--app-border-color);
+  color: var(--app-text-main);
+  padding: 3px 8px;
+  border-radius: 5px;
+  font-size: 11.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.modal-btn-copy:hover {
+  background: rgba(59, 130, 246, 0.2);
+  border-color: #3b82f6;
+  color: #93c5fd;
+}
+
+.modal-btn-copy.copied {
+  background: rgba(34, 197, 94, 0.2);
+  border-color: #22c55e;
+  color: #4ade80;
+}
+
+.code-modal-body {
+  padding: 16px;
+  overflow-y: auto;
+  font-family: 'Fira Code', Consolas, Monaco, monospace;
+  font-size: 12px;
+  color: #4ade80;
+  background: #09090b;
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+/* Diagram Component Interactions */
+.diagram-component {
+  transition: filter 0.15s ease, opacity 0.15s ease;
+  cursor: pointer;
+}
+
+.diagram-component:hover {
+  filter: drop-shadow(0 0 10px var(--diagram-hover-glow, rgba(59, 130, 246, 0.6)));
+}
+
+.chart-component {
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.4));
+}
+
+.chart-bar, .chart-bar-3d, .chart-line-point {
+  cursor: pointer;
+}
+
+.chart-bar:hover, .chart-bar-3d:hover {
+  filter: brightness(1.25) drop-shadow(0 0 8px rgba(255, 255, 255, 0.5));
+}
+
+.chart-line-point:hover {
+  r: 7px;
+  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.9));
+}
