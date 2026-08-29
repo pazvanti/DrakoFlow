@@ -1,0 +1,141 @@
+/* DrakoFlow Embedded Player Styles */
+.drakoflow-embed-wrapper {
+  margin: 1.25rem 0 !important;
+  border: 1px solid #27272a !important;
+  border-radius: 10px !important;
+  background-color: #18181b !important;
+  overflow: hidden !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4) !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+  color: #f4f4f5 !important;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+  box-sizing: border-box !important;
+}
+
+.drakoflow-embed-wrapper:hover {
+  border-color: #3f3f46 !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5) !important;
+}
+
+.drakoflow-embed-header {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  padding: 0.5rem 0.85rem !important;
+  background-color: #121214 !important;
+  border-bottom: 1px solid #27272a !important;
+  font-size: 0.8rem !important;
+  user-select: none !important;
+}
+
+.drakoflow-embed-brand {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+  font-weight: 600 !important;
+  color: #e4e4e7 !important;
+}
+
+.drakoflow-embed-logo {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 20px !important;
+  height: 20px !important;
+  border-radius: 4px !important;
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%) !important;
+  color: #ffffff !important;
+  font-size: 11px !important;
+}
+
+.drakoflow-embed-badge {
+  font-size: 0.68rem !important;
+  padding: 0.15rem 0.45rem !important;
+  border-radius: 4px !important;
+  background-color: rgba(59, 130, 246, 0.15) !important;
+  border: 1px solid rgba(59, 130, 246, 0.3) !important;
+  color: #60a5fa !important;
+  font-weight: 500 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.04em !important;
+}
+
+.drakoflow-embed-actions {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.4rem !important;
+}
+
+.drakoflow-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.35rem !important;
+  padding: 0.25rem 0.55rem !important;
+  font-size: 0.75rem !important;
+  font-weight: 500 !important;
+  color: #a1a1aa !important;
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 5px !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+  text-decoration: none !important;
+  line-height: 1.2 !important;
+}
+
+.drakoflow-btn:hover {
+  color: #ffffff !important;
+  background-color: rgba(255, 255, 255, 0.12) !important;
+  border-color: rgba(255, 255, 255, 0.25) !important;
+}
+
+.drakoflow-btn-primary {
+  color: #93c5fd !important;
+  background-color: rgba(59, 130, 246, 0.15) !important;
+  border-color: rgba(59, 130, 246, 0.35) !important;
+}
+
+.drakoflow-btn-primary:hover {
+  color: #ffffff !important;
+  background-color: #2563eb !important;
+  border-color: #3b82f6 !important;
+}
+
+.drakoflow-embed-iframe {
+  width: 100% !important;
+  height: 520px !important;
+  min-height: 400px !important;
+  border: none !important;
+  display: block !important;
+  background-color: #18181b !important;
+}
+
+.drakoflow-embed-code {
+  max-height: 0 !important;
+  overflow: hidden !important;
+  transition: max-height 0.25s ease-in-out !important;
+  background-color: #0c0c0e !important;
+  border-top: 1px solid #27272a !important;
+}
+
+.drakoflow-embed-code.open {
+  max-height: 400px !important;
+  overflow-y: auto !important;
+}
+
+.drakoflow-embed-code pre {
+  margin: 0 !important;
+  padding: 0.85rem 1rem !important;
+  font-family: 'Fira Code', 'Consolas', 'Courier New', monospace !important;
+  font-size: 0.8rem !important;
+  color: #4ade80 !important;
+  background: transparent !important;
+}
+
+.drakoflow-embed-error {
+  padding: 1.25rem !important;
+  background-color: rgba(239, 68, 68, 0.1) !important;
+  border-left: 4px solid #ef4444 !important;
+  color: #fca5a5 !important;
+  font-size: 0.85rem !important;
+}

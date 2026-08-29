@@ -62,6 +62,30 @@ try {
     fs.copyFileSync(zipSrc, path.join(downloadsDir, 'drakoflow-intellij-1.0.0.zip'));
   }
 
+  // Build and package Chrome extension
+  console.log('Building Chrome extension...');
+  execSync('npx vite build --config chrome-extension/vite.config.ts', { stdio: 'inherit' });
+
+  const chromeDir = path.join(__dirname, '../chrome-extension');
+  const chromeZipDest = path.join(downloadsDir, 'drakoflow-chrome-1.0.0.zip');
+
+  // Clean up any legacy unversioned zip
+  const legacyZip = path.join(downloadsDir, 'drakoflow-chrome-extension.zip');
+  if (fs.existsSync(legacyZip)) fs.unlinkSync(legacyZip);
+
+  try {
+    if (fs.existsSync(chromeZipDest)) fs.unlinkSync(chromeZipDest);
+    const filesToZip = ['manifest.json', 'popup.html', 'dist', 'icons', 'README.md']
+      .map(f => `'${path.join(chromeDir, f)}'`)
+      .join(', ');
+    execSync(`powershell -Command "Compress-Archive -Path ${filesToZip} -DestinationPath '${chromeZipDest}' -Force"`);
+    if (fs.existsSync(chromeZipDest)) {
+      console.log('Chrome extension packaged into docs/downloads/drakoflow-chrome-1.0.0.zip successfully.');
+    }
+  } catch (zipErr) {
+    console.warn('Could not create Chrome extension zip:', zipErr.message);
+  }
+
   // 4. Inject tracking script into docs/drako/index.html (GitHub Pages version)
   const targetIndexHtml = path.join(drakoDir, 'index.html');
   if (fs.existsSync(targetIndexHtml)) {

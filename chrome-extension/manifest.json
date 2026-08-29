@@ -1,0 +1,32 @@
+{
+  "manifest_version": 3,
+  "name": "DrakoFlow Diagram Renderer",
+  "version": "1.0.0",
+  "description": "Silent renderer that transforms ```drako markdown code blocks into interactive HTML diagram players across web pages.",
+  "homepage_url": "https://pazvanti.github.io/DrakoFlow/",
+  "icons": {
+    "16": "icons/icon-16.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "DrakoFlow Diagram Renderer",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "48": "icons/icon-48.png",
+      "128": "icons/icon-128.png"
+    }
+  },
+  "permissions": [
+    "storage"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["dist/content.js"],
+      "css": ["dist/content.css"],
+      "run_at": "document_idle"
+    }
+  ]
+}

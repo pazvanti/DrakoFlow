@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DrakoFlow Extension</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      width: 300px;
+      padding: 1rem;
+      background-color: #18181b;
+      color: #f4f4f5;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid #27272a;
+      margin-bottom: 0.85rem;
+    }
+    .logo {
+      width: 26px;
+      height: 26px;
+      border-radius: 6px;
+      background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 14px;
+      font-weight: bold;
+    }
+    .title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #ffffff;
+    }
+    .version {
+      font-size: 11px;
+      color: #a1a1aa;
+    }
+    .status-card {
+      background-color: #09090b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      padding: 0.75rem;
+      margin-bottom: 0.85rem;
+    }
+    .status-indicator {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      color: #4ade80;
+      font-weight: 600;
+      font-size: 12px;
+      margin-bottom: 0.25rem;
+    }
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: #22c55e;
+      box-shadow: 0 0 8px rgba(34, 197, 94, 0.6);
+    }
+    .status-text {
+      font-size: 11.5px;
+      color: #a1a1aa;
+    }
+    .tip-box {
+      font-size: 11.5px;
+      color: #93c5fd;
+      background-color: rgba(59, 130, 246, 0.1);
+      border: 1px solid rgba(59, 130, 246, 0.2);
+      border-radius: 6px;
+      padding: 0.6rem;
+      margin-bottom: 0.85rem;
+    }
+    .tip-box code {
+      background-color: rgba(0, 0, 0, 0.3);
+      padding: 0.1rem 0.3rem;
+      border-radius: 3px;
+      color: #60a5fa;
+      font-family: monospace;
+    }
+    .btn-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .btn {
+      display: block;
+      width: 100%;
+      text-align: center;
+      padding: 0.45rem;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .btn-primary {
+      background-color: #2563eb;
+      color: white;
+      border: 1px solid #3b82f6;
+    }
+    .btn-primary:hover {
+      background-color: #1d4ed8;
+    }
+    .btn-secondary {
+      background-color: #27272a;
+      color: #e4e4e7;
+      border: 1px solid #3f3f46;
+    }
+    .btn-secondary:hover {
+      background-color: #3f3f46;
+      color: #ffffff;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">⚡</div>
+    <div>
+      <div class="title">DrakoFlow Renderer</div>
+      <div class="version">v1.0.0 &bull; Silent Extension</div>
+    </div>
+  </div>
+
+  <div class="status-card">
+    <div class="status-indicator">
+      <span class="status-dot"></span> Active & Ready
+    </div>
+    <div class="status-text">
+      Automatically scans web pages and replaces <code>```drako</code> markdown code blocks with live interactive HTML diagram players.
+    </div>
+  </div>
+
+  <div class="tip-box">
+    💡 <strong>Tip:</strong> Use <code>```drako</code> blocks in GitHub issues/PRs, ChatGPT, Notion, GitLab, Jira, or markdown files.
+  </div>
+
+  <div class="btn-group">
+    <a href="https://pazvanti.github.io/DrakoFlow/" target="_blank" class="btn btn-primary">Launch DrakoFlow Studio</a>
+    <a href="https://pazvanti.github.io/DrakoFlow/documentation.html" target="_blank" class="btn btn-secondary">Documentation & DSL Guide</a>
+    <a href="https://pazvanti.github.io/DrakoFlow/examples.html" target="_blank" class="btn btn-secondary">Examples Gallery</a>
+  </div>
+</body>
+</html>

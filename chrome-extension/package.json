@@ -1,0 +1,16 @@
+{
+  "name": "drakoflow-chrome-extension",
+  "version": "1.0.0",
+  "description": "Silent Chrome Extension that automatically renders ```drako markdown code blocks into interactive HTML diagram players across web pages.",
+  "author": "pazvanti",
+  "license": "GPL-3.0",
+  "scripts": {
+    "build": "vite build",
+    "watch": "vite build --watch"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.260",
+    "typescript": "^5.0.4",
+    "vite": "^4.5.3"
+  }
+}

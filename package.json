@@ -9,7 +9,8 @@
     "test": "vitest run",
     "dev": "vite",
     "build:pages": "node scripts/build-gh-pages.js",
-    "build:intellij": "vite build && node scripts/copy-intellij-dist.js"
+    "build:intellij": "vite build && node scripts/copy-intellij-dist.js",
+    "build:chrome": "vite build --config chrome-extension/vite.config.ts"
   },
   "devDependencies": {
     "@types/lz-string": "^1.5.0",

@@ -4,10 +4,11 @@
 
 [![Visual Studio Marketplace](https://img.shields.io/badge/VS%20Code-Extension-blue?style=flat-square&logo=visual-studio-code)](https://marketplace.visualstudio.com/items?itemName=pazvanti.drakoflow-vscode)
 [![IntelliJ Plugin](https://img.shields.io/badge/IntelliJ%20IDEA-Plugin-orange?style=flat-square&logo=intellij-idea)](./intellij-extension)
+[![Chrome Extension](https://img.shields.io/badge/Chrome-Extension-green?style=flat-square&logo=google-chrome)](./chrome-extension)
 [![License: GPL-3.0](https://img.shields.io/badge/License-GPL--3.0-purple.svg?style=flat-square)](./LICENSE)
 [![Privacy First](https://img.shields.io/badge/Privacy-100%25%20Offline-success.svg?style=flat-square)](#-highlights)
 
-DrakoFlow is a lightweight, offline-first, client-side text-to-diagram engine written in TypeScript. It converts a clean, human-readable declarative DSL into interactive, themeable architecture diagrams, sequence flows, and Git branching workflows that run entirely in the browser, VS Code, or IntelliJ with no server-side dependencies.
+DrakoFlow is a lightweight, offline-first, client-side text-to-diagram engine written in TypeScript. It converts a clean, human-readable declarative DSL into interactive, themeable architecture diagrams, sequence flows, Git branching workflows, and 3D charts that run entirely in the browser, VS Code, IntelliJ, or silently across the web via the Chrome extension with no server-side dependencies.
 
 > [!IMPORTANT]
 > **Privacy-First & Secure**: Everything is processed locally. No diagram data is sent to a back-end server.
@@ -61,7 +62,7 @@ Open the editor in your browser and try the engine immediately:
 
 Below is an example showing tags, nested packages, styling overrides, and connections:
 
-```scss
+```drako
 // 1. Declare metadata tags to filter your views
 @tags: ["gateway", "proxy"]
 Gateway: Rectangle {
@@ -112,7 +113,7 @@ AuthService <-> UserDB: "Read/Write credentials"
 
 ### Element Vector Icons
 Add vector icons alongside label text using the `icon` attribute:
-```scss
+```drako
 AuthService: Cube {
   label: "Auth API"
   icon: "docker" // Automatically renders the Docker vector logo
@@ -128,7 +129,7 @@ Control the layout engine and diagram flow using the `@layout` directive:
 - `@layout: mindmap` or `@layout: mindmap(RootNode)` : Radial mindmap layout engine with auto root detection, branch theme colors, and organic curved connections.
 
 #### Mindmap DSL Example
-```scss
+```drako
 @layout: mindmap
 
 mindmap: Ellipse {
@@ -145,7 +146,7 @@ mindmap -> Origins
 ```
 
 #### Git Flow DSL Example
-```scss
+```drako
 @layout: git-flow
 
 Main: Branch {
@@ -189,6 +190,15 @@ c3 -> c4
 - `Boundary` / `Control` / `Entity` / `Queue` / `Collections` / `Agent` : Robustness and interaction shapes.
 - `SVGImage` : embed vector content via `content`, scalable with `scale`.
 - `RasterImage` : embed base64 raster images (`PNG`, `JPEG`, `GIF`) via `content`.
+- `Chart` / `Bar` / `Line` : Multi-series charts with custom axes, 3D columnar bars, gradient line fills, and hover tooltips.
+
+---
+
+## 🧩 Browser & IDE Extensions
+
+- **[VS Code Extension](./vscode-extension)**: Live side-by-side `.drako` preview and editing.
+- **[IntelliJ IDEA Plugin](./intellij-extension)**: Native split-view preview for JetBrains IDEs.
+- **[Chrome Extension](./chrome-extension)**: Silent renderer that automatically turns ` ```drako ` markdown code blocks into live interactive HTML diagram players across web pages (GitHub, ChatGPT, Notion, GitLab, Jira).
 
 ---
 
