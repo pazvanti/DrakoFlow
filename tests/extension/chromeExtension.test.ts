@@ -87,4 +87,37 @@ Invalid syntax {{{{
 
     expect(() => scanAndProcessDocument()).not.toThrow();
   });
+
+  it('never touches or replaces code blocks inside the DrakoFlow Studio editor', () => {
+    document.body.innerHTML = `
+      <div class="editor-container">
+        <textarea id="editor"></textarea>
+        <pre id="highlighting"><code>
+A: Rectangle { label: "Do not touch me" }
+        </code></pre>
+      </div>
+      <svg id="diagram-svg"></svg>
+    `;
+
+    scanAndProcessDocument();
+
+    const wrapper = document.querySelector('.drakoflow-embed-wrapper');
+    expect(wrapper).toBeNull();
+    const highlightingPre = document.getElementById('highlighting');
+    expect(highlightingPre?.style.display).not.toBe('none');
+  });
+
+  it('generates Edit Online link pointing to /drako/index.html', () => {
+    document.body.innerHTML = `
+      <pre><code class="language-drako">
+A: Rectangle { label: "Test" }
+      </code></pre>
+    `;
+
+    scanAndProcessDocument();
+
+    const editOnlineBtn = document.querySelector('.drakoflow-btn-primary') as HTMLAnchorElement;
+    expect(editOnlineBtn).not.toBeNull();
+    expect(editOnlineBtn.href).toContain('/drako/index.html?diagram=');
+  });
 });

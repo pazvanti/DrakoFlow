@@ -139,7 +139,7 @@ function renderDrakoDiagram(targetElement: HTMLElement, rawDsl: string): void {
     btnOpenApp.target = '_blank';
     btnOpenApp.rel = 'noopener noreferrer';
     const compressedCode = LZString.compressToEncodedURIComponent(dsl);
-    btnOpenApp.href = `https://pazvanti.github.io/DrakoFlow/#code=${compressedCode}`;
+    btnOpenApp.href = `https://pazvanti.github.io/DrakoFlow/drako/index.html?diagram=${compressedCode}`;
     btnOpenApp.innerHTML = `<span>Edit Online ↗</span>`;
     btnOpenApp.title = 'Open and edit in DrakoFlow Web Studio';
 
@@ -220,29 +220,34 @@ function findOutermostCodeContainer(element: HTMLElement): HTMLElement {
   return element;
 }
 
+function isInsideDrakoFlowApp(element: HTMLElement): boolean {
+  return !!element.closest('.editor-container, .editor-pane, #editor, #highlighting, #highlighting-wrap, .diagram-panel, .library-panel, textarea, [contenteditable="true"]');
+}
+
 export function scanAndProcessDocument(): void {
-  // 1. Target standard markdown fenced blocks
+  // Guard: Detect if we are in the DrakoFlow Studio editor itself
+  const isDrakoApp = !!(document.getElementById('editor') && document.getElementById('diagram-svg'));
+
+  // 1. Target standard markdown fenced blocks with language-drako (e.g. GitHub, GitLab, ChatGPT, Notion)
   const codeBlocks = Array.from(document.querySelectorAll<HTMLElement>(
     'pre code.language-drako, pre code.lang-drako, pre[lang="drako"], div[data-language="drako"]'
   ));
 
   codeBlocks.forEach(block => {
     if (block.closest('.drakoflow-embed-wrapper')) return;
+    if (isDrakoApp || isInsideDrakoFlowApp(block)) return;
     const target = (block.closest('pre') || block) as HTMLElement;
     if (target.dataset.drakoflowProcessed) return;
     renderDrakoDiagram(target, block.textContent || '');
   });
 
-  // 2. Target pre blocks whose content starts with ```drako or @layout: or standard Drako components
+  // 2. Target pre blocks whose content explicitly starts with ```drako
   const allPreBlocks = Array.from(document.querySelectorAll<HTMLElement>('pre:not([data-drakoflow-processed])'));
   allPreBlocks.forEach(pre => {
     if (pre.dataset.drakoflowProcessed || pre.closest('.drakoflow-embed-wrapper')) return;
+    if (isDrakoApp || isInsideDrakoFlowApp(pre)) return;
     const text = pre.textContent?.trim() || '';
-    if (
-      text.startsWith('```drako') ||
-      text.startsWith('@layout:') ||
-      (text.includes(': Rectangle {') || text.includes(': Process {') || text.includes(': Branch {') || text.includes(': Chart {'))
-    ) {
+    if (text.startsWith('```drako') || text.startsWith('``` drako')) {
       pre.dataset.drakoflowProcessed = 'true';
       renderDrakoDiagram(pre, text);
     }

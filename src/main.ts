@@ -3441,9 +3441,14 @@ if (btnToggleEditor && editorPanel) {
 // Startup Initialization
 // Initialization function to set up app UI and state
 function initializeApp(): void {
-  // Check for diagram parameter in URL
+  // Check for diagram parameter in URL query or hash
   const urlParams = new URLSearchParams(window.location.search);
-  const urlDiagram = urlParams.get('diagram');
+  let urlDiagram = urlParams.get('diagram') || urlParams.get('code');
+  if (!urlDiagram && window.location.hash) {
+    const hashStr = window.location.hash.substring(1);
+    const hashParams = new URLSearchParams(hashStr);
+    urlDiagram = hashParams.get('diagram') || hashParams.get('code');
+  }
   let initialDsl = DEFAULT_DSL;
   let initialFileName = currentFileName;
 
