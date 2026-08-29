@@ -641,6 +641,12 @@
                 <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-commit-tab" data-bs-toggle="pill" data-bs-target="#v-pills-commit" type="button" role="tab" aria-controls="v-pills-commit" aria-selected="false">
                   <i class="bi bi-circle-dot me-2"></i> Commit
                 </button>
+
+                <!-- Data & Charts Section -->
+                <div class="nav-label text-muted small text-uppercase fw-bold mb-2 px-3 mt-3">Data & Charts</div>
+                <button class="nav-link text-start py-2 px-3 mb-1" id="v-pills-chart-tab" data-bs-toggle="pill" data-bs-target="#v-pills-chart" type="button" role="tab" aria-controls="v-pills-chart" aria-selected="false">
+                  <i class="bi bi-bar-chart-line me-2"></i> Chart (Bar & Line)
+                </button>
               </div>
             </div>
             
@@ -2618,6 +2624,71 @@ Server [1] -> [0..*] Database : "Fetch items" {
 
 c2: Commit {
   type: "merge"
+}</pre>
+              </div>
+
+              <!-- Chart Tab -->
+              <div class="tab-pane fade" id="v-pills-chart" role="tabpanel" aria-labelledby="v-pills-chart-tab">
+                <h4 class="mb-1">Chart Component (Bar & Line Series)</h4>
+                <p class="text-muted small">Multi-series interactive bar and line charts with customizable axes, step ranges, and hover tooltips.</p>
+
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Chart Properties</h6>
+                <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
+                  <thead>
+                    <tr>
+                      <th style="width: 25%;">Property</th>
+                      <th style="width: 20%;">Type</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr><td><code>width</code></td><td>Number</td><td>Explicit width of the chart container in pixels (defaults to 800).</td></tr>
+                    <tr><td><code>height</code></td><td>Number</td><td>Explicit height of the chart container in pixels (defaults to 600).</td></tr>
+                    <tr><td><code>title</code></td><td>String</td><td>Chart title displayed prominently at the top center.</td></tr>
+                    <tr><td><code>xLabel</code></td><td>String</td><td>Label for the horizontal X-axis.</td></tr>
+                    <tr><td><code>yLabel</code></td><td>String</td><td>Label for the vertical Y-axis (rendered rotated -90 degrees on the left).</td></tr>
+                    <tr><td><code>x</code></td><td>Array / Range</td><td>Array of category names (e.g. <code>[jan, feb, mar, ...]</code>) or range (e.g. <code>1 -> 12</code>).</td></tr>
+                    <tr><td><code>y</code></td><td>Range / Array</td><td>Y-axis scale range (e.g. <code>4000 -> 11000</code>) or explicit tick numbers.</td></tr>
+                    <tr><td><code>grid</code></td><td>Boolean</td><td>Toggles horizontal dashed grid lines (default <code>true</code>).</td></tr>
+                  </tbody>
+                </table>
+
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Child Series (Bar & Line)</h6>
+                <table class="table table-dark table-striped table-sm text-start" style="font-size: 0.8rem;">
+                  <thead>
+                    <tr>
+                      <th style="width: 20%;">Component</th>
+                      <th style="width: 30%;">Properties</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr><td><code>Bar</code></td><td><code>values</code>, <code>color</code>, <code>label</code>, <code>is3D</code>, <code>depth</code>, <code>rx</code>, <code>ry</code></td><td>Vertical bar series. Set <code>is3D: true</code> for 3D isometric columnar bars with top and side depth shading.</td></tr>
+                    <tr><td><code>Line</code></td><td><code>values</code>, <code>color</code>, <code>label</code>, <code>strokeWidth</code>, <code>filled</code>, <code>fillOpacity</code></td><td>Connected line series. Set <code>filled: true</code> to render a sleek semi-transparent gradient area under the line.</td></tr>
+                  </tbody>
+                </table>
+
+                <h6 class="mt-4 fw-bold small text-uppercase text-primary">Example Usage</h6>
+                <pre class="bg-black p-3 rounded font-monospace text-success" style="font-size: 0.75rem;">MyChart: Chart {
+  width: 800
+  height: 600
+  title: "Sales Revenue"
+  xLabel: "Months"
+  yLabel: "Revenue (in $)"
+  x: [jan, feb, mar, apr, may, jun, jul, aug, sep, oct, nov, dec]
+  y: 4000 -> 11000
+
+  MyBarChart: Bar {
+    values: [5000, 6000, 7500, 8200, 9500, 10500, 11000, 10200, 9200, 8500, 7000, 6000]
+    color: #38bdf8
+    is3D: true
+  }
+
+  MyLineChart: Line {
+    values: [5500, 6000, 7500, 8200, 9500, 10500, 11000, 10200, 9200, 8500, 7000, 6000]
+    color: #4ade80
+    filled: true
+  }
 }</pre>
               </div>
             </div>

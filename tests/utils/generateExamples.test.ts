@@ -93,4 +93,13 @@ describe('Generate HTML Player Examples', () => {
     expect(content).toContain('id="viewport-g"');
     expect(content).toContain('fitToScreen');
   });
+
+  it('generates docs/examples/chart.html', () => {
+    generateExample('chart');
+    const content = fs.readFileSync(path.resolve(__dirname, '../../docs/examples/chart.html'), 'utf8');
+    expect(content).toContain('chart-component');
+    expect(content).toContain('class="diagram-svg"');
+    expect(content).toContain('id="viewport-g"');
+    expect(content).toContain('fitToScreen');
+  });
 });

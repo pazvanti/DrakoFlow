@@ -39,9 +39,9 @@ const tokenRegex = new RegExp(
     // Exterior direction keywords for relationships
     '(?<exterior>\\b(LEFT|RIGHT|TOP|BOTTOM|left|right|top|bottom)\\b)',
     // Keywords/Types (all registered component types)
-    '(?<keyword>\\b(Rectangle|Process|Ellipse|VerticalContainer|Cylinder|Cube|Diamond|Hexagon|Actor|Parallelogram|Class|Interface|UMLComponent|Module|Package|Text|Paragraph|SVGImage|RasterImage|Cloud|Node|Artifact|Folder|Frame|Storage|Stack|File|Card|Usecase|Boundary|Control|Entity|Queue|Collections|Agent|Enum|Abstract|Annotation|Struct|Object|Table|Branch|Commit)\\b)',
+    '(?<keyword>\\b(Rectangle|Process|Ellipse|VerticalContainer|Cylinder|Cube|Diamond|Hexagon|Actor|Parallelogram|Class|Interface|UMLComponent|Module|Package|Text|Paragraph|SVGImage|RasterImage|Cloud|Node|Artifact|Folder|Frame|Storage|Stack|File|Card|Usecase|Boundary|Control|Entity|Queue|Collections|Agent|Enum|Abstract|Annotation|Struct|Object|Table|Branch|Commit|Chart|Bar|Line)\\b)',
     // Properties (all known DSL property names)
-    '(?<property>\\b(label|icon|rx|ry|lifeline|url|lineWidth|shadow|themeOverride|lineStyle|color|thickness|routeType|startX|startY|animated|gap|padding|tabWidthRatio|radius|backgroundColor|borderColor|textColor|headerBackgroundColor|headerTextColor|headerType|headerTypeColor|headerTypeTextColor|colorizeHeaderByType|attributes|methods|items|align|text|content|scale|width|height|header|rows|headerAtTop|headerAtBottom|hash|tag|branch|order|msg|message|type)\\b)',
+    '(?<property>\\b(label|icon|rx|ry|lifeline|url|lineWidth|shadow|themeOverride|lineStyle|color|thickness|routeType|startX|startY|animated|gap|padding|tabWidthRatio|radius|backgroundColor|borderColor|textColor|headerBackgroundColor|headerTextColor|headerType|headerTypeColor|headerTypeTextColor|colorizeHeaderByType|attributes|methods|items|align|text|content|scale|width|height|header|rows|headerAtTop|headerAtBottom|hash|tag|branch|order|msg|message|type|title|xLabel|yLabel|values|x|y|strokeWidth|grid|legend|filled|fill|area|is3D|is3d|threeD|depth|fillOpacity)\\b)',
     // Accessor modifiers at the start of a line (after optional leading whitespace)
     '(?<accessor>(?:^|(?<=\\n))[^\\S\\n]*(?:\\*\\s*)?[+\\-#~](?=[^>\\s])|(?:^|(?<=\\n))[^\\S\\n]*\\*(?=\\s*[a-zA-Z_]))',
     // Operators: generic connector combinations followed by fallback chars

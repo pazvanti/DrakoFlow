@@ -533,6 +533,33 @@ mindmap -> Origins
 Origins -> Popularisation
 Popularisation -> TonyBuzan
 Origins -> History`
+  },
+  {
+    type: "Chart",
+    displayName: "Interactive Chart",
+    description: "Multi-series bar and line charts with custom axes, ranges, and hover tooltips.",
+    tags: ["Charts", "Data", "Visualization"],
+    template: `MyChart: Chart {
+  width: 800
+  height: 600
+  title: "Sales Revenue"
+  xLabel: "Months"
+  yLabel: "Revenue (in $)"
+  x: [jan, feb, mar, apr, may, jun, jul, aug, sep, oct, nov, dec]
+  y: 4000 -> 11000
+
+  MyBarChart: Bar {
+    values: [5000, 6000, 7500, 8200, 9500, 10500, 11000, 10200, 9200, 8500, 7000, 6000]
+    color: #38bdf8
+    is3D: true
+  }
+
+  MyLineChart: Line {
+    values: [5500, 6000, 7500, 8200, 9500, 10500, 11000, 10200, 9200, 8500, 7000, 6000]
+    color: #4ade80
+    filled: true
+  }
+}`
   }
 ];
 

@@ -1420,4 +1420,54 @@ body {
   pointer-events: none;
 }
 
+/* Chart Component Styles */
+.chart-component {
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.4));
+  user-select: none;
+}
+
+.chart-bar {
+  transition: fill 0.15s ease, filter 0.15s ease, opacity 0.15s ease;
+  cursor: pointer;
+}
+
+.chart-bar:hover {
+  filter: brightness(1.25) drop-shadow(0 0 8px rgba(255, 255, 255, 0.5));
+  opacity: 0.95;
+}
+
+.chart-line-path {
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.chart-line-point {
+  transition: r 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.15s ease;
+  cursor: pointer;
+}
+
+.chart-line-point:hover {
+  r: 7px;
+  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.9));
+}
+
+.chart-line-area {
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+
+.chart-bar-3d {
+  transition: filter 0.15s ease, opacity 0.15s ease;
+  cursor: pointer;
+}
+
+.chart-bar-3d:hover {
+  filter: brightness(1.25) drop-shadow(0 0 8px rgba(255, 255, 255, 0.5));
+  opacity: 0.95;
+}
+
+.chart-bar-3d rect,
+.chart-bar-3d polygon {
+  transition: fill 0.15s ease, filter 0.15s ease;
+}
+
 

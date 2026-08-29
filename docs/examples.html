@@ -559,6 +559,8 @@
       <button class="filter-pill" onclick="filterExamples('git-flow', this)"><i class="bi bi-git"></i> Git Flow</button>
       <button class="filter-pill" onclick="filterExamples('mindmap', this)"><i class="bi bi-diagram-3"></i>
         Mindmaps</button>
+      <button class="filter-pill" onclick="filterExamples('chart', this)"><i class="bi bi-bar-chart-line"></i>
+        Charts</button>
       <button class="filter-pill" onclick="filterExamples('architecture', this)"><i class="bi bi-layers-fill"></i>
         Architecture & Tags</button>
     </div>
@@ -1079,6 +1081,69 @@ mindmap -> Origins
 Origins -> Popularisation
 Popularisation -> TonyBuzan
 Origins -> History</script>
+    </div>
+
+    <!-- EXAMPLE 6: Interactive 3D Bar & Line Chart -->
+    <div class="example-card" data-category="chart">
+      <div class="example-card-header">
+        <div class="example-title-area">
+          <div class="example-title-row">
+            <h2>Interactive 3D Bar & Line Chart</h2>
+            <span class="tag-badge blue">Chart</span>
+            <span class="tag-badge green">3D Bar Extrusion</span>
+            <span class="tag-badge purple">Line Series</span>
+          </div>
+          <p class="example-description">Demonstrates the `Chart` component with custom numeric ranges (`4000 -> 11000`), formatted category axes, 3D columnar bar extrusion (`is3D: true`), line plots, and interactive hover tooltips.</p>
+        </div>
+        <a href="./examples/chart.html" target="_blank" class="btn-action-secondary">
+          <i class="bi bi-box-arrow-up-right"></i> Open Fullscreen Player
+        </a>
+      </div>
+
+      <!-- Full-Width Interactive HTML Player Container -->
+      <div class="example-player-wrapper">
+        <iframe src="./examples/chart.html" class="preview-iframe"
+          title="Interactive 3D Bar & Line Chart Example Player"></iframe>
+      </div>
+
+      <div class="example-card-footer">
+        <div class="action-group">
+          <a href="./examples/chart.html" target="_blank" class="btn-action-primary">
+            <i class="bi bi-play-circle-fill"></i> Open Interactive Player
+          </a>
+          <button class="btn-action-secondary" onclick="openInEditor('code-chart')">
+            <i class="bi bi-box-arrow-up-right"></i> Open in Online Editor
+          </button>
+        </div>
+        <div class="action-group">
+          <a href="./examples/chart.drako" download="chart.drako" class="btn-action-secondary">
+            <i class="bi bi-download"></i> Download .drako
+          </a>
+        </div>
+      </div>
+
+      <!-- Hidden Source Script for Editor Link -->
+      <script id="code-chart" type="text/plain">MyChart: Chart {
+  width: 800
+  height: 400
+  x: [jan, feb, mar, apr, may, jun, jul, aug, sep, oct, nov, dec]
+  y: 4000 -> 11000
+  title: "Sales Revenue"
+  xLabel: "Months"
+  yLabel: "Revenue (in $)"
+
+  MyBarChart: Bar {
+    values: [5000, 6000, 7500, 8200, 9500, 10500, 11000, 10200, 9200, 8500, 7000, 6000]
+    color: #1d4ed8
+    is3D: true
+  }
+
+  MyLineChart: Line {
+    values: [5500, 6000, 7500, 8200, 9500, 10500, 11000, 10200, 9200, 8500, 7000, 6000]
+    color: #00ff00
+    filled: false
+  }
+}</script>
     </div>
 
     <!-- Submit / More Examples Card -->

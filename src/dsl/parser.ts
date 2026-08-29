@@ -549,12 +549,52 @@ function readComponentDeclaration(
   };
 }
 
+function readArrayElementValue(
+  text: string,
+  start: number,
+  propName?: string
+): { value: any; end: number } | null {
+  const i = skipWhitespace(text, start);
+  if (i >= text.length) return null;
+
+  // Quoted string: "..." or '...'
+  const quoted = readQuotedString(text, i);
+  if (quoted !== null) return quoted;
+
+  // Hex color codes
+  const hexMatch = text.slice(i).match(/^#([0-9a-fA-F]{3,8})\b/);
+  if (hexMatch) return { value: hexMatch[0], end: i + hexMatch[0].length };
+
+  // CSS functional colors
+  const cssColorMatch = text.slice(i).match(/^(rgb|rgba|hsl|hsla)\([^)]+\)/i);
+  if (cssColorMatch) return { value: cssColorMatch[0], end: i + cssColorMatch[0].length };
+
+  // Booleans
+  const boolMatch = text.slice(i).match(/^(true|false)\b/);
+  if (boolMatch) return { value: boolMatch[0] === 'true', end: i + boolMatch[0].length };
+
+  // Numbers (int or float)
+  const numMatch = text.slice(i).match(/^-?\d+(\.\d+)?(?=[\s,\]}]|$)/);
+  if (numMatch) return { value: parseFloat(numMatch[0]), end: i + numMatch[0].length };
+
+  // Unquoted identifiers/words (e.g. jan, feb, Q1, sales)
+  const wordMatch = text.slice(i).match(/^([a-zA-Z0-9_.-]+)/);
+  if (wordMatch) {
+    return { value: wordMatch[1], end: i + wordMatch[1].length };
+  }
+
+  return null;
+}
+
 function readArrayValue(
   text: string,
-  start: number
+  start: number,
+  propName?: string
 ): { value: any[]; end: number } | null {
   const i = skipWhitespace(text, start);
-  if (text[i] !== '{') return null;
+  const openChar = text[i];
+  if (openChar !== '{' && openChar !== '[') return null;
+  const closeChar = openChar === '{' ? '}' : ']';
 
   let curr = i + 1;
   const elements: any[] = [];
@@ -563,17 +603,17 @@ function readArrayValue(
     curr = skipWhitespace(text, curr);
     if (curr >= text.length) break;
 
-    if (text[curr] === '}') {
+    if (text[curr] === closeChar) {
       return { value: elements, end: curr + 1 };
     }
 
-    if (text[curr] === '{') {
-      const nested = readArrayValue(text, curr);
+    if (text[curr] === '{' || text[curr] === '[') {
+      const nested = readArrayValue(text, curr, propName);
       if (nested === null) return null;
       elements.push(nested.value);
       curr = nested.end;
     } else {
-      const val = readPropertyValue(text, curr);
+      const val = readArrayElementValue(text, curr, propName);
       if (val === null) {
         return null;
       }
@@ -620,7 +660,8 @@ const KNOWN_COLOR_KEYWORDS = new Set([
 const KNOWN_STRING_PROPERTIES = new Set([
   'color', 'align', 'type', 'tag', 'branch', 'lineStyle', 'routeType',
   'label', 'doc', 'url', 'hash', 'msg', 'message', 'text', 'attributes',
-  'methods', 'items', 'content', 'theme', 'backgroundColor', 'textColor', 'borderColor'
+  'methods', 'items', 'content', 'theme', 'backgroundColor', 'textColor', 'borderColor',
+  'title', 'xLabel', 'yLabel', 'x', 'y'
 ]);
 
 function readPropertyValue(
@@ -631,14 +672,22 @@ function readPropertyValue(
   const i = skipWhitespace(text, start);
   if (i >= text.length) return null;
 
-  if (text[i] === '{') {
-    return readArrayValue(text, i);
+  if (text[i] === '{' || text[i] === '[') {
+    return readArrayValue(text, i, propName);
   }
 
   // Quoted strings: "..." or '...'
   const quoted = readQuotedString(text, i);
   if (quoted !== null) {
     return quoted;
+  }
+
+  // Range syntax: 4000 -> 11000, 0..100, 10 to 50
+  const rangeMatch = text.slice(i).match(/^(-?\d+(?:\.\d+)?)\s*(?:->|\.\.|\bto\b)\s*(-?\d+(?:\.\d+)?)/i);
+  if (rangeMatch) {
+    const from = parseFloat(rangeMatch[1]);
+    const to = parseFloat(rangeMatch[2]);
+    return { value: [from, to], end: i + rangeMatch[0].length };
   }
 
   // Hex color codes: #fff, #ff0000, #ff000080

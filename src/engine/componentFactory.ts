@@ -42,6 +42,9 @@ import { ObjectComponent, ObjectProps } from '../components/ObjectComponent';
 import { TableComponent, TableProps } from '../components/TableComponent';
 import { BranchComponent, BranchProps } from '../components/BranchComponent';
 import { CommitComponent, CommitProps } from '../components/CommitComponent';
+import { ChartComponent, ChartProps } from '../components/ChartComponent';
+import { BarComponent, BarProps } from '../components/BarComponent';
+import { LineComponent, LineProps } from '../components/LineComponent';
 import { collectReferencedIds, ParsedChildEntry, ParsedNode } from '../dsl/parser';
 import { isComponentType } from '../dsl/componentTypes';
 
@@ -479,6 +482,49 @@ function instantiateFromDefinition(
       component = new CommitComponent(metadata, props, themeOverride);
       break;
     }
+    case 'Chart': {
+      const props: ChartProps = {
+        width: node.properties.width as number | undefined,
+        height: node.properties.height as number | undefined,
+        title: node.properties.title as string | undefined,
+        xLabel: node.properties.xLabel as string | undefined,
+        yLabel: node.properties.yLabel as string | undefined,
+        x: node.properties.x as any,
+        y: node.properties.y as any,
+        grid: node.properties.grid as boolean | undefined,
+        legend: node.properties.legend as boolean | undefined
+      };
+      component = new ChartComponent(metadata, props, themeOverride);
+      break;
+    }
+    case 'Bar': {
+      const props: BarProps = {
+        values: node.properties.values as number[] | undefined,
+        color: node.properties.color as string | undefined,
+        label: (node.properties.label || node.properties.name) as string | undefined,
+        rx: node.properties.rx as number | undefined,
+        ry: node.properties.ry as number | undefined,
+        is3D: (node.properties.is3D ?? node.properties.is3d ?? node.properties.threeD) as boolean | undefined,
+        threeD: (node.properties.threeD ?? node.properties.is3D) as boolean | undefined,
+        depth: node.properties.depth as number | undefined
+      };
+      component = new BarComponent(metadata, props, themeOverride);
+      break;
+    }
+    case 'Line': {
+      const props: LineProps = {
+        values: node.properties.values as number[] | undefined,
+        color: node.properties.color as string | undefined,
+        label: (node.properties.label || node.properties.name) as string | undefined,
+        strokeWidth: node.properties.strokeWidth as number | undefined,
+        showPoints: node.properties.showPoints as boolean | undefined,
+        filled: (node.properties.filled ?? node.properties.fill ?? node.properties.area) as boolean | undefined,
+        fill: (node.properties.fill ?? node.properties.filled) as boolean | undefined,
+        fillOpacity: node.properties.fillOpacity as number | undefined
+      };
+      component = new LineComponent(metadata, props, themeOverride);
+      break;
+    }
     default: {
       const err = new Error(`Unknown component type: ${node.type}`) as any;
       if (node.line) err.line = node.line;
@@ -510,11 +556,18 @@ function instantiateFromDefinition(
     component.icon = node.properties.icon;
   }
 
-  if (typeof node.properties.x === 'number') {
+  if (typeof node.properties.x === 'number' && node.type !== 'Chart') {
     component.manualX = node.properties.x;
   }
-  if (typeof node.properties.y === 'number') {
+  if (typeof node.properties.y === 'number' && node.type !== 'Chart') {
     component.manualY = node.properties.y;
+  }
+
+  if (typeof node.properties.width === 'number') {
+    component.manualWidth = node.properties.width;
+  }
+  if (typeof node.properties.height === 'number') {
+    component.manualHeight = node.properties.height;
   }
 
   if (node.childEntries && node.childEntries.length > 0 && component.children.length === 0) {

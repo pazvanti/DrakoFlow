@@ -42,7 +42,10 @@ export const COMPONENT_TYPES = [
   'Object',
   'Table',
   'Branch',
-  'Commit'
+  'Commit',
+  'Chart',
+  'Bar',
+  'Line'
 ] as const;
 
 export type ComponentTypeName = (typeof COMPONENT_TYPES)[number];

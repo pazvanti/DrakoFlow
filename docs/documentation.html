@@ -605,6 +605,11 @@
         <li class="sidebar-item"><a href="#commit"><i class="bi bi-circle-dot"></i> Commit Node</a></li>
       </ul>
 
+      <div class="sidebar-section-title">Data & Charts</div>
+      <ul class="sidebar-menu">
+        <li class="sidebar-item"><a href="#chart"><i class="bi bi-bar-chart-line"></i> Chart (Bar & Line)</a></li>
+      </ul>
+
       <div class="sidebar-section-title">Relationships</div>
       <ul class="sidebar-menu">
         <li class="sidebar-item"><a href="#arrows"><i class="bi bi-arrow-right"></i> Connectors & Styles</a></li>
@@ -1549,6 +1554,53 @@ Topic2 -> Topic3
 
 c3: Commit {
   type: "merge"
+}`
+      },
+      {
+        id: "chart",
+        name: "Chart (Bar & Line)",
+        group: "Data & Charts",
+        description: "Multi-series interactive bar and line charts with custom X/Y axes, step ranges, and hover tooltips.",
+        icon: "bi-bar-chart-line",
+        properties: [
+          { name: "width", type: "Number", desc: "Explicit width of the chart container in pixels (defaults to 800)." },
+          { name: "height", type: "Number", desc: "Explicit height of the chart container in pixels (defaults to 600)." },
+          { name: "title", type: "String", desc: "Chart title displayed prominently at the top center." },
+          { name: "xLabel", type: "String", desc: "Label for the horizontal X-axis." },
+          { name: "yLabel", type: "String", desc: "Label for the vertical Y-axis (rendered rotated -90 degrees on the left)." },
+          { name: "x", type: "Array / Range", desc: "Array of category names (e.g. [jan, feb, mar, ...]) or range (e.g. 1 -> 12)." },
+          { name: "y", type: "Range / Array", desc: "Y-axis scale range (e.g. 4000 -> 11000) or explicit tick numbers." },
+          { name: "grid", type: "Boolean", desc: "Toggles horizontal dashed grid lines (default true)." },
+          { name: "Bar.is3D", type: "Boolean", desc: "Set to true on a child Bar series to render 3D isometric columnar bars with top and side depth shading." },
+          { name: "Bar.depth", type: "Number", desc: "3D extrusion depth in pixels for Bar series (default 8)." },
+          { name: "Line.filled", type: "Boolean", desc: "Set to true on a child Line series to render a semi-transparent gradient area fill beneath the line plot." },
+          { name: "Line.fillOpacity", type: "Number", desc: "Opacity of the top of the area fill gradient for Line series (default 0.35)." }
+        ],
+        themeOverrides: [
+          { name: "backgroundColor", desc: "Background card fill color for the chart." },
+          { name: "borderColor", desc: "Border outline color for the chart card." },
+          { name: "textColor", desc: "Color for axis labels, title, and tick text." }
+        ],
+        example: `MyChart: Chart {
+  width: 800
+  height: 600
+  title: "Sales Revenue"
+  xLabel: "Months"
+  yLabel: "Revenue (in $)"
+  x: [jan, feb, mar, apr, may, jun, jul, aug, sep, oct, nov, dec]
+  y: 4000 -> 11000
+
+  MyBarChart: Bar {
+    values: [5000, 6000, 7500, 8200, 9500, 10500, 11000, 10200, 9200, 8500, 7000, 6000]
+    color: #38bdf8
+    is3D: true
+  }
+
+  MyLineChart: Line {
+    values: [5500, 6000, 7500, 8200, 9500, 10500, 11000, 10200, 9200, 8500, 7000, 6000]
+    color: #4ade80
+    filled: true
+  }
 }`
       }
     ];
