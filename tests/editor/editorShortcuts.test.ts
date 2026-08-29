@@ -15,6 +15,12 @@ beforeEach(() => {
     <div id="editor-stats"></div>
     <svg id="diagram-svg"><g id="viewport-g"></g></svg>
     <div id="canvas-container"></div>
+    <select id="layout-select">
+      <option value="left-to-right">Left to Right</option>
+      <option value="top-to-bottom">Top to Bottom</option>
+      <option value="git-flow">Git Flow</option>
+      <option value="mindmap">Mindmap</option>
+    </select>
     <select id="theme-select"></select>
     <button id="btn-edit-theme"></button>
     <select id="theme-load-select"></select>
@@ -427,6 +433,50 @@ describe('Editor Shortcuts and Tab Indentation', () => {
     expect(labels[1].classList.contains('d-none')).toBe(false);
     expect(relationshipTab.classList.contains('d-none')).toBe(false);
     expect(rectangleTab.classList.contains('d-none')).toBe(false);
+  });
+
+  it('should preserve file content and update @layout directive when switching layout dropdown', async () => {
+    await import('../../src/main');
+
+    const editor = document.getElementById('editor') as HTMLTextAreaElement;
+    const layoutSelect = document.getElementById('layout-select') as HTMLSelectElement;
+
+    // Simulate user having a custom diagram in the editor
+    const userDiagram = `Client: Process {
+  label: "User Custom Service"
+}
+
+Server: Process {
+  label: "Database Node"
+}
+
+Client -> Server : "Request Data"`;
+
+    editor.value = userDiagram;
+
+    // Switch layout to mindmap
+    layoutSelect.value = 'mindmap';
+    layoutSelect.dispatchEvent(new Event('change'));
+
+    // Verify user components and relationships were preserved and @layout was added
+    expect(editor.value).toContain('@layout: mindmap');
+    expect(editor.value).toContain('Client: Process');
+    expect(editor.value).toContain('label: "User Custom Service"');
+    expect(editor.value).toContain('Server: Process');
+    expect(editor.value).toContain('Client -> Server : "Request Data"');
+    // Ensure boilerplate was NOT injected
+    expect(editor.value).not.toContain('TonyBuzan');
+
+    // Switch layout to git-flow
+    layoutSelect.value = 'git-flow';
+    layoutSelect.dispatchEvent(new Event('change'));
+
+    expect(editor.value).toContain('@layout: git-flow');
+    expect(editor.value).not.toContain('@layout: mindmap');
+    expect(editor.value).toContain('Client: Process');
+    expect(editor.value).toContain('label: "User Custom Service"');
+    // Ensure git-flow boilerplate was NOT injected
+    expect(editor.value).not.toContain('0-e3a3a20');
   });
 });
 
