@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description"
+    content="DrakoFlow Privacy Policy. Learn how our 100% client-side text-to-diagram web app, Chrome extension, and IDE extensions safeguard your data with zero telemetry and zero server transmission.">
+  <meta name="keywords"
+    content="DrakoFlow privacy policy, client-side diagram privacy, zero tracking diagram tool, offline text to diagram, chrome extension privacy">
+  <meta name="author" content="pazvanti">
+  <meta name="robots" content="index, follow">
+  <title>Privacy Policy | DrakoFlow - Zero-Data Client-Side Diagram Engine</title>
+
+  <link rel="canonical" href="https://pazvanti.github.io/DrakoFlow/privacy.html" />
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://pazvanti.github.io/DrakoFlow/privacy.html">
+  <meta property="og:title" content="Privacy Policy | DrakoFlow">
+  <meta property="og:description"
+    content="DrakoFlow operates entirely client-side. We do not collect, store, or transmit your diagrams, personal data, or browsing activity.">
+
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary">
+  <meta property="twitter:url" content="https://pazvanti.github.io/DrakoFlow/privacy.html">
+  <meta property="twitter:title" content="Privacy Policy | DrakoFlow">
+  <meta property="twitter:description"
+    content="DrakoFlow operates entirely client-side. We do not collect, store, or transmit your diagrams, personal data, or browsing activity.">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Outfit:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+  <!-- Premium Dark Styling -->
+  <style>
+    :root {
+      --bg-dark: #09090b;
+      --bg-panel: #141416;
+      --bg-card: #18181b;
+      --bg-card-hover: #222226;
+      --border-color: #27272a;
+      --text-main: #f4f4f5;
+      --text-muted: #a1a1aa;
+      --accent-blue: #3b82f6;
+      --accent-purple: #8b5cf6;
+      --accent-green: #10b981;
+      --accent-red: #ef4444;
+      --accent-gradient: linear-gradient(135deg, #60a5fa 0%, #3b82f6 50%, #8b5cf6 100%);
+      --glow-glow: rgba(59, 130, 246, 0.15);
+      --font-outfit: 'Outfit', sans-serif;
+      --font-fira: 'Fira Code', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: var(--font-outfit);
+      line-height: 1.6;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Ambient glow orbs */
+    .glow-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(150px);
+      opacity: 0.12;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    @keyframes drift {
+      0% { transform: translate(0, 0) scale(1); }
+      50% { transform: translate(50px, -40px) scale(1.05); }
+      100% { transform: translate(0, 0) scale(1); }
+    }
+
+    .orb-1 {
+      width: 600px;
+      height: 600px;
+      background: var(--accent-blue);
+      top: -200px;
+      left: -150px;
+      animation: drift 20s ease-in-out infinite;
+    }
+
+    .orb-2 {
+      width: 500px;
+      height: 500px;
+      background: var(--accent-green);
+      bottom: 20%;
+      right: -100px;
+      animation: drift 24s ease-in-out infinite alternate;
+    }
+
+    a {
+      color: var(--accent-blue);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    a:hover {
+      color: #60a5fa;
+    }
+
+    /* Navigation Header */
+    header.site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background-color: rgba(9, 9, 11, 0.8);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .nav-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--text-main);
+      text-decoration: none;
+      letter-spacing: -0.02em;
+    }
+
+    .logo i {
+      color: #38bdf8;
+      font-size: 1.5rem;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+    }
+
+    .nav-links a {
+      color: var(--text-muted);
+      font-weight: 500;
+      font-size: 0.95rem;
+      transition: all 0.2s;
+    }
+
+    .nav-links a:hover,
+    .nav-links a.active {
+      color: var(--text-main);
+    }
+
+    .btn-launch {
+      background: var(--accent-gradient);
+      color: #ffffff;
+      padding: 0.5rem 1.25rem;
+      border-radius: 9999px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+      transition: all 0.2s;
+    }
+
+    .btn-launch:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5);
+      color: #ffffff;
+    }
+
+    /* Privacy Layout */
+    .privacy-container {
+      max-width: 900px;
+      margin: 3rem auto 5rem auto;
+      padding: 0 2rem;
+      position: relative;
+      z-index: 10;
+    }
+
+    .privacy-header {
+      text-align: center;
+      margin-bottom: 3.5rem;
+    }
+
+    .privacy-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background-color: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: #34d399;
+      padding: 0.35rem 1rem;
+      border-radius: 9999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 1.25rem;
+    }
+
+    .privacy-header h1 {
+      font-size: 2.75rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 0.75rem;
+      background: var(--accent-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .privacy-header p {
+      color: var(--text-muted);
+      font-size: 1.15rem;
+      max-width: 650px;
+      margin: 0 auto;
+    }
+
+    .last-updated {
+      display: block;
+      font-size: 0.85rem;
+      color: #71717a;
+      margin-top: 0.5rem;
+    }
+
+    /* Summary Card */
+    .highlight-card {
+      background: linear-gradient(135deg, rgba(24, 24, 27, 0.8) 0%, rgba(20, 20, 22, 0.9) 100%);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      border-radius: 12px;
+      padding: 1.75rem 2rem;
+      margin-bottom: 2.5rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+      display: flex;
+      gap: 1.25rem;
+      align-items: flex-start;
+    }
+
+    .highlight-icon {
+      font-size: 2rem;
+      color: #38bdf8;
+      line-height: 1;
+      margin-top: 0.2rem;
+    }
+
+    .highlight-content h2 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 0.5rem;
+    }
+
+    .highlight-content p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    /* Sections */
+    .privacy-section {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      transition: border-color 0.2s ease;
+    }
+
+    .privacy-section:hover {
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .section-title {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .section-title i {
+      color: #60a5fa;
+      font-size: 1.25rem;
+    }
+
+    .privacy-section p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      line-height: 1.7;
+      margin-bottom: 1rem;
+    }
+
+    .privacy-section p:last-child {
+      margin-bottom: 0;
+    }
+
+    .privacy-list {
+      list-style: none;
+      margin: 1rem 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .privacy-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      font-size: 0.95rem;
+      color: var(--text-muted);
+    }
+
+    .privacy-list li i {
+      color: #34d399;
+      font-size: 1.1rem;
+      margin-top: 0.15rem;
+      flex-shrink: 0;
+    }
+
+    .privacy-list li i.bi-x-circle-fill {
+      color: #f87171;
+    }
+
+    .badge-tag {
+      background-color: rgba(56, 189, 248, 0.1);
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      color: #38bdf8;
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      font-family: var(--font-fira);
+      font-size: 0.85rem;
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border-color);
+      padding: 4rem 2rem 2rem 2rem;
+      position: relative;
+      z-index: 10;
+      margin-top: 4rem;
+    }
+
+    .footer-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 2rem;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .footer-links a {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    .footer-links a:hover {
+      color: var(--text-main);
+    }
+
+    @media (max-width: 768px) {
+      .nav-links {
+        display: none;
+      }
+      .privacy-container {
+        padding: 0 1rem;
+      }
+      .highlight-card {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Ambient Background Glows -->
+  <div class="glow-orb orb-1"></div>
+  <div class="glow-orb orb-2"></div>
+
+  <!-- Header Navigation -->
+  <header class="site-header">
+    <div class="nav-container">
+      <a href="https://pazvanti.github.io/DrakoFlow/" class="logo">
+        <i class="bi bi-diagram-3-fill"></i> DrakoFlow
+      </a>
+      <div class="nav-links">
+        <a href="./index.html#features">Features</a>
+        <a href="./index.html#extensions">IDE Extensions</a>
+        <a href="./compare.html">Compare Tools</a>
+        <a href="./documentation.html">Documentation</a>
+        <a href="./examples.html">Examples</a>
+        <a href="./privacy.html" class="active">Privacy</a>
+        <a href="https://github.com/pazvanti/DrakoFlow" target="_blank" rel="noopener"><i class="bi bi-github"></i> GitHub</a>
+      </div>
+      <div>
+        <a href="./drako/index.html" class="btn-launch">Launch App</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="privacy-container">
+    <div class="privacy-header">
+      <div class="privacy-badge">
+        <i class="bi bi-shield-check"></i> 100% Client-Side Privacy
+      </div>
+      <h1>Privacy Policy</h1>
+      <p>DrakoFlow is built on a zero-knowledge, client-first architecture. Your code, diagrams, and personal data never leave your browser.</p>
+      <span class="last-updated">Last Updated: August 2026</span>
+    </div>
+
+    <!-- Core Principle Card -->
+    <div class="highlight-card">
+      <div class="highlight-icon">
+        <i class="bi bi-lock-fill"></i>
+      </div>
+      <div class="highlight-content">
+        <h2>Zero Data Collection Commitment</h2>
+        <p>
+          DrakoFlow (including the Web Application, HTML Player, Chrome Extension, VS Code Extension, and IntelliJ Plugin) does <strong>not collect, track, store, transmit, or monetize any user data, personal information, or diagram source code</strong>. Everything executes strictly within your local machine's memory sandbox.
+        </p>
+      </div>
+    </div>
+
+    <!-- 1. Web Application -->
+    <section class="privacy-section">
+      <h2 class="section-title"><i class="bi bi-window-fullscreen"></i> DrakoFlow Web Studio & HTML Player</h2>
+      <p>
+        The DrakoFlow online editor and interactive standalone HTML players run completely in-browser using standard HTML5 Canvas, SVG, and JavaScript engines:
+      </p>
+      <ul class="privacy-list">
+        <li>
+          <i class="bi bi-check-circle-fill"></i>
+          <div><strong>No Account or Registration:</strong> You can use all features of DrakoFlow anonymously without creating an account or providing an email address.</div>
+        </li>
+        <li>
+          <i class="bi bi-check-circle-fill"></i>
+          <div><strong>Local-Only DSL Processing:</strong> Parsing, layout computation, routing, and SVG rendering happen entirely on your device's CPU/GPU. No diagram source code is sent to backend servers.</div>
+        </li>
+        <li>
+          <i class="bi bi-check-circle-fill"></i>
+          <div><strong>In-Memory Exports:</strong> Exporting to PNG, SVG, or standalone interactive HTML player files is performed locally in browser memory via native Blob/DataURL APIs.</div>
+        </li>
+        <li>
+          <i class="bi bi-check-circle-fill"></i>
+          <div><strong>Client-Side URL Sharing:</strong> When sharing diagrams via URL (<span class="badge-tag">#code=</span> or <span class="badge-tag">?diagram=</span>), the diagram DSL is compressed locally in the browser hash using LZ-String. The payload is read solely by client-side JavaScript and is never sent to a database.</div>
+        </li>
+      </ul>
+    </section>
+
+    <!-- 2. Chrome Extension -->
+    <section class="privacy-section">
+      <h2 class="section-title"><i class="bi bi-browser-chrome"></i> DrakoFlow Chrome Extension</h2>
+      <p>
+        The DrakoFlow Chrome Extension provides a silent, unobtrusive mechanism to replace markdown code blocks fenced with <span class="badge-tag">```drako</span> into live interactive diagram players:
+      </p>
+      <ul class="privacy-list">
+        <li>
+          <i class="bi bi-check-circle-fill"></i>
+          <div><strong>Targeted DOM Inspection:</strong> The content script only reads text inside <span class="badge-tag">&lt;pre&gt;</span> and <span class="badge-tag">&lt;code&gt;</span> elements labeled as <code>drako</code>. It never reads form inputs, credentials, session cookies, or unrelated page content.</div>
+        </li>
+        <li>
+          <i class="bi bi-check-circle-fill"></i>
+          <div><strong>Isolated Sandboxed Rendering:</strong> Diagram interactive players are rendered locally within sandboxed containers or iframes without external network calls.</div>
+        </li>
+        <li>
+          <i class="bi bi-check-circle-fill"></i>
+          <div><strong>Local Settings Storage:</strong> The extension only uses Chrome's <span class="badge-tag">storage.local</span> API to remember your local display preferences (such as auto-rendering toggles). No settings are transmitted over the network.</div>
+        </li>
+        <li>
+          <i class="bi bi-check-circle-fill"></i>
+          <div><strong>No Remote Code:</strong> In strict compliance with Chrome Web Store Manifest V3 guidelines, all scripts, styles, and assets are 100% bundled locally within the extension archive.</div>
+        </li>
+      </ul>
+    </section>
+
+    <!-- 3. What We Do NOT Collect -->
+    <section class="privacy-section">
+      <h2 class="section-title"><i class="bi bi-shield-x"></i> Information We Do NOT Gather</h2>
+      <p>To be clear and unambiguous, DrakoFlow does not gather:</p>
+      <ul class="privacy-list">
+        <li>
+          <i class="bi bi-x-circle-fill"></i>
+          <div><strong>No Personally Identifiable Information (PII):</strong> No names, email addresses, IP trackers, or location data.</div>
+        </li>
+        <li>
+          <i class="bi bi-x-circle-fill"></i>
+          <div><strong>No Diagram Code or Data:</strong> Your architecture designs, proprietary code names, and relationships remain private to your computer.</div>
+        </li>
+        <li>
+          <i class="bi bi-x-circle-fill"></i>
+          <div><strong>No Browsing History or Page Context:</strong> The Chrome extension does not log or monitor visited URLs or search queries.</div>
+        </li>
+        <li>
+          <i class="bi bi-x-circle-fill"></i>
+          <div><strong>No Third-Party Advertising Trackers:</strong> No advertising cookies, tracking pixels, or third-party marketing beacons are used.</div>
+        </li>
+      </ul>
+    </section>
+
+    <!-- 4. Third-Party Hosting -->
+    <section class="privacy-section">
+      <h2 class="section-title"><i class="bi bi-hdd-network"></i> Web Hosting & Infrastructure</h2>
+      <p>
+        The DrakoFlow website and documentation are hosted statically on <strong>GitHub Pages</strong> (provided by GitHub, Inc.). When you load static web assets from GitHub Pages, standard web server access logs (such as your IP address and browser User-Agent) may be collected by GitHub in accordance with <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener">GitHub's Privacy Statement</a>. DrakoFlow does not maintain any custom backend servers or external databases.
+      </p>
+    </section>
+
+    <!-- 5. Open Source & Auditability -->
+    <section class="privacy-section">
+      <h2 class="section-title"><i class="bi bi-code-slash"></i> Open Source Transparency</h2>
+      <p>
+        DrakoFlow is free and open-source software licensed under the <strong>GNU General Public License v3.0 (GPL-3.0)</strong>. Every line of source code for the core parser, rendering engine, web studio, and browser extension is publicly accessible and auditable on GitHub:
+      </p>
+      <p>
+        <a href="https://github.com/pazvanti/DrakoFlow" target="_blank" rel="noopener" style="font-weight: 600;">
+          <i class="bi bi-github"></i> https://github.com/pazvanti/DrakoFlow
+        </a>
+      </p>
+    </section>
+
+    <!-- 6. Contact -->
+    <section class="privacy-section">
+      <h2 class="section-title"><i class="bi bi-envelope"></i> Contact & Questions</h2>
+      <p>
+        If you have any questions or feedback regarding this Privacy Policy or DrakoFlow's security practices, please open an issue or discussion on the official GitHub repository:
+      </p>
+      <p>
+        <a href="https://github.com/pazvanti/DrakoFlow/issues" target="_blank" rel="noopener" class="btn-launch" style="font-size: 0.85rem; padding: 0.4rem 1rem;">
+          <i class="bi bi-chat-dots-fill"></i> Open GitHub Issue
+        </a>
+      </p>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-container">
+      <div class="footer-brand">
+        <a href="https://pazvanti.github.io/DrakoFlow/" class="logo" style="font-size: 1.25rem;">
+          <i class="bi bi-diagram-3-fill"></i> DrakoFlow
+        </a>
+        <p style="font-size: 0.8rem; margin-top: 0.25rem;">Browser-based client-side diagram mapping.</p>
+      </div>
+      <div class="footer-links">
+        <a href="./index.html#features">Features</a>
+        <a href="./index.html#extensions">IDE Extensions</a>
+        <a href="./compare.html">Drako vs PlantUML</a>
+        <a href="./documentation.html">Documentation</a>
+        <a href="./examples.html">Examples</a>
+        <a href="./privacy.html">Privacy Policy</a>
+        <a href="https://github.com/pazvanti/DrakoFlow" target="_blank" rel="noopener">GitHub</a>
+      </div>
+    </div>
+    <div style="text-align: center; margin-top: 2rem; font-size: 0.8rem; opacity: 0.6;">
+      &copy; 2026 DrakoFlow. Released under GNU General Public License v3.
+    </div>
+  </footer>
+</body>
+
+</html>
