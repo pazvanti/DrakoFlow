@@ -266,4 +266,304 @@ ThreeDChart: Chart {
     expect(sideFaces[0].tagName.toLowerCase()).toBe('polygon');
     expect(sideFaces[0].getAttribute('points')).toBeTruthy();
   });
+
+  it('should parse and render Pie chart with labels, values, colors, and interactive legend', () => {
+    const dsl = `
+MyChart: Chart {
+  width: 800
+  height: 400
+  title: "Sales Revenue"
+
+  MyPieChart: Pie {
+    labels: ["A", "B", "C", "D", "E"]
+    values: [23, 45, 12, 67, 8]
+    colors: [#f0f0f0, #ff0000, #00ff00, #0000ff, #00ffff]
+  }
+}
+`;
+    const doc = parseDslDocument(dsl);
+    expect(doc.components).toHaveLength(1);
+    expect(doc.components[0].childEntries).toHaveLength(1);
+
+    const components = createComponentsFromDsl(doc.components);
+    const chart = components[0] as ChartComponent;
+    const svg = chart.render(mockTheme);
+
+    // Verify Pie Group and Slices
+    const pieGroup = svg.querySelector('.chart-pie-group');
+    expect(pieGroup).not.toBeNull();
+
+    const slices = svg.querySelectorAll('.chart-pie-slice');
+    expect(slices.length).toBe(5);
+
+    // Verify slice paths and tooltips
+    const firstSlice = slices[0];
+    const path = firstSlice.querySelector('path');
+    expect(path).not.toBeNull();
+    expect(path?.getAttribute('fill')).toBe('#f0f0f0');
+
+    const titleTag = firstSlice.querySelector('title');
+    expect(titleTag?.textContent).toContain('A: 23');
+
+    // Verify Legend
+    const legendGroup = svg.querySelector('.chart-pie-legend');
+    expect(legendGroup).not.toBeNull();
+
+    const legendItems = svg.querySelectorAll('.chart-legend-item');
+    expect(legendItems.length).toBe(5);
+    expect(legendItems[0].textContent).toContain('A');
+  });
+
+  it('should render Donut chart when donut: true or innerRadius is set', () => {
+    const dsl = `
+DonutChart: Chart {
+  title: "Market Share"
+
+  SharePie: Pie {
+    labels: ["Product A", "Product B", "Product C"]
+    values: [50, 30, 20]
+    donut: true
+  }
+}
+`;
+    const doc = parseDslDocument(dsl);
+    const components = createComponentsFromDsl(doc.components);
+    const chart = components[0] as ChartComponent;
+    const svg = chart.render(mockTheme);
+
+    const slices = svg.querySelectorAll('.chart-pie-slice');
+    expect(slices.length).toBe(3);
+
+    // Donut paths contain both outer and inner arc commands (e.g. 'A' appears at least twice in 'd')
+    const pathD = slices[0].querySelector('path')?.getAttribute('d') || '';
+    const arcMatches = pathD.match(/A\s/g);
+    expect(arcMatches && arcMatches.length).toBeGreaterThanOrEqual(2);
+  });
+
+  it('should render 3D Pie chart with extrusion side faces when is3D is true', () => {
+    const dsl = `
+ThreeDPieChart: Chart {
+  title: "Asset Allocation"
+
+  AllocationPie: Pie {
+    labels: ["Stocks", "Bonds", "Real Estate"]
+    values: [60, 25, 15]
+    is3D: true
+    depth: 20
+  }
+}
+`;
+    const doc = parseDslDocument(dsl);
+    const components = createComponentsFromDsl(doc.components);
+    const chart = components[0] as ChartComponent;
+    const svg = chart.render(mockTheme);
+
+    const sideGroups = svg.querySelectorAll('.pie-3d-side-group');
+    expect(sideGroups.length).toBe(3);
+
+    const topSlices = svg.querySelectorAll('.chart-pie-slice');
+    expect(topSlices.length).toBe(3);
+  });
+
+  it('should parse and render Pie chart using items object array syntax', () => {
+    const dsl = `
+MyChart: Chart {
+  width: 800
+  height: 400
+
+  title: "Sales Revenue"
+  MyPieChart: Pie {
+      items: [
+        {
+          label: "A"
+          value: 23
+          color: "#f0f0f0"
+        }
+        {
+          label: "B"
+          value: 45
+          color: "#ff0000"
+          textColor: "#ffffff"
+        }
+        {
+          label: "C"
+          value: 12
+          color: "#00ff00"
+        }
+        {
+          label: "D"
+          value: 67
+          color: "#0000ff"
+        }
+        {
+          label: "E"
+          value: 8
+          color: "#00ffff"
+        }
+      ]
+      is3D: true
+      showLegend: true
+   }
+}
+`;
+    const doc = parseDslDocument(dsl);
+    const components = createComponentsFromDsl(doc.components);
+    const chart = components[0] as ChartComponent;
+    const svg = chart.render(mockTheme);
+
+    const slices = svg.querySelectorAll('.chart-pie-slice');
+    expect(slices.length).toBe(5);
+
+    const firstSlice = slices[0];
+    expect(firstSlice.getAttribute('data-label')).toBe('A');
+    expect(firstSlice.getAttribute('data-value')).toBe('23');
+    expect(firstSlice.querySelector('.chart-pie-slice-top')?.getAttribute('fill')).toBe('#f0f0f0');
+
+    // 3D extrusion sides
+    const sideGroups = svg.querySelectorAll('.pie-3d-side-group');
+    expect(sideGroups.length).toBe(5);
+
+    // Legend
+    const legendGroup = svg.querySelector('.chart-pie-legend');
+    expect(legendGroup).not.toBeNull();
+    const legendItems = svg.querySelectorAll('.chart-legend-item');
+    expect(legendItems.length).toBe(5);
+
+    // Verify default shows actual value text on slice
+    const sliceTexts = svg.querySelectorAll('.chart-pie-slice text');
+    expect(sliceTexts[0].textContent).toBe('23');
+
+    // Verify pure CSS hover variables are set on slice group
+    expect(firstSlice.getAttribute('style')).toContain('--exp-x:');
+    expect(firstSlice.getAttribute('style')).toContain('--exp-y:');
+  });
+
+  it('should display percentage text when showPercentage is true', () => {
+    const dsl = `
+PiePercentage: Chart {
+  MyPie: Pie {
+    items: [
+      { label: "A", value: 50 }
+      { label: "B", value: 50 }
+    ]
+    showPercentage: true
+  }
+}
+`;
+    const doc = parseDslDocument(dsl);
+    const components = createComponentsFromDsl(doc.components);
+    const chart = components[0] as ChartComponent;
+    const svg = chart.render(mockTheme);
+
+    const sliceTexts = svg.querySelectorAll('.chart-pie-slice text');
+    expect(sliceTexts[0].textContent).toBe('50%');
+    expect(sliceTexts[1].textContent).toBe('50%');
+  });
+
+  it('should render standalone Pie component at top level with title, dimensions, items, is3D, and legend', () => {
+    const dsl = `
+MyPieChart: Pie {
+  width: 800
+  height: 400
+  title: "Sales Revenue"
+
+  items: [
+    {
+      label: "A"
+      value: 23
+    }
+    {
+      label: "B"
+      value: 45
+    }
+    {
+      label: "C"
+      value: 12
+      color: #00ff00
+    }
+    {
+      label: "D"
+      value: 67
+      color: #0000ff
+      textColor: #000000
+    }
+    {
+      label: "E"
+      value: 8
+      color: #00ffff
+    }
+  ]
+  is3D: true
+  showLegend: true
+  showPercentage: true
+}
+`;
+    const doc = parseDslDocument(dsl);
+    expect(doc.components).toHaveLength(1);
+    expect(doc.components[0].type).toBe('Pie');
+
+    const components = createComponentsFromDsl(doc.components);
+    const pie = components[0] as PieComponent;
+    expect(pie).toBeDefined();
+
+    const svg = pie.render(mockTheme);
+    expect(svg.getAttribute('class')).toContain('pie-component');
+
+    // Title
+    const titleText = svg.querySelector('text');
+    expect(titleText?.textContent).toBe('Sales Revenue');
+
+    // Slices
+    const slices = svg.querySelectorAll('.chart-pie-slice');
+    expect(slices.length).toBe(5);
+
+    // 3D Skirts
+    const sideGroups = svg.querySelectorAll('.pie-3d-side-group');
+    expect(sideGroups.length).toBe(5);
+
+    // Legend
+    const legendGroup = svg.querySelector('.chart-pie-legend');
+    expect(legendGroup).not.toBeNull();
+    const legendItems = svg.querySelectorAll('.chart-legend-item');
+    expect(legendItems.length).toBe(5);
+
+    // Percentage
+    const sliceTexts = svg.querySelectorAll('.chart-pie-slice text');
+    expect(sliceTexts.length).toBeGreaterThanOrEqual(4);
+    expect(sliceTexts[0].textContent).toContain('%');
+  });
+
+  it('should adapt colors correctly to light theme for both Chart and Pie components', () => {
+    const lightTheme: ThemeVariables = {
+      primaryColor: '#1d4ed8',
+      secondaryColor: '#4b5563',
+      backgroundColor: '#ffffff',
+      textColor: '#1f2937',
+      borderColor: '#9ca3af',
+      fontFamily: 'Outfit, sans-serif'
+    };
+
+    const dsl = `
+MyPie: Pie {
+  title: "Revenue"
+  items: [
+    { label: "Q1", value: 100 }
+    { label: "Q2", value: 200 }
+  ]
+}
+`;
+    const doc = parseDslDocument(dsl);
+    const components = createComponentsFromDsl(doc.components);
+    const pie = components[0] as PieComponent;
+    const svg = pie.render(lightTheme);
+
+    // Card background should be white, border light grey
+    const bgRect = svg.querySelector('rect');
+    expect(bgRect?.getAttribute('fill')).toBe('#ffffff');
+    expect(bgRect?.getAttribute('stroke')).toBe('#9ca3af');
+
+    // Title should be dark text (#1f2937)
+    const titleElem = svg.querySelector('text');
+    expect(titleElem?.getAttribute('fill')).toBe('#1f2937');
+  });
 });

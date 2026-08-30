@@ -45,6 +45,7 @@ import { CommitComponent, CommitProps } from '../components/CommitComponent';
 import { ChartComponent, ChartProps } from '../components/ChartComponent';
 import { BarComponent, BarProps } from '../components/BarComponent';
 import { LineComponent, LineProps } from '../components/LineComponent';
+import { PieComponent, PieProps } from '../components/PieComponent';
 import { collectReferencedIds, ParsedChildEntry, ParsedNode } from '../dsl/parser';
 import { isComponentType } from '../dsl/componentTypes';
 
@@ -523,6 +524,31 @@ function instantiateFromDefinition(
         fillOpacity: node.properties.fillOpacity as number | undefined
       };
       component = new LineComponent(metadata, props, themeOverride);
+      break;
+    }
+    case 'Pie': {
+      const props: PieProps = {
+        items: node.properties.items as any,
+        labels: node.properties.labels as string[] | undefined,
+        values: node.properties.values as number[] | undefined,
+        colors: node.properties.colors as string[] | undefined,
+        donut: (node.properties.donut ?? node.properties.doughnut) as boolean | number | undefined,
+        innerRadius: node.properties.innerRadius as number | undefined,
+        is3D: (node.properties.is3D ?? node.properties.is3d ?? node.properties.threeD) as boolean | undefined,
+        threeD: (node.properties.threeD ?? node.properties.is3D) as boolean | undefined,
+        depth: node.properties.depth as number | undefined,
+        startAngle: node.properties.startAngle as number | undefined,
+        showLabels: node.properties.showLabels as boolean | undefined,
+        showPercentage: (node.properties.showPercentage ?? node.properties.showPercentages ?? node.properties.percentages) as boolean | undefined,
+        showPercentages: (node.properties.showPercentage ?? node.properties.showPercentages ?? node.properties.percentages) as boolean | undefined,
+        showValues: node.properties.showValues as boolean | undefined,
+        legend: (node.properties.legend ?? node.properties.showLegend) as boolean | undefined,
+        showLegend: (node.properties.showLegend ?? node.properties.legend) as boolean | undefined,
+        title: node.properties.title as string | undefined,
+        width: node.properties.width as number | undefined,
+        height: node.properties.height as number | undefined
+      };
+      component = new PieComponent(metadata, props, themeOverride);
       break;
     }
     default: {

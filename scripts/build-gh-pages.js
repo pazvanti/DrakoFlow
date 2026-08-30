@@ -51,10 +51,18 @@ try {
   console.log('Copying application assets to docs/drako/ directory...');
   copyFolderRecursiveSync(distDir, drakoDir);
 
-  // Sync extension download packages
-  const vsixSrc = path.join(__dirname, '../vscode-extension/drakoflow-vscode-1.0.0.vsix');
-  if (fs.existsSync(vsixSrc)) {
-    fs.copyFileSync(vsixSrc, path.join(downloadsDir, 'drakoflow-vscode-1.0.0.vsix'));
+  // Build and package VS Code extension
+  console.log('Packaging VS Code extension (.vsix)...');
+  try {
+    const vscodeDir = path.join(__dirname, '../vscode-extension');
+    execSync('npx -y @vscode/vsce package --no-dependencies', { cwd: vscodeDir, stdio: 'inherit' });
+    const vsixSrc = path.join(vscodeDir, 'drakoflow-vscode-1.0.0.vsix');
+    if (fs.existsSync(vsixSrc)) {
+      fs.copyFileSync(vsixSrc, path.join(downloadsDir, 'drakoflow-vscode-1.0.0.vsix'));
+      console.log('VS Code extension packaged into docs/downloads/drakoflow-vscode-1.0.0.vsix successfully.');
+    }
+  } catch (vsceErr) {
+    console.warn('Could not package VS Code extension:', vsceErr.message);
   }
 
   const zipSrc = path.join(__dirname, '../intellij-extension/build/distributions/drakoflow-intellij-1.0.0.zip');

@@ -45,7 +45,8 @@ export const COMPONENT_TYPES = [
   'Commit',
   'Chart',
   'Bar',
-  'Line'
+  'Line',
+  'Pie'
 ] as const;
 
 export type ComponentTypeName = (typeof COMPONENT_TYPES)[number];

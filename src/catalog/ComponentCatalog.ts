@@ -560,6 +560,29 @@ Origins -> History`
     filled: true
   }
 }`
+  },
+  {
+    type: "Pie",
+    displayName: "Pie / Donut Chart",
+    description: "Interactive 2D, 3D, and Donut pie charts with per-slice items, colors, interactive tooltips, and legend.",
+    tags: ["Charts", "Data", "Visualization"],
+    template: `MyChart: Chart {
+  width: 800
+  height: 400
+  title: "Sales Revenue"
+
+  MyPieChart: Pie {
+    items: [
+      { label: "A", value: 23, color: "#38bdf8" }
+      { label: "B", value: 45, color: "#818cf8" }
+      { label: "C", value: 12, color: "#c084fc" }
+      { label: "D", value: 67, color: "#f472b6" }
+      { label: "E", value: 8, color: "#fb7185" }
+    ]
+    is3D: true
+    showLegend: true
+  }
+}`
   }
 ];
 

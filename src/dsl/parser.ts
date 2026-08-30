@@ -586,6 +586,72 @@ function readArrayElementValue(
   return null;
 }
 
+function parseObjectLiteral(
+  text: string,
+  start: number
+): { value: Record<string, any>; end: number } | null {
+  const i = skipWhitespace(text, start);
+  if (text[i] !== '{') return null;
+
+  let curr = i + 1;
+  const obj: Record<string, any> = {};
+
+  const firstNonWs = skipWhitespace(text, curr);
+  if (firstNonWs >= text.length) return null;
+  if (text[firstNonWs] === '}') {
+    return { value: obj, end: firstNonWs + 1 };
+  }
+
+  // Must match key: to be an object literal rather than a nested array
+  const firstKeyMatch = text.slice(firstNonWs).match(/^([a-zA-Z_]\w*)\s*:/);
+  if (!firstKeyMatch) {
+    return null;
+  }
+
+  while (curr < text.length) {
+    curr = skipWhitespace(text, curr);
+    if (curr >= text.length) break;
+
+    if (text[curr] === '}') {
+      return Object.keys(obj).length > 0 ? { value: obj, end: curr + 1 } : null;
+    }
+
+    if (text[curr] === ',') {
+      curr++;
+      continue;
+    }
+
+    // Match key:
+    const keyMatch = text.slice(curr).match(/^([a-zA-Z_]\w*)\s*:/);
+    if (!keyMatch) {
+      return null;
+    }
+
+    const key = keyMatch[1];
+    const afterColon = skipWhitespace(text, curr + keyMatch[0].length);
+
+    // Read value
+    if (afterColon < text.length && text[afterColon] !== '}' && text[afterColon] !== '\n') {
+      const valObj = readPropertyValue(text, afterColon, key);
+      if (valObj !== null) {
+        obj[key] = valObj.value;
+        curr = valObj.end;
+      } else {
+        curr = afterColon;
+      }
+    } else {
+      curr = afterColon;
+    }
+
+    curr = skipWhitespace(text, curr);
+    if (text[curr] === ',') {
+      curr++;
+    }
+  }
+
+  return null;
+}
+
 function readArrayValue(
   text: string,
   start: number,
@@ -607,7 +673,18 @@ function readArrayValue(
       return { value: elements, end: curr + 1 };
     }
 
-    if (text[curr] === '{' || text[curr] === '[') {
+    if (text[curr] === '{') {
+      const objLiteral = parseObjectLiteral(text, curr);
+      if (objLiteral !== null) {
+        elements.push(objLiteral.value);
+        curr = objLiteral.end;
+      } else {
+        const nested = readArrayValue(text, curr, propName);
+        if (nested === null) return null;
+        elements.push(nested.value);
+        curr = nested.end;
+      }
+    } else if (text[curr] === '[') {
       const nested = readArrayValue(text, curr, propName);
       if (nested === null) return null;
       elements.push(nested.value);
@@ -661,7 +738,7 @@ const KNOWN_STRING_PROPERTIES = new Set([
   'color', 'align', 'type', 'tag', 'branch', 'lineStyle', 'routeType',
   'label', 'doc', 'url', 'hash', 'msg', 'message', 'text', 'attributes',
   'methods', 'items', 'content', 'theme', 'backgroundColor', 'textColor', 'borderColor',
-  'title', 'xLabel', 'yLabel', 'x', 'y'
+  'title', 'xLabel', 'yLabel', 'x', 'y', 'labels', 'values', 'colors', 'donut', 'innerRadius'
 ]);
 
 function readPropertyValue(

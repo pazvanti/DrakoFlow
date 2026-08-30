@@ -63,6 +63,13 @@
         "configuration": "./language-configuration.json"
       }
     ],
+    "grammars": [
+      {
+        "language": "drakoflow",
+        "scopeName": "source.drako",
+        "path": "./syntaxes/drakoflow.tmLanguage.json"
+      }
+    ],
     "commands": [
       {
         "command": "drakoflow.showPreview",

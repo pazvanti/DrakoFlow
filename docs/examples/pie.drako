@@ -1,0 +1,35 @@
+MyPieChart: Pie {
+  width: 800
+  height: 400
+  title: "Sales Revenue"
+
+  items: [
+    {
+      label: "A"
+      value: 23
+    }
+    {
+      label: "B"
+      value: 45
+    }
+    {
+      label: "C"
+      value: 12
+      color: #00ff00
+    }
+    {
+      label: "D"
+      value: 67
+      color: #0000ff
+      textColor: #000000
+    }
+    {
+      label: "E"
+      value: 8
+      color: #00ffff
+    }
+  ]
+  is3D: true
+  showLegend: true
+  showPercentage: true
+}

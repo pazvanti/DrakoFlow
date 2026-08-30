@@ -1146,6 +1146,85 @@ Origins -> History</script>
 }</script>
     </div>
 
+    <!-- EXAMPLE 7: Interactive Pie & Donut Chart -->
+    <div class="example-card" data-category="chart">
+      <div class="example-card-header">
+        <div class="example-title-area">
+          <div class="example-title-row">
+            <h2>Interactive Pie & Donut Chart</h2>
+            <span class="tag-badge purple">Pie Chart</span>
+            <span class="tag-badge blue">Custom Colors</span>
+            <span class="tag-badge green">Interactive Legend</span>
+          </div>
+          <p class="example-description">Demonstrates the `Pie` component with custom slice labels, numeric values, custom color palettes (`colors: [#f0f0f0, #ff0000, ...]`), slice explosion hover animations, tooltips, and interactive legend.</p>
+        </div>
+        <a href="./examples/pie.html" target="_blank" class="btn-action-secondary">
+          <i class="bi bi-box-arrow-up-right"></i> Open Fullscreen Player
+        </a>
+      </div>
+
+      <!-- Full-Width Interactive HTML Player Container -->
+      <div class="example-player-wrapper">
+        <iframe src="./examples/pie.html" class="preview-iframe"
+          title="Interactive Pie & Donut Chart Example Player"></iframe>
+      </div>
+
+      <div class="example-card-footer">
+        <div class="action-group">
+          <a href="./examples/pie.html" target="_blank" class="btn-action-primary">
+            <i class="bi bi-play-circle-fill"></i> Open Interactive Player
+          </a>
+          <button class="btn-action-secondary" onclick="openInEditor('code-pie')">
+            <i class="bi bi-box-arrow-up-right"></i> Open in Online Editor
+          </button>
+        </div>
+        <div class="action-group">
+          <a href="./examples/pie.drako" download="pie.drako" class="btn-action-secondary">
+            <i class="bi bi-download"></i> Download .drako
+          </a>
+        </div>
+      </div>
+
+      <!-- Hidden Source Script for Editor Link -->
+      <script id="code-pie" type="text/plain">MyChart: Chart {
+  width: 800
+  height: 400
+
+  title: "Sales Revenue"
+  MyPieChart: Pie {
+    items: [
+      {
+        label: "A"
+        value: 23
+        color: "#f0f0f0"
+      }
+      {
+        label: "B"
+        value: 45
+        color: "#ff0000"
+      }
+      {
+        label: "C"
+        value: 12
+        color: "#00ff00"
+      }
+      {
+        label: "D"
+        value: 67
+        color: "#0000ff"
+      }
+      {
+        label: "E"
+        value: 8
+        color: "#00ffff"
+      }
+    ]
+    is3D: true
+    showLegend: true
+  }
+}</script>
+    </div>
+
     <!-- Submit / More Examples Card -->
     <div class="submit-card">
       <div style="font-size: 2.5rem; color: #a78bfa;"><i class="bi bi-journal-plus"></i></div>

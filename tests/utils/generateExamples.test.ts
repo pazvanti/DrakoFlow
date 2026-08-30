@@ -102,4 +102,13 @@ describe('Generate HTML Player Examples', () => {
     expect(content).toContain('id="viewport-g"');
     expect(content).toContain('fitToScreen');
   });
+
+  it('generates docs/examples/pie.html', () => {
+    generateExample('pie');
+    const content = fs.readFileSync(path.resolve(__dirname, '../../docs/examples/pie.html'), 'utf8');
+    expect(content).toContain('chart-pie-group');
+    expect(content).toContain('class="diagram-svg"');
+    expect(content).toContain('id="viewport-g"');
+    expect(content).toContain('fitToScreen');
+  });
 });

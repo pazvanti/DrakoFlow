@@ -608,6 +608,7 @@
       <div class="sidebar-section-title">Data & Charts</div>
       <ul class="sidebar-menu">
         <li class="sidebar-item"><a href="#chart"><i class="bi bi-bar-chart-line"></i> Chart (Bar & Line)</a></li>
+        <li class="sidebar-item"><a href="#pie-chart"><i class="bi bi-pie-chart-fill"></i> Pie & Donut Chart</a></li>
       </ul>
 
       <div class="sidebar-section-title">Relationships</div>
@@ -1601,6 +1602,68 @@ c3: Commit {
     color: #4ade80
     filled: true
   }
+}`
+      },
+      {
+        id: "pie-chart",
+        name: "Pie & Donut Chart",
+        group: "Data & Charts",
+        description: "Interactive 2D, 3D, and Donut pie charts with structured slice items, custom colors, interactive tooltips, percentage indicators, and legend. Can be used standalone as a top-level component or nested inside a <code>Chart</code> container.",
+        icon: "bi-pie-chart-fill",
+        properties: [
+          { name: "items", type: "Array of Objects", desc: "List of slice objects: <code>{ label: \"A\", value: 23, color: #00ff00, textColor: #000000 }</code>. Offers precise per-slice styling." },
+          { name: "labels", type: "Array of Strings", desc: "Category names for each slice (e.g. [\"A\", \"B\", \"C\", \"D\"]) when using flat arrays." },
+          { name: "values", type: "Array of Numbers", desc: "Numeric values for each slice (e.g. [23, 45, 12, 67]) when using flat arrays." },
+          { name: "colors", type: "Array of Colors", desc: "Custom color palette (Hex/RGB/Keywords, e.g. [#f0f0f0, #ff0000, #00ff00, ...])." },
+          { name: "title", type: "String", desc: "Chart title header shown at the top center of the card." },
+          { name: "width", type: "Number", desc: "Explicit chart card width in pixels (e.g. 800)." },
+          { name: "height", type: "Number", desc: "Explicit chart card height in pixels (e.g. 400)." },
+          { name: "donut", type: "Boolean / Number", desc: "Set to true (or a ratio like 0.6) to render as a hollow Donut chart with an inner cutout radius." },
+          { name: "innerRadius", type: "Number", desc: "Explicit inner cutout radius in pixels for Donut charts." },
+          { name: "is3D", type: "Boolean", desc: "Set to true to render an isometric 3D pie chart with depth extrusion and cohesive hover detachment." },
+          { name: "depth", type: "Number", desc: "3D extrusion depth in pixels for 3D pie charts (default 24)." },
+          { name: "showLegend", type: "Boolean", desc: "Toggles the interactive legend on the right side of the chart (default true)." },
+          { name: "showPercentage", type: "Boolean", desc: "When true, displays percentage labels on slices. When false (default), displays numeric values." }
+        ],
+        themeOverrides: [
+          { name: "backgroundColor", desc: "Background card fill color for the chart." },
+          { name: "borderColor", desc: "Border outline color for the chart card." },
+          { name: "textColor", desc: "Color for labels, title, and legend text." }
+        ],
+        example: `MyPieChart: Pie {
+  width: 800
+  height: 400
+  title: "Sales Revenue"
+
+  items: [
+    {
+      label: "A"
+      value: 23
+    }
+    {
+      label: "B"
+      value: 45
+    }
+    {
+      label: "C"
+      value: 12
+      color: #00ff00
+    }
+    {
+      label: "D"
+      value: 67
+      color: #0000ff
+      textColor: #000000
+    }
+    {
+      label: "E"
+      value: 8
+      color: #00ffff
+    }
+  ]
+  is3D: true
+  showLegend: true
+  showPercentage: true
 }`
       }
     ];
