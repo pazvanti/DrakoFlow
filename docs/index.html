@@ -45,6 +45,8 @@
     "description": "DrakoFlow is a lightweight, client-side, text-to-diagram engine that compiles declarative DSL scripts into interactive architecture diagrams.",
     "featureList": [
       "Text-to-diagram compilation",
+      "Interactive Mindmap trees with automatic layout",
+      "Interactive Charts (Bar, Line, 3D Pie & Donut)",
       "Git Flow branch & merge diagram engine",
       "Bidirectional drag-and-drop diagram alignment",
       "PlantUML importer and translator",
@@ -1692,6 +1694,24 @@
       <!-- Card 10 -->
       <div class="feature-card">
         <div class="feature-icon-wrapper">
+          <i class="bi bi-pie-chart-fill"></i>
+        </div>
+        <h3>Interactive Charts & Data</h3>
+        <p>Embed Bar, Line, Pie, and 3D Donut charts directly in diagrams with dynamic tooltips, animated slice detachment, percentage toggles, and theme synchronization.</p>
+      </div>
+
+      <!-- Card 11 -->
+      <div class="feature-card">
+        <div class="feature-icon-wrapper">
+          <i class="bi bi-diagram-2"></i>
+        </div>
+        <h3>Mindmaps & Idea Trees</h3>
+        <p>Brainstorm, organize thoughts, and structure roadmaps using <code>@layout: mindmap</code>. Automatically calculates balanced hierarchical tree layouts linked by smooth cubic Bézier curves.</p>
+      </div>
+
+      <!-- Card 12 -->
+      <div class="feature-card">
+        <div class="feature-icon-wrapper">
           <i class="bi bi-git"></i>
         </div>
         <h3>Git Flow & Modular Engines</h3>
@@ -1821,6 +1841,8 @@
       <div class="syntax-tabs">
         <button class="syntax-tab active" data-tab="rectangle">Rectangle</button>
         <button class="syntax-tab" data-tab="package">Package (UML)</button>
+        <button class="syntax-tab" data-tab="charts">Charts & Pies</button>
+        <button class="syntax-tab" data-tab="mindmap">Mindmap</button>
         <button class="syntax-tab" data-tab="tags">Tags & Filtering</button>
         <button class="syntax-tab" data-tab="relationships">Relationships</button>
         <button class="syntax-tab" data-tab="gitflow">Git Flow</button>
@@ -1878,6 +1900,66 @@
     label: "Ledger DB"
   }
 }</code></pre>
+          </div>
+        </div>
+
+        <!-- Charts Panel -->
+        <div class="syntax-panel" id="panel-charts">
+          <div class="syntax-info">
+            <h3>Interactive Charts (Pie, Donut, Bar & Line)</h3>
+            <p>Embed rich data visualizations seamlessly into architecture and system workflows. Supports 3D extrusion, donut holes, animated hover slice detachment, interactive legends, and dynamic light/dark theme adaptation.</p>
+            <ul>
+              <li><i class="bi bi-check-circle-fill"></i> Standalone: <code>Pie { items: [...] is3D: true }</code></li>
+              <li><i class="bi bi-check-circle-fill"></i> Multi-Series: <code>Chart { Bar { ... } Line { ... } }</code></li>
+              <li><i class="bi bi-check-circle-fill"></i> Controls: <code>showLegend</code>, <code>showPercentage</code>, <code>donut</code>, <code>depth</code></li>
+            </ul>
+          </div>
+          <div class="syntax-code">
+            <pre><code>RevenueShare: Pie {
+  title: "Revenue by Channel"
+  width: 550
+  height: 320
+  is3D: true
+  showLegend: true
+  showPercentage: true
+  items: [
+    { label: "SaaS Subscriptions", value: 58, color: "#3b82f6" }
+    { label: "Enterprise Licenses", value: 27, color: "#10b981" }
+    { label: "Cloud Services", value: 15, color: "#f59e0b" }
+  ]
+}</code></pre>
+          </div>
+        </div>
+
+        <!-- Mindmap Panel -->
+        <div class="syntax-panel" id="panel-mindmap">
+          <div class="syntax-info">
+            <h3>Mindmap & Idea Trees</h3>
+            <p>Declare clean hierarchical trees and concept maps with <code>@layout: mindmap</code>. The layout engine computes node levels, child subtrees, and renders organic cubic Bézier connector branches automatically.</p>
+            <ul>
+              <li><i class="bi bi-check-circle-fill"></i> Directive: <code>@layout: mindmap</code></li>
+              <li><i class="bi bi-check-circle-fill"></i> Multi-Directional / Single: <code>@mindmap: { direction: "radial" }</code> or left/right</li>
+              <li><i class="bi bi-check-circle-fill"></i> Root & Child nodes use standard components (<code>Process</code>, <code>Rectangle</code>, etc.)</li>
+            </ul>
+          </div>
+          <div class="syntax-code">
+            <pre><code>@layout: mindmap
+
+Core: Process {
+  label: "App Architecture"
+  themeOverride: {
+    backgroundColor: "#3b82f6"
+    textColor: "#ffffff"
+  }
+}
+
+Frontend: Process { label: "Client Web App" }
+API: Process { label: "REST / GraphQL Gateway" }
+Worker: Process { label: "Async Task Pipeline" }
+
+Core -> Frontend
+Core -> API
+Core -> Worker</code></pre>
           </div>
         </div>
 
