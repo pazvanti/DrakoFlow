@@ -4,7 +4,7 @@
 
 [![Visual Studio Marketplace](https://img.shields.io/badge/VS%20Code-Extension-blue?style=flat-square&logo=visual-studio-code)](https://marketplace.visualstudio.com/items?itemName=pazvanti.drakoflow-vscode)
 [![IntelliJ Plugin](https://img.shields.io/badge/IntelliJ%20IDEA-Plugin-orange?style=flat-square&logo=intellij-idea)](./intellij-extension)
-[![Chrome Extension](https://img.shields.io/badge/Chrome-Extension-green?style=flat-square&logo=google-chrome)](./chrome-extension)
+[![Chrome Web Store](https://img.shields.io/badge/Chrome%20Web%20Store-Extension-green?style=flat-square&logo=google-chrome)](https://chromewebstore.google.com/detail/drakoflow-diagram-rendere/fmlooeikllkmicanocacmppcmfofomji)
 [![License: GPL-3.0](https://img.shields.io/badge/License-GPL--3.0-purple.svg?style=flat-square)](./LICENSE)
 [![Privacy First](https://img.shields.io/badge/Privacy-100%25%20Offline-success.svg?style=flat-square)](#-highlights)
 
@@ -204,7 +204,7 @@ c3 -> c4
 
 - **[VS Code Extension](./vscode-extension)**: Live side-by-side `.drako` preview and editing.
 - **[IntelliJ IDEA Plugin](./intellij-extension)**: Native split-view preview for JetBrains IDEs.
-- **[Chrome Extension](./chrome-extension)**: Silent renderer that automatically turns ` ```drako ` markdown code blocks into live interactive HTML diagram players across web pages (GitHub, ChatGPT, Notion, GitLab, Jira).
+- **[Chrome Extension](./chrome-extension)**: Available on the [Chrome Web Store](https://chromewebstore.google.com/detail/drakoflow-diagram-rendere/fmlooeikllkmicanocacmppcmfofomji) and as direct download. Silent renderer that automatically turns ```drako markdown code blocks into live interactive HTML diagram players across web pages (GitHub, ChatGPT, Notion, GitLab, Jira).
 
 ---
 

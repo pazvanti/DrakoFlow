@@ -15,7 +15,17 @@ A silent, client-side browser extension for Google Chrome, Brave, Edge, and Chro
 
 ## 📥 Installation
 
-### Load Unpacked (Developer Mode)
+### 1. Install from Chrome Web Store (Recommended)
+Install directly with one click from the official **[Chrome Web Store](https://chromewebstore.google.com/detail/drakoflow-diagram-rendere/fmlooeikllkmicanocacmppcmfofomji)**.
+
+### 2. Direct ZIP Download
+1. Download `drakoflow-chrome-1.0.0.zip` directly from the [DrakoFlow Website](https://pazvanti.github.io/DrakoFlow/#extensions).
+2. Unpack/extract the `.zip` archive to a folder on your computer.
+3. Open your browser and navigate to `chrome://extensions/`.
+4. Enable **Developer mode** in the top-right corner.
+5. Click **Load unpacked** and select the extracted folder.
+
+### 3. Load Unpacked (Build from Source)
 1. Download or clone this repository.
 2. Build the extension:
    ```bash

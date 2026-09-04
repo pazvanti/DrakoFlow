@@ -1472,6 +1472,17 @@
       box-shadow: 0 6px 20px rgba(124, 58, 237, 0.45);
     }
 
+    .btn-extension-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+      margin-top: 1rem;
+    }
+
+    .btn-extension-group .btn-extension-download {
+      margin-top: 0;
+    }
+
     .btn-chrome {
       background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
       color: white;
@@ -1484,10 +1495,19 @@
       box-shadow: 0 6px 20px rgba(22, 163, 74, 0.45);
     }
 
-    .btn-intellij:hover {
-      color: white;
+    .btn-chrome-direct {
+      background: rgba(34, 197, 94, 0.08);
+      border: 1px solid rgba(74, 222, 128, 0.28);
+      color: #86efac;
+      box-shadow: none;
+    }
+
+    .btn-chrome-direct:hover {
+      background: rgba(34, 197, 94, 0.18);
+      border-color: rgba(74, 222, 128, 0.6);
+      color: #ffffff;
       transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(124, 58, 237, 0.45);
+      box-shadow: 0 4px 16px rgba(34, 197, 94, 0.2);
     }
 
     .install-hint {
@@ -1524,7 +1544,7 @@
       </a>
       <div class="nav-links">
         <a href="#features">Features</a>
-        <a href="#extensions">IDE Extensions</a>
+        <a href="#extensions">Extensions</a>
         <a href="./compare.html">Compare Tools</a>
         <a href="./documentation.html">Documentation</a>
         <a href="./examples.html">Examples</a>
@@ -1547,7 +1567,7 @@
         Launch Interactive Editor <i class="bi bi-arrow-right"></i>
       </a>
       <a href="#extensions" class="btn-hero-secondary">
-        <i class="bi bi-boxes text-info"></i> IDE Extensions
+        <i class="bi bi-boxes text-info"></i> Extensions
       </a>
       <a href="https://github.com/pazvanti/DrakoFlow" target="_blank" rel="noopener" class="btn-hero-secondary">
         <i class="bi bi-github"></i> View GitHub Project
@@ -1748,11 +1768,11 @@
     </div>
   </section>
 
-  <!-- IDE Extensions Section -->
+  <!-- IDE & Browser Extensions Section -->
   <section id="extensions" class="extensions-section fade-in">
     <div class="section-header">
-      <h2>Native IDE Extensions</h2>
-      <p>Edit <code>.drako</code> DSL files seamlessly in your favorite editor with live split-view diagram previews.
+      <h2>Native IDE & Browser Extensions</h2>
+      <p>Edit <code>.drako</code> DSL files seamlessly in your favorite editor with live split-view diagram previews, or render diagrams anywhere on the web in Chrome.
       </p>
     </div>
 
@@ -1829,7 +1849,7 @@
             </div>
             <div class="extension-title-wrap">
               <h3>Chrome Extension</h3>
-              <span class="extension-badge">v1.0.0 • ZIP</span>
+              <span class="extension-badge">v1.0.0 • Web Store</span>
             </div>
           </div>
           <div class="extension-body mt-3">
@@ -1846,11 +1866,16 @@
           </div>
         </div>
         <div>
-          <a href="./downloads/drakoflow-chrome-1.0.0.zip" download class="btn-extension-download btn-chrome">
-            <i class="bi bi-download"></i> Download Chrome Extension
-          </a>
+          <div class="btn-extension-group">
+            <a href="https://chromewebstore.google.com/detail/drakoflow-diagram-rendere/fmlooeikllkmicanocacmppcmfofomji" target="_blank" rel="noopener" class="btn-extension-download btn-chrome" id="btn-chrome-store">
+              <i class="bi bi-browser-chrome"></i> Add to Chrome (Web Store) <i class="bi bi-box-arrow-up-right" style="font-size: 0.75rem;"></i>
+            </a>
+            <a href="./downloads/drakoflow-chrome-1.0.0.zip" download class="btn-extension-download btn-chrome-direct" id="btn-chrome-direct">
+              <i class="bi bi-download"></i> Direct Download (.zip)
+            </a>
+          </div>
           <div class="install-hint">
-            <code>chrome://extensions -> Developer Mode -> Load unpacked</code>
+            <span>Manual install: <code>chrome://extensions &rarr; Developer Mode &rarr; Load unpacked</code></span>
           </div>
         </div>
       </div>
@@ -2111,7 +2136,7 @@ Notes: VerticalContainer {
       </div>
       <div class="footer-links">
         <a href="#features">Features</a>
-        <a href="#extensions">IDE Extensions</a>
+        <a href="#extensions">Extensions</a>
         <a href="./compare.html">Drako vs PlantUML</a>
         <a href="./documentation.html">Documentation</a>
         <a href="./examples.html">Examples</a>
